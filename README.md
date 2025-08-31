@@ -178,7 +178,6 @@ aws_region = "us-east-1"
 function_name = "tesis-lambda-function-dev"
 s3_bucket_name = "tesis-lambda-deployment-bucket-dev"
 ```
-
 #### CloudFormation
 Edita las variables en `deploy.sh`:
 ```bash
