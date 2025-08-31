@@ -32,6 +32,15 @@ logs/
 .aws/
 parameters.json
 
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate.backup
+.terraformrc
+terraform.rc
+
 # Spring Boot
 application-local.yml
 application-dev.yml

@@ -1,6 +1,6 @@
 # Tesis - Proyecto Spring Boot con AWS Lambda
 
-Este proyecto implementa una aplicación Spring Boot que puede ejecutarse tanto localmente como en AWS Lambda. Incluye un endpoint simple que devuelve "Hello World" y está configurado para ser desplegado fácilmente en AWS.
+Este proyecto implementa una aplicación Spring Boot que puede ejecutarse tanto localmente como en AWS Lambda. Incluye un endpoint simple que devuelve "Hello World" y está configurado para ser desplegado fácilmente en AWS usando **CloudFormation** o **Terraform**.
 
 ## 🏗️ Arquitectura
 
@@ -8,7 +8,7 @@ Este proyecto implementa una aplicación Spring Boot que puede ejecutarse tanto 
 - **Java**: JDK 17
 - **Build Tool**: Maven
 - **Cloud**: AWS Lambda + API Gateway
-- **Infrastructure as Code**: AWS CloudFormation
+- **Infrastructure as Code**: AWS CloudFormation **Y** Terraform
 
 ## 📁 Estructura del Proyecto
 
@@ -24,10 +24,50 @@ tesis/
 │   │       └── application.yml            # Configuración de Spring Boot
 │   └── test/
 │       └── java/com/tesis/lambda/         # Tests unitarios
+├── terraform/                              # 🆕 Configuración de Terraform
+│   ├── modules/
+│   │   ├── lambda/                        # Módulo para Lambda y API Gateway
+│   │   └── s3/                            # Módulo para bucket S3
+│   └── environments/
+│       └── dev/                           # Configuración del entorno de desarrollo
 ├── pom.xml                                # Configuración de Maven
 ├── template.yaml                          # Template de CloudFormation
-├── deploy.sh                              # Script de despliegue automatizado
+├── deploy.sh                              # Script de despliegue con CloudFormation
+├── deploy-terraform.sh                   # 🆕 Script de despliegue con Terraform
 └── README.md                              # Este archivo
+```
+
+## 🚀 Opciones de Despliegue
+
+### Opción 1: Terraform (Recomendado) 🆕
+
+**Ventajas:**
+- ✅ Sintaxis más clara y legible
+- ✅ Módulos reutilizables
+- ✅ Mejor manejo de dependencias
+- ✅ Estado local controlado
+- ✅ Comunidad activa
+
+**Despliegue con Terraform:**
+```bash
+# Dar permisos de ejecución
+chmod +x deploy-terraform.sh
+
+# Ejecutar despliegue
+./deploy-terraform.sh
+```
+
+**Ver documentación completa:** [terraform/README.md](terraform/README.md)
+
+### Opción 2: CloudFormation
+
+**Despliegue con CloudFormation:**
+```bash
+# Dar permisos de ejecución
+chmod +x deploy.sh
+
+# Ejecutar despliegue
+./deploy.sh
 ```
 
 ## 🚀 Despliegue a AWS
@@ -58,47 +98,70 @@ tesis/
    mvn -version
    ```
 
-### Opción 1: Despliegue Automatizado (Recomendado)
+4. **Terraform instalado** (solo para despliegue con Terraform)
+   ```bash
+   # Instalar Terraform (macOS)
+   brew install terraform
+   
+   # Verificar instalación
+   terraform version
+   ```
 
-El proyecto incluye un script de despliegue automatizado que maneja todo el proceso:
+### Despliegue Automatizado
 
+#### Con Terraform (Recomendado)
 ```bash
-# Dar permisos de ejecución al script
-chmod +x deploy.sh
+./deploy-terraform.sh
+```
 
-# Ejecutar el despliegue
+#### Con CloudFormation
+```bash
 ./deploy.sh
 ```
 
-**¿Qué hace el script?**
-- ✅ Compila el proyecto con Maven
-- ✅ Crea un bucket S3 para almacenar el código
-- ✅ Sube el JAR compilado a S3
-- ✅ Despliega la infraestructura con CloudFormation
-- ✅ Configura API Gateway automáticamente
-- ✅ Muestra la URL final de la API
+**¿Qué hacen los scripts?**
+- ✅ Compilan el proyecto con Maven
+- ✅ Crean bucket S3 para almacenar el código
+- ✅ Suben el JAR compilado a S3
+- ✅ Despliegan la infraestructura (Terraform/CloudFormation)
+- ✅ Configuran API Gateway automáticamente
+- ✅ Muestran la URL final de la API
 
-### Opción 2: Despliegue Manual
+### Despliegue Manual
 
-Si prefieres controlar cada paso del proceso:
-
-#### Paso 1: Compilar el Proyecto
+#### Con Terraform
 ```bash
+# 1. Compilar el proyecto
 mvn clean package -DskipTests
+
+# 2. Navegar al directorio de Terraform
+cd terraform/environments/dev
+
+# 3. Inicializar Terraform
+terraform init
+
+# 4. Validar configuración
+terraform validate
+
+# 5. Planificar despliegue
+terraform plan
+
+# 6. Aplicar configuración
+terraform apply
 ```
 
-#### Paso 2: Crear Bucket S3
+#### Con CloudFormation
 ```bash
+# 1. Compilar el proyecto
+mvn clean package -DskipTests
+
+# 2. Crear bucket S3
 aws s3 mb s3://tu-bucket-nombre-unico --region us-east-1
-```
 
-#### Paso 3: Subir Código a S3
-```bash
+# 3. Subir código a S3
 aws s3 cp target/tesis-lambda-1.0.0.jar s3://tu-bucket-nombre-unico/lambda-function.jar
-```
 
-#### Paso 4: Desplegar con CloudFormation
-```bash
+# 4. Desplegar con CloudFormation
 aws cloudformation create-stack \
     --stack-name tesis-lambda-stack \
     --template-body file://template.yaml \
@@ -106,22 +169,23 @@ aws cloudformation create-stack \
     --region us-east-1
 ```
 
-#### Paso 5: Verificar Despliegue
-```bash
-aws cloudformation describe-stacks \
-    --stack-name tesis-lambda-stack \
-    --region us-east-1
-```
-
 ### Configuración Personalizada
 
-Antes de desplegar, puedes modificar las siguientes variables en `deploy.sh`:
+#### Terraform
+Edita `terraform/environments/dev/terraform.tfvars`:
+```hcl
+aws_region = "us-east-1"
+function_name = "tesis-lambda-function-dev"
+s3_bucket_name = "tesis-lambda-deployment-bucket-dev"
+```
 
+#### CloudFormation
+Edita las variables en `deploy.sh`:
 ```bash
-STACK_NAME="tesis-lambda-stack"           # Nombre del stack de CloudFormation
-FUNCTION_NAME="tesis-lambda-function"     # Nombre de la función Lambda
-REGION="us-east-1"                        # Región de AWS
-BUCKET_NAME="tesis-lambda-deployment-bucket" # Nombre del bucket S3
+STACK_NAME="tesis-lambda-stack"
+FUNCTION_NAME="tesis-lambda-function"
+REGION="us-east-1"
+BUCKET_NAME="tesis-lambda-deployment-bucket"
 ```
 
 ## 🧪 Pruebas
@@ -136,6 +200,18 @@ curl http://localhost:8080/hello
 ```
 
 ### Prueba en AWS Lambda
+
+#### Con Terraform
+```bash
+# Obtener la URL de la API Gateway
+cd terraform/environments/dev
+terraform output api_url
+
+# Probar el endpoint
+curl $(terraform output -raw api_url)
+```
+
+#### Con CloudFormation
 ```bash
 # Obtener la URL de la API Gateway
 aws cloudformation describe-stacks \
@@ -152,7 +228,11 @@ curl https://tu-api-gateway-url.amazonaws.com/hello
 
 ### Ver Logs de Lambda
 ```bash
-# Ver logs en tiempo real
+# Con Terraform
+FUNCTION_NAME=$(cd terraform/environments/dev && terraform output -raw function_name)
+aws logs tail /aws/lambda/$FUNCTION_NAME --follow --region us-east-1
+
+# Con CloudFormation
 aws logs tail /aws/lambda/tesis-lambda-function --follow --region us-east-1
 ```
 
@@ -184,20 +264,24 @@ public class UserController {
 ## 🛠️ Troubleshooting
 
 ### Error: "Handler not found"
-- Verifica que el handler en `template.yaml` coincida con la clase `LambdaHandler`
+- Verifica que el handler coincida con la clase `LambdaHandler`
 - Asegúrate de que el JAR se haya subido correctamente a S3
 
 ### Error: "Timeout"
-- Aumenta el timeout en `template.yaml` (máximo 15 minutos)
+- Aumenta el timeout en la configuración
 - Optimiza el código para reducir el tiempo de ejecución
 
 ### Error: "Out of Memory"
-- Aumenta la memoria asignada en `template.yaml`
+- Aumenta la memoria asignada
 - Optimiza el uso de memoria en el código
 
 ### Error: "Permission Denied"
 - Verifica que el rol IAM tenga los permisos necesarios
 - Asegúrate de que las credenciales de AWS estén configuradas correctamente
+
+### Error: "Bucket already exists" (Terraform)
+- Cambiar el nombre del bucket en `terraform.tfvars`
+- Los nombres de bucket deben ser únicos globalmente
 
 ## 📝 Notas Importantes
 
@@ -205,11 +289,17 @@ public class UserController {
 - **Timeout**: El timeout máximo para Lambda es 15 minutos
 - **Memoria**: Más memoria = más CPU = mejor rendimiento
 - **Región**: Elige la región más cercana a tus usuarios para reducir latencia
+- **Terraform vs CloudFormation**: Ambos son válidos, Terraform ofrece más flexibilidad
 
 ## 🗑️ Limpieza
 
-Para eliminar todos los recursos de AWS:
+### Con Terraform
+```bash
+cd terraform/environments/dev
+terraform destroy
+```
 
+### Con CloudFormation
 ```bash
 # Eliminar el stack de CloudFormation
 aws cloudformation delete-stack --stack-name tesis-lambda-stack --region us-east-1
@@ -222,5 +312,6 @@ aws s3 rb s3://tu-bucket-nombre-unico --force
 
 - [AWS Lambda Developer Guide](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Terraform Documentation](https://www.terraform.io/docs)
 - [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
 - [Maven Documentation](https://maven.apache.org/guides/)
