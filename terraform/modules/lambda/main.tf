@@ -127,11 +127,96 @@ resource "aws_api_gateway_method" "get" {
   authorization = "NONE"
 }
 
-# Integración con Lambda
+# Integración con Lambda para /hello
 resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.root.id
   http_method = aws_api_gateway_method.get.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.function.invoke_arn
+}
+
+# Recurso /api
+resource "aws_api_gateway_resource" "api" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "api"
+}
+
+# Recurso /api/health
+resource "aws_api_gateway_resource" "health" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.api.id
+  path_part   = "health"
+}
+
+# Método GET para /api/health
+resource "aws_api_gateway_method" "health_get" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.health.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Integración con Lambda para /api/health
+resource "aws_api_gateway_integration" "health_integration" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.health.id
+  http_method = aws_api_gateway_method.health_get.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.function.invoke_arn
+}
+
+# Recurso /api/matches
+resource "aws_api_gateway_resource" "matches" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.api.id
+  path_part   = "matches"
+}
+
+# Método POST para /api/matches
+resource "aws_api_gateway_method" "matches_post" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.matches.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+# Integración con Lambda para /api/matches POST
+resource "aws_api_gateway_integration" "matches_integration" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.matches.id
+  http_method = aws_api_gateway_method.matches_post.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.function.invoke_arn
+}
+
+# Recurso /api/matches/{matchId}
+resource "aws_api_gateway_resource" "match_id" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.matches.id
+  path_part   = "{matchId}"
+}
+
+# Método GET para /api/matches/{matchId}
+resource "aws_api_gateway_method" "match_id_get" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.match_id.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Integración con Lambda para /api/matches/{matchId} GET
+resource "aws_api_gateway_integration" "match_id_integration" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.match_id.id
+  http_method = aws_api_gateway_method.match_id_get.http_method
 
   integration_http_method = "POST"
   type                   = "AWS_PROXY"

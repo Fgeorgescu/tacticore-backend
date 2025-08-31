@@ -99,6 +99,87 @@
       }
     },
     
+    "ApiResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Fn::GetAtt": ["ApiGateway", "RootResourceId"] },
+        "PathPart": "api"
+      }
+    },
+    
+    "ApiHealthResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiResource" },
+        "PathPart": "health"
+      }
+    },
+    
+    "ApiHealthMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiHealthResource" },
+        "HttpMethod": "GET",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "ApiMatchesResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiResource" },
+        "PathPart": "matches"
+      }
+    },
+    
+    "ApiMatchesMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiMatchesResource" },
+        "HttpMethod": "POST",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "ApiMatchesIdResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiMatchesResource" },
+        "PathPart": "{matchId}"
+      }
+    },
+    
+    "ApiMatchesIdMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiMatchesIdResource" },
+        "HttpMethod": "GET",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
     "LambdaPermission": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
