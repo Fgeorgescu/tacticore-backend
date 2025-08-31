@@ -46,7 +46,7 @@ resource "aws_s3_bucket_public_access_block" "public_access_block" {
   restrict_public_buckets = true
 }
 
-# Política de bucket
+# Política de bucket para Lambda
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.bucket.id
 
@@ -64,7 +64,27 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
             "s3:x-amz-server-side-encryption" = "AES256"
           }
         }
+      },
+      {
+        Sid       = "AllowLambdaAccess"
+        Effect    = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*"
+        }
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.bucket.arn,
+          "${aws_s3_bucket.bucket.arn}/*"
+        ]
       }
     ]
   })
 }
+
+# Data source para obtener el account ID
+data "aws_caller_identity" "current" {}
