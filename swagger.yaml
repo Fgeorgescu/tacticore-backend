@@ -1,0 +1,622 @@
+openapi: 3.0.3
+info:
+  title: Tacticore API
+  description: API para análisis de partidas de Counter-Strike
+  version: 1.0.0
+  contact:
+    name: Tacticore Team
+    email: support@tacticore.com
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.tacticore.com
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Match:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la partida
+        fileName:
+          type: string
+          description: Nombre del archivo DEM
+        hasVideo:
+          type: boolean
+          description: Indica si tiene video asociado
+        map:
+          type: string
+          description: Mapa de la partida
+        gameType:
+          type: string
+          enum: [Ranked, Casual, Entrenamiento]
+          description: Tipo de juego
+        kills:
+          type: integer
+          description: Número total de kills
+        deaths:
+          type: integer
+          description: Número total de muertes
+        goodPlays:
+          type: integer
+          description: Número de buenas jugadas
+        badPlays:
+          type: integer
+          description: Número de malas jugadas
+        duration:
+          type: string
+          description: Duración de la partida (HH:MM)
+        score:
+          type: number
+          format: float
+          description: Puntaje de la partida (0-10)
+        date:
+          type: string
+          format: date
+          description: Fecha de la partida
+
+    Kill:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del kill
+        killer:
+          type: string
+          description: Nombre del jugador que hizo el kill
+        victim:
+          type: string
+          description: Nombre del jugador eliminado
+        weapon:
+          type: string
+          description: Arma utilizada
+        isGoodPlay:
+          type: boolean
+          description: Indica si fue una buena jugada
+        round:
+          type: integer
+          description: Número del round
+        time:
+          type: string
+          description: Tiempo en el round (MM:SS)
+        teamAlive:
+          type: object
+          properties:
+            ct:
+              type: integer
+              description: Jugadores CT vivos
+            t:
+              type: integer
+              description: Jugadores T vivos
+        position:
+          type: string
+          description: Posición en el mapa
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del mensaje
+        user:
+          type: string
+          description: Usuario que envió el mensaje
+        message:
+          type: string
+          description: Contenido del mensaje
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del mensaje
+
+    AnalyticsData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Fecha de los datos
+        kills:
+          type: integer
+          description: Número de kills
+        deaths:
+          type: integer
+          description: Número de muertes
+        kdr:
+          type: number
+          format: float
+          description: Kill/Death ratio
+        score:
+          type: number
+          format: float
+          description: Puntaje promedio
+        goodPlays:
+          type: integer
+          description: Número de buenas jugadas
+        badPlays:
+          type: integer
+          description: Número de malas jugadas
+        matches:
+          type: integer
+          description: Número de partidas
+
+    DashboardStats:
+      type: object
+      properties:
+        totalMatches:
+          type: integer
+          description: Total de partidas
+        totalKills:
+          type: integer
+          description: Total de kills
+        totalDeaths:
+          type: integer
+          description: Total de muertes
+        totalGoodPlays:
+          type: integer
+          description: Total de buenas jugadas
+        totalBadPlays:
+          type: integer
+          description: Total de malas jugadas
+        averageScore:
+          type: number
+          format: float
+          description: Puntaje promedio
+        kdr:
+          type: number
+          format: float
+          description: Kill/Death ratio general
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      description: Verificar el estado del servicio
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  service:
+                    type: string
+                    example: "tacticore-backend-java"
+
+  /api/matches:
+    get:
+      summary: Obtener lista de partidas
+      description: Obtener todas las partidas del usuario
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de partidas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Match'
+
+  /api/matches/{id}:
+    get:
+      summary: Obtener detalles de una partida
+      description: Obtener información detallada de una partida específica
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
+      responses:
+        '200':
+          description: Detalles de la partida obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Match'
+                  - type: object
+                    properties:
+                      kills:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Kill'
+        '404':
+          description: Partida no encontrada
+
+    delete:
+      summary: Eliminar una partida
+      description: Eliminar una partida y todos sus datos asociados
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
+      responses:
+        '200':
+          description: Partida eliminada exitosamente
+        '404':
+          description: Partida no encontrada
+
+  /api/matches/{id}/kills:
+    get:
+      summary: Obtener timeline de kills
+      description: Obtener la línea de tiempo de kills de una partida
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
+      responses:
+        '200':
+          description: Timeline de kills obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kill'
+
+  /api/matches/{id}/chat:
+    get:
+      summary: Obtener mensajes del chat
+      description: Obtener todos los mensajes del chat de análisis de una partida
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
+      responses:
+        '200':
+          description: Mensajes del chat obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessage'
+
+    post:
+      summary: Enviar mensaje al chat
+      description: Enviar un nuevo mensaje al chat de análisis
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+                - user
+              properties:
+                message:
+                  type: string
+                  description: Contenido del mensaje
+                user:
+                  type: string
+                  description: Usuario que envía el mensaje
+      responses:
+        '201':
+          description: Mensaje enviado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+
+  /api/upload/dem:
+    post:
+      summary: Subir archivo DEM
+      description: Subir un archivo DEM para análisis
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo DEM (.dem)
+                metadata:
+                  type: string
+                  description: Metadatos adicionales en formato JSON
+      responses:
+        '201':
+          description: Archivo DEM subido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: ID de la partida creada
+                  fileName:
+                    type: string
+                    description: Nombre del archivo
+                  status:
+                    type: string
+                    enum: [uploaded, processing, completed, error]
+                    description: Estado del procesamiento
+
+  /api/upload/video:
+    post:
+      summary: Subir archivo de video
+      description: Subir un archivo de video asociado a una partida
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - matchId
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo de video
+                matchId:
+                  type: string
+                  description: ID de la partida asociada
+      responses:
+        '201':
+          description: Archivo de video subido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: ID del video
+                  matchId:
+                    type: string
+                    description: ID de la partida
+                  status:
+                    type: string
+                    enum: [uploaded, processing, completed, error]
+
+  /api/upload/process:
+    post:
+      summary: Procesar archivo DEM
+      description: Iniciar el procesamiento de un archivo DEM para generar análisis
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - matchId
+              properties:
+                matchId:
+                  type: string
+                  description: ID de la partida a procesar
+                analysisType:
+                  type: string
+                  enum: [basic, full]
+                  default: full
+                  description: Tipo de análisis a realizar
+      responses:
+        '200':
+          description: Procesamiento iniciado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matchId:
+                    type: string
+                    description: ID de la partida
+                  status:
+                    type: string
+                    enum: [processing, completed]
+                    description: Estado del procesamiento
+                  estimatedTime:
+                    type: integer
+                    description: Tiempo estimado de procesamiento en segundos
+
+  /api/analytics/historical:
+    get:
+      summary: Obtener datos históricos
+      description: Obtener datos históricos para gráficos y análisis
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: timeRange
+          in: query
+          schema:
+            type: string
+            enum: [all, 30d, 7d]
+            default: all
+          description: Rango de tiempo para los datos
+        - name: metric
+          in: query
+          schema:
+            type: string
+            enum: [kdr, score, kills, goodPlays]
+            default: kdr
+          description: Métrica a analizar
+      responses:
+        '200':
+          description: Datos históricos obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AnalyticsData'
+
+  /api/analytics/dashboard:
+    get:
+      summary: Obtener estadísticas del dashboard
+      description: Obtener estadísticas generales para el dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+
+  /api/maps:
+    get:
+      summary: Obtener lista de mapas
+      description: Obtener lista de mapas disponibles
+      responses:
+        '200':
+          description: Lista de mapas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ["Dust2", "Mirage", "Inferno", "Cache", "Overpass"]
+
+  /api/weapons:
+    get:
+      summary: Obtener lista de armas
+      description: Obtener lista de armas disponibles
+      responses:
+        '200':
+          description: Lista de armas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ["AK-47", "M4A4", "AWP", "Glock-18", "USP-S"]
+
+  /api/user/profile:
+    get:
+      summary: Obtener perfil del usuario
+      description: Obtener información del perfil del usuario autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: ID del usuario
+                  username:
+                    type: string
+                    description: Nombre de usuario
+                  email:
+                    type: string
+                    format: email
+                    description: Email del usuario
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Fecha de creación de la cuenta
+
+    put:
+      summary: Actualizar perfil del usuario
+      description: Actualizar información del perfil del usuario
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Nuevo nombre de usuario
+                email:
+                  type: string
+                  format: email
+                  description: Nuevo email
+      responses:
+        '200':
+          description: Perfil actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: ID del usuario
+                  username:
+                    type: string
+                    description: Nombre de usuario actualizado
+                  email:
+                    type: string
+                    format: email
+                    description: Email actualizado
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Fecha de última actualización
