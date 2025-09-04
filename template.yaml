@@ -1,0 +1,210 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Template para desplegar Lambda function con Spring Boot",
+  
+  "Parameters": {
+    "FunctionName": {
+      "Type": "String",
+      "Default": "tesis-lambda-function",
+      "Description": "Nombre de la función Lambda"
+    },
+    "Runtime": {
+      "Type": "String",
+      "Default": "java17",
+      "Description": "Runtime de Java para Lambda"
+    },
+    "Handler": {
+      "Type": "String",
+      "Default": "com.tesis.lambda.LambdaHandler::handleRequest",
+      "Description": "Handler de la función Lambda"
+    },
+    "Timeout": {
+      "Type": "Number",
+      "Default": 30,
+      "Description": "Timeout de la función en segundos"
+    },
+    "MemorySize": {
+      "Type": "Number",
+      "Default": 512,
+      "Description": "Memoria asignada en MB"
+    }
+  },
+  
+  "Resources": {
+    "LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": { "Ref": "FunctionName" },
+        "Runtime": { "Ref": "Runtime" },
+        "Handler": { "Ref": "Handler" },
+        "Code": {
+          "ZipFile": "dummy"
+        },
+        "Timeout": { "Ref": "Timeout" },
+        "MemorySize": { "Ref": "MemorySize" },
+        "Role": { "Fn::GetAtt": ["LambdaExecutionRole", "Arn"] }
+      }
+    },
+    
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ]
+      }
+    },
+    
+    "ApiGateway": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "tesis-lambda-api",
+        "Description": "API Gateway para la función Lambda"
+      }
+    },
+    
+    "ApiGatewayResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Fn::GetAtt": ["ApiGateway", "RootResourceId"] },
+        "PathPart": "hello"
+      }
+    },
+    
+    "ApiGatewayMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiGatewayResource" },
+        "HttpMethod": "GET",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "ApiResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Fn::GetAtt": ["ApiGateway", "RootResourceId"] },
+        "PathPart": "api"
+      }
+    },
+    
+    "ApiHealthResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiResource" },
+        "PathPart": "health"
+      }
+    },
+    
+    "ApiHealthMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiHealthResource" },
+        "HttpMethod": "GET",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "ApiMatchesResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiResource" },
+        "PathPart": "matches"
+      }
+    },
+    
+    "ApiMatchesMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiMatchesResource" },
+        "HttpMethod": "POST",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "ApiMatchesIdResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ParentId": { "Ref": "ApiMatchesResource" },
+        "PathPart": "{matchId}"
+      }
+    },
+    
+    "ApiMatchesIdMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "RestApiId": { "Ref": "ApiGateway" },
+        "ResourceId": { "Ref": "ApiMatchesIdResource" },
+        "HttpMethod": "GET",
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": { "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations" }
+        }
+      }
+    },
+    
+    "LambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": { "Ref": "LambdaFunction" },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": { "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*" }
+      }
+    }
+  },
+  
+  "Outputs": {
+    "FunctionArn": {
+      "Description": "ARN de la función Lambda",
+      "Value": { "Fn::GetAtt": ["LambdaFunction", "Arn"] },
+      "Export": {
+        "Name": { "Fn::Sub": "${AWS::StackName}-FunctionArn" }
+      }
+    },
+    "ApiUrl": {
+      "Description": "URL de la API Gateway",
+      "Value": { "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/hello" },
+      "Export": {
+        "Name": { "Fn::Sub": "${AWS::StackName}-ApiUrl" }
+      }
+    }
+  }
+}

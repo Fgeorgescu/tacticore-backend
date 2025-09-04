@@ -31,7 +31,7 @@ services:
   # Backend - Spring Boot Java
   backend:
     build:
-      context: ./tacticore-backend
+      context: ./tesis
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -39,7 +39,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8080
     volumes:
-      - ./tacticore-backend:/app
+      - ./tesis:/app
       - maven_cache:/root/.m2
     networks:
       - tacticore-network

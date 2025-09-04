@@ -3,6 +3,6 @@ repos:
     hooks:
       - id: dummy-hook
         name: Dummy Hook
-        entry: echo "Pre-commit hook executed successfully"
+        entry: echo "Pre-commit hook ejecutado exitosamente"
         language: system
         stages: [commit]

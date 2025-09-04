@@ -1,376 +1,316 @@
-# 🎮 Tacticore - Plataforma de Análisis de Partidas de Counter-Strike
+# TactiCore Backend - Proyecto Spring Boot con AWS Lambda
 
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)](https://www.docker.com/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green?style=for-the-badge&logo=spring)](https://spring.io/projects/spring-boot)
-[![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java)](https://www.oracle.com/java/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+Este proyecto implementa una aplicación Spring Boot que puede ejecutarse tanto localmente como en AWS Lambda. Incluye un endpoint simple que devuelve "Hello World" y está configurado para ser desplegado fácilmente en AWS usando **CloudFormation** o **Terraform**.
 
-## 📋 Descripción del Proyecto
+## 🏗️ Arquitectura
 
-**Tacticore** es una plataforma completa para el análisis de partidas de Counter-Strike que permite a los jugadores:
-
-- 📤 **Subir archivos DEM** (.dem) de partidas de CS
-- 🎥 **Asociar videos** de gameplay para análisis visual
-- 📊 **Analizar estadísticas** detalladas (K/D ratio, kills, buenas/malas jugadas)
-- 📈 **Visualizar tendencias** históricas de rendimiento
-- 💬 **Comentar y analizar** jugadas específicas en tiempo real
-- 🗺️ **Visualizar mapas** con posiciones de kills
-- 📱 **Acceder desde cualquier dispositivo** con interfaz responsive
-
-## 🏗️ Arquitectura del Sistema
-
-### **Frontend (Next.js 15.2.4)**
-- **Framework**: Next.js con TypeScript
-- **UI**: Componentes personalizados con Tailwind CSS
-- **Gráficos**: Recharts para visualizaciones
-- **Estado**: React Hooks y Context API
-- **Build**: pnpm para gestión de dependencias
-
-### **Backend (Spring Boot 3.2.0)**
-- **Framework**: Spring Boot con Java 17
-- **API**: RESTful con JSON
-- **Build**: Maven
-- **Despliegue**: Docker + AWS Lambda (opcional)
-
-### **Infraestructura**
-- **Contenedores**: Docker Compose para desarrollo
-- **Cloud**: AWS Lambda + API Gateway + S3
-- **IaC**: Terraform y CloudFormation
-- **Base de Datos**: Mock data (preparado para PostgreSQL)
+- **Framework**: Spring Boot 3.2.0
+- **Java**: JDK 17
+- **Build Tool**: Maven
+- **Cloud**: AWS Lambda + API Gateway
+- **Infrastructure as Code**: AWS CloudFormation **Y** Terraform
 
 ## 📁 Estructura del Proyecto
 
 ```
 tesis/
-├── 📁 tacticore-fe-c3/           # Frontend Next.js (repo independiente)
-│   ├── 📁 app/                   # Páginas de Next.js 13+
-│   ├── 📁 components/            # Componentes React
-│   │   ├── 📁 analytics/        # Análisis histórico
-│   │   ├── 📁 dashboard/        # Dashboard principal
-│   │   ├── 📁 match-details/     # Detalles de partida
-│   │   ├── 📁 upload/           # Subida de archivos
-│   │   └── 📁 ui/               # Componentes base
-│   ├── 📁 hooks/                # Custom hooks
-│   ├── 📁 lib/                   # Utilidades y API
-│   └── 📄 Dockerfile            # Contenedor frontend
-├── 📁 tacticore-backend/        # Backend Spring Boot (repo independiente)
-│   ├── 📁 src/main/java/
-│   │   └── 📁 com/tacticore/lambda/
-│   │       ├── 📁 controller/   # Controladores REST
-│   │       ├── 📁 model/        # Modelos de datos
-│   │       ├── 📁 service/      # Lógica de negocio
-│   │       └── 📁 config/       # Configuración
-│   ├── 📁 terraform/            # Infraestructura como código
-│   └── 📄 Dockerfile            # Contenedor backend
-├── 📁 docs/                      # Documentación del proyecto
-│   ├── 📄 API-DOCUMENTATION.md  # Documentación de la API
-│   ├── 📄 FRONTEND-ANALYSIS.md  # Análisis del frontend
-│   ├── 📄 IMPLEMENTATION-SUMMARY.md # Resumen de implementación
-│   ├── 📄 README-docker.md      # Guía de Docker
-│   └── 📄 swagger.yaml          # Especificación de la API
-├── 📄 docker-compose.yml        # Orquestación de contenedores
-└── 📄 README.md                 # Este archivo
+├── src/
+│   ├── main/
+│   │   ├── java/com/tesis/lambda/
+│   │   │   ├── LambdaApplication.java      # Clase principal de Spring Boot
+│   │   │   ├── LambdaHandler.java         # Handler para AWS Lambda
+│   │   │   └── HelloController.java       # Controlador REST
+│   │   └── resources/
+│   │       └── application.yml            # Configuración de Spring Boot
+│   └── test/
+│       └── java/com/tesis/lambda/         # Tests unitarios
+├── terraform/                              # 🆕 Configuración de Terraform
+│   ├── modules/
+│   │   ├── lambda/                        # Módulo para Lambda y API Gateway
+│   │   └── s3/                            # Módulo para bucket S3
+│   └── environments/
+│       └── dev/                           # Configuración del entorno de desarrollo
+├── pom.xml                                # Configuración de Maven
+├── template.yaml                          # Template de CloudFormation
+├── deploy.sh                              # Script de despliegue con CloudFormation
+├── deploy-terraform.sh                   # 🆕 Script de despliegue con Terraform
+└── README.md                              # Este archivo
 ```
 
-## 🚀 Casos de Uso Principales
+## 🚀 Opciones de Despliegue
 
-### 1. **🎯 Análisis de Partida Individual**
-**Usuario**: Jugador competitivo
-**Flujo**:
-1. Sube archivo DEM de una partida
-2. Opcionalmente asocia video de gameplay
-3. Sistema procesa y extrae estadísticas
-4. Visualiza timeline de kills con análisis
-5. Comenta jugadas específicas con coach/analista
+### Opción 1: Terraform (Recomendado) 🆕
 
-**Beneficios**:
-- Identificar patrones de juego
-- Mejorar posicionamiento
-- Analizar decisiones tácticas
+**Ventajas:**
+- ✅ Sintaxis más clara y legible
+- ✅ Módulos reutilizables
+- ✅ Mejor manejo de dependencias
+- ✅ Estado local controlado
+- ✅ Comunidad activa
 
-### 2. **📈 Seguimiento de Progreso**
-**Usuario**: Jugador que busca mejorar
-**Flujo**:
-1. Sube múltiples partidas a lo largo del tiempo
-2. Sistema genera gráficos de tendencias
-3. Visualiza evolución de K/D ratio, score, etc.
-4. Identifica períodos de mejora/declive
-
-**Beneficios**:
-- Medir progreso objetivo
-- Identificar áreas de mejora
-- Mantener motivación
-
-### 3. **👥 Análisis Colaborativo**
-**Usuario**: Equipo/Coach
-**Flujo**:
-1. Múltiples usuarios acceden a la misma partida
-2. Chat en tiempo real para comentar jugadas
-3. Diferentes perspectivas (jugador, coach, analista)
-4. Documentación de estrategias
-
-**Beneficios**:
-- Mejorar comunicación del equipo
-- Compartir conocimiento
-- Desarrollar estrategias
-
-### 4. **📊 Dashboard de Rendimiento**
-**Usuario**: Jugador/Coach
-**Flujo**:
-1. Accede al dashboard principal
-2. Ve resumen de todas las partidas
-3. Filtra por tipo de juego, mapa, período
-4. Identifica patrones generales
-
-**Beneficios**:
-- Vista general del rendimiento
-- Identificación rápida de problemas
-- Toma de decisiones informada
-
-## 🔧 Instalación y Configuración
-
-### **Requisitos Previos**
-- Docker y Docker Compose
-- Node.js 18+ (para desarrollo local)
-- Java 17+ (para desarrollo local)
-- Maven (para desarrollo local)
-
-### **Despliegue Rápido con Docker**
-
+**Despliegue con Terraform:**
 ```bash
-# 1. Clonar el repositorio
-git clone <repository-url>
-cd tesis
+# Dar permisos de ejecución
+chmod +x deploy-terraform.sh
 
-# 2. Levantar todos los servicios
-docker-compose up --build
-
-# 3. Acceder a la aplicación
-# Frontend: http://localhost:3000
-# Backend: http://localhost:8080
+# Ejecutar despliegue
+./deploy-terraform.sh
 ```
 
-### **Desarrollo Local**
+**Ver documentación completa:** [terraform/README.md](terraform/README.md)
 
+### Opción 2: CloudFormation
+
+**Despliegue con CloudFormation:**
 ```bash
-# Backend
-cd tacticore-backend
+# Dar permisos de ejecución
+chmod +x deploy.sh
+
+# Ejecutar despliegue
+./deploy.sh
+```
+
+## 🚀 Despliegue a AWS
+
+### Prerrequisitos
+
+1. **AWS CLI instalado y configurado**
+   ```bash
+   # Instalar AWS CLI (macOS)
+   brew install awscli
+   
+   # Configurar credenciales
+   aws configure
+   ```
+
+2. **Java 17 instalado**
+   ```bash
+   # Verificar versión de Java
+   java -version
+   ```
+
+3. **Maven instalado**
+   ```bash
+   # Instalar Maven (macOS)
+   brew install maven
+   
+   # Verificar instalación
+   mvn -version
+   ```
+
+4. **Terraform instalado** (solo para despliegue con Terraform)
+   ```bash
+   # Instalar Terraform (macOS)
+   brew install terraform
+   
+   # Verificar instalación
+   terraform version
+   ```
+
+### Despliegue Automatizado
+
+#### Con Terraform (Recomendado)
+```bash
+./deploy-terraform.sh
+```
+
+#### Con CloudFormation
+```bash
+./deploy.sh
+```
+
+**¿Qué hacen los scripts?**
+- ✅ Compilan el proyecto con Maven
+- ✅ Crean bucket S3 para almacenar el código
+- ✅ Suben el JAR compilado a S3
+- ✅ Despliegan la infraestructura (Terraform/CloudFormation)
+- ✅ Configuran API Gateway automáticamente
+- ✅ Muestran la URL final de la API
+
+### Despliegue Manual
+
+#### Con Terraform
+```bash
+# 1. Compilar el proyecto
+mvn clean package -DskipTests
+
+# 2. Navegar al directorio de Terraform
+cd terraform/environments/dev
+
+# 3. Inicializar Terraform
+terraform init
+
+# 4. Validar configuración
+terraform validate
+
+# 5. Planificar despliegue
+terraform plan
+
+# 6. Aplicar configuración
+terraform apply
+```
+
+#### Con CloudFormation
+```bash
+# 1. Compilar el proyecto
+mvn clean package -DskipTests
+
+# 2. Crear bucket S3
+aws s3 mb s3://tu-bucket-nombre-unico --region us-east-1
+
+# 3. Subir código a S3
+aws s3 cp target/tesis-lambda-1.0.0.jar s3://tu-bucket-nombre-unico/lambda-function.jar
+
+# 4. Desplegar con CloudFormation
+aws cloudformation create-stack \
+    --stack-name tesis-lambda-stack \
+    --template-body file://template.yaml \
+    --capabilities CAPABILITY_IAM \
+    --region us-east-1
+```
+
+### Configuración Personalizada
+
+#### Terraform
+Edita `terraform/environments/dev/terraform.tfvars`:
+```hcl
+aws_region = "us-east-1"
+function_name = "tesis-lambda-function-dev"
+s3_bucket_name = "tesis-lambda-deployment-bucket-dev"
+```
+#### CloudFormation
+Edita las variables en `deploy.sh`:
+```bash
+STACK_NAME="tesis-lambda-stack"
+FUNCTION_NAME="tesis-lambda-function"
+REGION="us-east-1"
+BUCKET_NAME="tesis-lambda-deployment-bucket"
+```
+
+## 🧪 Pruebas
+
+### Prueba Local
+```bash
+# Ejecutar la aplicación localmente
 mvn spring-boot:run
 
-# Frontend (en otra terminal)
-cd tacticore-fe-c3
-pnpm install
-pnpm dev
+# Probar el endpoint
+curl http://localhost:8080/hello
 ```
 
-## 📚 Documentación de la API
+### Prueba en AWS Lambda
 
-### **Endpoints Principales**
+#### Con Terraform
+```bash
+# Obtener la URL de la API Gateway
+cd terraform/environments/dev
+terraform output api_url
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/ping` | Health check |
-| `GET` | `/api/matches` | Lista de partidas |
-| `GET` | `/api/matches/{id}` | Detalles de partida |
-| `DELETE` | `/api/matches/{id}` | Eliminar partida |
-| `GET` | `/api/matches/{id}/kills` | Timeline de kills |
-| `GET` | `/api/matches/{id}/chat` | Mensajes del chat |
-| `POST` | `/api/matches/{id}/chat` | Enviar mensaje |
-| `POST` | `/api/upload/dem` | Subir archivo DEM |
-| `POST` | `/api/upload/video` | Subir archivo video |
-| `POST` | `/api/upload/process` | Procesar archivo DEM |
-| `GET` | `/api/analytics/dashboard` | Estadísticas dashboard |
-| `GET` | `/api/analytics/historical` | Datos históricos |
-| `GET` | `/api/maps` | Lista de mapas |
-| `GET` | `/api/weapons` | Lista de armas |
-| `GET` | `/api/user/profile` | Perfil de usuario |
-| `PUT` | `/api/user/profile` | Actualizar perfil |
+# Probar el endpoint
+curl $(terraform output -raw api_url)
+```
 
-### **Documentación Completa**
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Docs**: Ver `docs/API-DOCUMENTATION.md`
-- **Swagger Spec**: Ver `docs/swagger.yaml`
+#### Con CloudFormation
+```bash
+# Obtener la URL de la API Gateway
+aws cloudformation describe-stacks \
+    --stack-name tesis-lambda-stack \
+    --region us-east-1 \
+    --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
+    --output text
 
-## 🎮 Funcionalidades Detalladas
+# Probar el endpoint
+curl https://tu-api-gateway-url.amazonaws.com/hello
+```
 
-### **📤 Subida de Archivos**
-- **Formatos soportados**: .dem (Counter-Strike), .mp4, .mov, .avi
-- **Tamaño máximo**: 100MB por archivo
-- **Validación**: Verificación de formato y contenido
-- **Progreso**: Barra de progreso en tiempo real
+## 📊 Monitoreo
 
-### **📊 Análisis de Partidas**
-- **Extracción automática**: Kills, muertes, rounds, posiciones
-- **Clasificación**: Buenas vs malas jugadas
-- **Contexto**: Información de equipo y situación
-- **Timeline**: Visualización cronológica de eventos
-
-### **📈 Analytics Históricos**
-- **Métricas**: K/D ratio, score, kills, buenas jugadas
-- **Períodos**: Día, semana, mes, año, personalizado
-- **Gráficos**: Líneas, barras, áreas acumulativas
-- **Tendencias**: Comparativas y análisis de progreso
-
-### **💬 Chat de Análisis**
-- **Tiempo real**: WebSocket para mensajes instantáneos
-- **Tipos de usuario**: Player, Analyst, Coach
-- **Timestamps**: Marcas de tiempo precisas
-- **Persistencia**: Historial de conversaciones
-
-### **🗺️ Visualización de Mapas**
-- **Mapas soportados**: Dust2, Mirage, Inferno, etc.
-- **Posiciones**: Marcadores de kills en el mapa
-- **Información**: Arma, tiempo, contexto
-- **Interactividad**: Zoom, pan, filtros
-
-## 🚀 Despliegue en Producción
-
-### **AWS Lambda (Recomendado)**
-
+### Ver Logs de Lambda
 ```bash
 # Con Terraform
-cd tacticore-backend/terraform/environments/dev
-terraform init
-terraform apply
+FUNCTION_NAME=$(cd terraform/environments/dev && terraform output -raw function_name)
+aws logs tail /aws/lambda/$FUNCTION_NAME --follow --region us-east-1
 
 # Con CloudFormation
-./tacticore-backend/deploy.sh
+aws logs tail /aws/lambda/tesis-lambda-function --follow --region us-east-1
 ```
 
-### **Docker en Servidor**
+### Métricas de CloudWatch
+- Ve a la consola de AWS CloudWatch
+- Navega a "Métricas" > "Lambda"
+- Selecciona tu función para ver métricas de invocación, duración, errores, etc.
 
+## 🔧 Desarrollo
+
+### Agregar Nuevos Endpoints
+
+1. Crea un nuevo controlador en `src/main/java/com/tesis/lambda/`
+2. Agrega los métodos necesarios
+3. Actualiza `LambdaHandler.java` para manejar las nuevas rutas
+
+### Ejemplo de Nuevo Endpoint
+```java
+@RestController
+public class UserController {
+    
+    @GetMapping("/users")
+    public List<User> getUsers() {
+        return userService.getAllUsers();
+    }
+}
+```
+
+## 🛠️ Troubleshooting
+
+### Error: "Handler not found"
+- Verifica que el handler coincida con la clase `LambdaHandler`
+- Asegúrate de que el JAR se haya subido correctamente a S3
+
+### Error: "Timeout"
+- Aumenta el timeout en la configuración
+- Optimiza el código para reducir el tiempo de ejecución
+
+### Error: "Out of Memory"
+- Aumenta la memoria asignada
+- Optimiza el uso de memoria en el código
+
+### Error: "Permission Denied"
+- Verifica que el rol IAM tenga los permisos necesarios
+- Asegúrate de que las credenciales de AWS estén configuradas correctamente
+
+### Error: "Bucket already exists" (Terraform)
+- Cambiar el nombre del bucket en `terraform.tfvars`
+- Los nombres de bucket deben ser únicos globalmente
+
+## 📝 Notas Importantes
+
+- **Cold Start**: La primera invocación puede tardar más tiempo debido al cold start
+- **Timeout**: El timeout máximo para Lambda es 15 minutos
+- **Memoria**: Más memoria = más CPU = mejor rendimiento
+- **Región**: Elige la región más cercana a tus usuarios para reducir latencia
+- **Terraform vs CloudFormation**: Ambos son válidos, Terraform ofrece más flexibilidad
+
+## 🗑️ Limpieza
+
+### Con Terraform
 ```bash
-# Construir imágenes
-docker-compose -f docker-compose.prod.yml build
-
-# Desplegar
-docker-compose -f docker-compose.prod.yml up -d
+cd terraform/environments/dev
+terraform destroy
 ```
 
-### **Vercel (Frontend)**
-
+### Con CloudFormation
 ```bash
-# Configurar en Vercel
-# Conectar repositorio
-# Despliegue automático en push
+# Eliminar el stack de CloudFormation
+aws cloudformation delete-stack --stack-name tesis-lambda-stack --region us-east-1
+
+# Eliminar el bucket S3 (debe estar vacío)
+aws s3 rb s3://tu-bucket-nombre-unico --force
 ```
 
-## 🧪 Testing
+## 📚 Recursos Adicionales
 
-### **Backend**
-```bash
-cd tacticore-backend
-mvn test
-./test-endpoints.sh
-```
-
-### **Frontend**
-```bash
-cd tacticore-fe-c3
-pnpm test
-pnpm run build
-```
-
-### **Integración**
-```bash
-# Ejecutar todos los tests
-docker-compose -f docker-compose.test.yml up
-```
-
-## 🔧 Configuración Avanzada
-
-### **Variables de Entorno**
-
-```bash
-# Frontend (.env.local)
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_WS_URL=ws://localhost:8080
-
-# Backend (application.properties)
-server.port=8080
-spring.profiles.active=production
-aws.s3.bucket=tacticore-uploads
-```
-
-### **Base de Datos**
-```sql
--- Preparado para PostgreSQL
-CREATE TABLE matches (
-    id UUID PRIMARY KEY,
-    filename VARCHAR(255),
-    map VARCHAR(50),
-    game_type VARCHAR(50),
-    kills INTEGER,
-    deaths INTEGER,
-    score DECIMAL(3,1),
-    created_at TIMESTAMP
-);
-```
-
-## 📊 Métricas y Monitoreo
-
-### **Health Checks**
-- **Frontend**: `GET /` (200 OK)
-- **Backend**: `GET /ping` (JSON con timestamp)
-- **Docker**: Health checks automáticos
-
-### **Logs**
-```bash
-# Ver logs en tiempo real
-docker-compose logs -f
-
-# Logs específicos
-docker-compose logs frontend
-docker-compose logs backend
-```
-
-### **Métricas de Rendimiento**
-- **Tiempo de respuesta**: < 200ms para endpoints básicos
-- **Disponibilidad**: 99.9% uptime
-- **Escalabilidad**: Auto-scaling en AWS Lambda
-
-## 🤝 Contribución
-
-### **Flujo de Desarrollo**
-1. Fork del repositorio
-2. Crear feature branch: `git checkout -b feature/nueva-funcionalidad`
-3. Commit cambios: `git commit -m 'Agregar nueva funcionalidad'`
-4. Push al branch: `git push origin feature/nueva-funcionalidad`
-5. Crear Pull Request
-
-### **Estándares de Código**
-- **Java**: Google Java Style Guide
-- **TypeScript**: ESLint + Prettier
-- **Commits**: Conventional Commits
-- **Documentación**: JSDoc + JavaDoc
-
-## 📝 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
-
-## 🆘 Soporte
-
-### **Documentación Adicional**
-- [API Documentation](API-DOCUMENTATION.md)
-- [Frontend Analysis](FRONTEND-ANALYSIS.md)
-- [Implementation Summary](IMPLEMENTATION-SUMMARY.md)
-- [Docker Guide](README-docker.md)
-
-### **Contacto**
-- **Email**: support@tacticore.com
-- **Issues**: GitHub Issues
-- **Discord**: [Servidor de la comunidad]
-
-### **Roadmap**
-- [ ] Autenticación JWT
-- [ ] Base de datos PostgreSQL
-- [ ] WebSockets para chat en tiempo real
-- [ ] Procesamiento real de archivos DEM
-- [ ] Análisis de video con IA
-- [ ] Mobile app (React Native)
-- [ ] Integración con Steam API
-
----
-
-**🎮 ¡Mejora tu juego con Tacticore!**
+- [AWS Lambda Developer Guide](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Terraform Documentation](https://www.terraform.io/docs)
+- [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
+- [Maven Documentation](https://maven.apache.org/guides/)
