@@ -10,8 +10,8 @@ echo "🚀 Iniciando despliegue con Terraform..."
 # Variables de configuración
 TERRAFORM_DIR="terraform/environments/dev"
 REGION="us-east-1"
-FUNCTION_NAME="tesis-lambda-function-dev"
-BUCKET_NAME="tesis-lambda-deployment-bucket-dev"
+FUNCTION_NAME="tacticore-backend-function-dev"
+BUCKET_NAME="tacticore-backend-deployment-bucket-dev"
 
 # Colores para output
 RED='\033[0;31m'

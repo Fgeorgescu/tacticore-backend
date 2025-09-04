@@ -1,7 +1,7 @@
-package com.tesis.lambda.service;
+package com.tacticore.lambda.service;
 
-import com.tesis.lambda.model.MatchMetadata;
-import com.tesis.lambda.model.MatchResponse;
+import com.tacticore.lambda.model.MatchMetadata;
+import com.tacticore.lambda.model.MatchResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

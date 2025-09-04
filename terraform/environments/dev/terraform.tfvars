@@ -2,15 +2,15 @@
 aws_region = "us-east-1"
 
 # Configuración de la función Lambda
-function_name = "tesis-lambda-function-dev"
+function_name = "tacticore-backend-function-dev"
 runtime       = "java17"
-handler       = "com.tesis.lambda.LambdaHandler::handleRequest"
+handler       = "com.tacticore.lambda.LambdaHandler::handleRequest"
 timeout       = 30
 memory_size   = 512
 
 # Configuración de S3
-s3_bucket_name = "tesis-lambda-deployment-bucket-dev"
-s3_key         = "lambda-functions/tesis-lambda-dev.jar"
+s3_bucket_name = "tacticore-backend-deployment-bucket-dev"
+s3_key         = "lambda-functions/tacticore-backend-dev.jar"
 
 # Variables de entorno
 environment_variables = {
@@ -20,6 +20,6 @@ environment_variables = {
 
 # Tags adicionales
 tags = {
-  Owner       = "tesis-team"
-  CostCenter  = "tesis-project"
+  Owner       = "tacticore-team"
+  CostCenter  = "tacticore-project"
 }

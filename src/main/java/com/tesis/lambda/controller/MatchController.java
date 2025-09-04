@@ -1,9 +1,9 @@
-package com.tesis.lambda.controller;
+package com.tacticore.lambda.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tesis.lambda.model.MatchMetadata;
-import com.tesis.lambda.model.MatchResponse;
-import com.tesis.lambda.service.MatchService;
+import com.tacticore.lambda.model.MatchMetadata;
+import com.tacticore.lambda.model.MatchResponse;
+import com.tacticore.lambda.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

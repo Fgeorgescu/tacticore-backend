@@ -1,6 +1,6 @@
-package com.tesis.lambda.controller;
+package com.tacticore.lambda.controller;
 
-import com.tesis.lambda.model.*;
+import com.tacticore.lambda.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

@@ -1,4 +1,4 @@
-# Tesis - Proyecto Spring Boot con AWS Lambda
+# TactiCore Backend - Proyecto Spring Boot con AWS Lambda
 
 Este proyecto implementa una aplicación Spring Boot que puede ejecutarse tanto localmente como en AWS Lambda. Incluye un endpoint simple que devuelve "Hello World" y está configurado para ser desplegado fácilmente en AWS usando **CloudFormation** o **Terraform**.
 

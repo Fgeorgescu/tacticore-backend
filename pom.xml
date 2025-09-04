@@ -12,13 +12,13 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.tesis</groupId>
-    <artifactId>tesis-lambda</artifactId>
+    <groupId>com.tacticore</groupId>
+    <artifactId>tacticore-backend</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>tesis-lambda</name>
-    <description>Proyecto de tesis con Spring Boot y AWS Lambda</description>
+    <name>tacticore-backend</name>
+    <description>Backend de TactiCore - Proyecto Spring Boot y AWS Lambda</description>
 
     <properties>
         <java.version>17</java.version>

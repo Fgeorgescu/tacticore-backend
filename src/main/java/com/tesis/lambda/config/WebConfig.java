@@ -1,4 +1,4 @@
-package com.tesis.lambda.config;
+package com.tacticore.lambda.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

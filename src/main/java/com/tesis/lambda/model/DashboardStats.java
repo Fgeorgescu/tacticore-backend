@@ -1,4 +1,4 @@
-package com.tesis.lambda.model;
+package com.tacticore.lambda.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

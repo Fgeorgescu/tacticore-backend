@@ -8,10 +8,10 @@ set -e
 echo "🚀 Iniciando despliegue a AWS Lambda..."
 
 # Variables de configuración
-STACK_NAME="tesis-lambda-stack"
-FUNCTION_NAME="tesis-lambda-function"
+STACK_NAME="tacticore-backend-stack"
+FUNCTION_NAME="tacticore-backend-function"
 REGION="us-east-1"  # Cambiar según tu región preferida
-BUCKET_NAME="tesis-lambda-deployment-bucket"  # Cambiar por tu bucket S3
+BUCKET_NAME="tacticore-backend-deployment-bucket"  # Cambiar por tu bucket S3
 
 # Colores para output
 RED='\033[0;31m'
@@ -61,8 +61,8 @@ if ! aws s3 ls "s3://$BUCKET_NAME" &> /dev/null; then
 fi
 
 # Subir el JAR a S3
-JAR_FILE="target/tesis-lambda-1.0.0.jar"
-S3_KEY="lambda-functions/tesis-lambda-$(date +%Y%m%d-%H%M%S).jar"
+JAR_FILE="target/tacticore-backend-1.0.0.jar"
+S3_KEY="lambda-functions/tacticore-backend-$(date +%Y%m%d-%H%M%S).jar"
 
 print_status "Subiendo JAR a S3..."
 aws s3 cp "$JAR_FILE" "s3://$BUCKET_NAME/$S3_KEY"
@@ -83,7 +83,7 @@ cat > parameters.json << EOF
   },
   {
     "ParameterKey": "Handler",
-    "ParameterValue": "com.tesis.lambda.LambdaHandler::handleRequest"
+    "ParameterValue": "com.tacticore.lambda.LambdaHandler::handleRequest"
   },
   {
     "ParameterKey": "Timeout",

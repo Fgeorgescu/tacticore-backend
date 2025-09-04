@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: tesis-lambda
+    name: tacticore-backend
   servlet:
     multipart:
       max-file-size: 2GB

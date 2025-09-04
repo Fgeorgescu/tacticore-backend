@@ -1,4 +1,4 @@
-package com.tesis.lambda.controller;
+package com.tacticore.lambda.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

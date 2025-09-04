@@ -1,4 +1,4 @@
-package com.tesis.lambda;
+package com.tacticore.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
