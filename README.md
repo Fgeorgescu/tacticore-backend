@@ -43,7 +43,7 @@
 
 ```
 tesis/
-├── 📁 tacticore-fe-c3/           # Frontend Next.js
+├── 📁 tacticore-fe-c3/           # Frontend Next.js (repo independiente)
 │   ├── 📁 app/                   # Páginas de Next.js 13+
 │   ├── 📁 components/            # Componentes React
 │   │   ├── 📁 analytics/        # Análisis histórico
@@ -54,7 +54,7 @@ tesis/
 │   ├── 📁 hooks/                # Custom hooks
 │   ├── 📁 lib/                   # Utilidades y API
 │   └── 📄 Dockerfile            # Contenedor frontend
-├── 📁 tacticore-backend/        # Backend Spring Boot
+├── 📁 tacticore-backend/        # Backend Spring Boot (repo independiente)
 │   ├── 📁 src/main/java/
 │   │   └── 📁 com/tacticore/lambda/
 │   │       ├── 📁 controller/   # Controladores REST
@@ -63,8 +63,13 @@ tesis/
 │   │       └── 📁 config/       # Configuración
 │   ├── 📁 terraform/            # Infraestructura como código
 │   └── 📄 Dockerfile            # Contenedor backend
+├── 📁 docs/                      # Documentación del proyecto
+│   ├── 📄 API-DOCUMENTATION.md  # Documentación de la API
+│   ├── 📄 FRONTEND-ANALYSIS.md  # Análisis del frontend
+│   ├── 📄 IMPLEMENTATION-SUMMARY.md # Resumen de implementación
+│   ├── 📄 README-docker.md      # Guía de Docker
+│   └── 📄 swagger.yaml          # Especificación de la API
 ├── 📄 docker-compose.yml        # Orquestación de contenedores
-├── 📄 swagger.yaml              # Documentación API
 └── 📄 README.md                 # Este archivo
 ```
 
@@ -184,8 +189,8 @@ pnpm dev
 
 ### **Documentación Completa**
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Docs**: Ver `API-DOCUMENTATION.md`
-- **Swagger Spec**: Ver `swagger.yaml`
+- **API Docs**: Ver `docs/API-DOCUMENTATION.md`
+- **Swagger Spec**: Ver `docs/swagger.yaml`
 
 ## 🎮 Funcionalidades Detalladas
 
