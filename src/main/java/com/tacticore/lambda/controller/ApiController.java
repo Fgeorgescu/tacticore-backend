@@ -1,6 +1,11 @@
 package com.tacticore.lambda.controller;
 
 import com.tacticore.lambda.model.*;
+import com.tacticore.lambda.model.dto.ChatMessageDto;
+import com.tacticore.lambda.model.dto.MatchDto;
+import com.tacticore.lambda.service.ChatService;
+import com.tacticore.lambda.service.DatabaseMatchService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,21 +18,17 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class ApiController {
     
-    // Mock data for matches
-    private final List<Match> mockMatches = Arrays.asList(
-        new Match("1", "dust2_ranked_2024.dem", true, "Dust2", "Ranked", 24, 18, 8, 3, "32:45", 8.5, LocalDate.of(2024, 1, 15)),
-        new Match("2", "mirage_casual_2024.dem", false, "Mirage", "Casual", 16, 22, 4, 7, "28:12", 6.2, LocalDate.of(2024, 1, 14)),
-        new Match("3", "inferno_training_2024.dem", true, "Inferno", "Entrenamiento", 31, 12, 12, 2, "25:30", 9.1, LocalDate.of(2024, 1, 13))
-    );
+    @Autowired
+    private DatabaseMatchService databaseMatchService;
     
-    // Mock data for kills
+    @Autowired
+    private ChatService chatService;
+    
+    // Mock data for kills (keeping this for now as it's not yet migrated to DB)
     private final Map<String, List<Kill>> mockKills = new HashMap<>();
     
-    // Mock data for chat messages
-    private final Map<String, List<ChatMessage>> mockChatMessages = new HashMap<>();
-    
     public ApiController() {
-        // Initialize mock kills data
+        // Initialize mock kills data (temporary until kills are fully migrated)
         mockKills.put("1", Arrays.asList(
             new Kill(1, "Player1", "Enemy1", "AK-47", true, 3, "1:45", new Kill.TeamAlive(4, 3), "Long A"),
             new Kill(2, "Player1", "Enemy2", "AK-47", true, 3, "1:42", new Kill.TeamAlive(4, 2), "Long A"),
@@ -35,38 +36,24 @@ public class ApiController {
             new Kill(4, "Player1", "Enemy4", "M4A4", true, 8, "1:15", new Kill.TeamAlive(3, 4), "Site B"),
             new Kill(5, "Player1", "Enemy5", "Glock-18", false, 12, "0:45", new Kill.TeamAlive(1, 2), "Tunnels")
         ));
-        
-        // Initialize mock chat messages
-        mockChatMessages.put("1", Arrays.asList(
-            new ChatMessage(1, "Analyst", "¿Qué opinas de la jugada en el round 3?", LocalDate.of(2024, 1, 15).atTime(14, 30)),
-            new ChatMessage(2, "Player", "Fue una buena rotación, aproveché que estaban distraídos en B", LocalDate.of(2024, 1, 15).atTime(14, 32)),
-            new ChatMessage(3, "Coach", "El timing fue perfecto, pero podrías haber usado mejor cobertura", LocalDate.of(2024, 1, 15).atTime(14, 35))
-        ));
     }
     
     // GET /api/matches
     @GetMapping("/matches")
     public ResponseEntity<Map<String, Object>> getMatches() {
+        List<MatchDto> matches = databaseMatchService.getAllMatches();
         Map<String, Object> response = new HashMap<>();
-        response.put("matches", mockMatches);
+        response.put("matches", matches);
         return ResponseEntity.ok(response);
     }
     
     // GET /api/matches/{id}
     @GetMapping("/matches/{id}")
-    public ResponseEntity<Match> getMatch(@PathVariable String id) {
-        Optional<Match> match = mockMatches.stream()
-                .filter(m -> m.getId().equals(id))
-                .findFirst();
+    public ResponseEntity<MatchDto> getMatch(@PathVariable String id) {
+        Optional<MatchDto> match = databaseMatchService.getMatchById(id);
         
         if (match.isPresent()) {
-            Match matchData = match.get();
-            // Add kills to the response
-            if (mockKills.containsKey(id)) {
-                // We'll return the match with kills in a separate endpoint
-                return ResponseEntity.ok(matchData);
-            }
-            return ResponseEntity.ok(matchData);
+            return ResponseEntity.ok(match.get());
         }
         
         return ResponseEntity.notFound().build();
@@ -75,11 +62,15 @@ public class ApiController {
     // DELETE /api/matches/{id}
     @DeleteMapping("/matches/{id}")
     public ResponseEntity<Map<String, String>> deleteMatch(@PathVariable String id) {
-        // Mock deletion - in real implementation, this would delete from database
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Match deleted successfully");
-        response.put("id", id);
-        return ResponseEntity.ok(response);
+        if (databaseMatchService.existsMatch(id)) {
+            databaseMatchService.deleteMatch(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Match deleted successfully");
+            response.put("id", id);
+            return ResponseEntity.ok(response);
+        }
+        
+        return ResponseEntity.notFound().build();
     }
     
     // GET /api/matches/{id}/kills
@@ -94,17 +85,14 @@ public class ApiController {
     
     // GET /api/matches/{id}/chat
     @GetMapping("/matches/{id}/chat")
-    public ResponseEntity<List<ChatMessage>> getMatchChat(@PathVariable String id) {
-        List<ChatMessage> messages = mockChatMessages.get(id);
-        if (messages != null) {
-            return ResponseEntity.ok(messages);
-        }
-        return ResponseEntity.ok(new ArrayList<>()); // Return empty list if no messages
+    public ResponseEntity<List<ChatMessageDto>> getMatchChat(@PathVariable String id) {
+        List<ChatMessageDto> messages = chatService.getChatMessages(id);
+        return ResponseEntity.ok(messages);
     }
     
     // POST /api/matches/{id}/chat
     @PostMapping("/matches/{id}/chat")
-    public ResponseEntity<ChatMessage> sendChatMessage(@PathVariable String id, @RequestBody Map<String, String> request) {
+    public ResponseEntity<ChatMessageDto> sendChatMessage(@PathVariable String id, @RequestBody Map<String, String> request) {
         String message = request.get("message");
         String user = request.get("user");
         
@@ -112,20 +100,13 @@ public class ApiController {
             return ResponseEntity.badRequest().build();
         }
         
-        // Get existing messages or create new list
-        List<ChatMessage> messages = mockChatMessages.getOrDefault(id, new ArrayList<>());
+        // Check if match exists
+        if (!databaseMatchService.existsMatch(id)) {
+            return ResponseEntity.notFound().build();
+        }
         
-        // Create new message
-        ChatMessage newMessage = new ChatMessage(
-            messages.size() + 1,
-            user,
-            message,
-            java.time.LocalDateTime.now()
-        );
-        
-        // Add to list
-        messages.add(newMessage);
-        mockChatMessages.put(id, messages);
+        // Create new message using service
+        ChatMessageDto newMessage = chatService.addChatMessage(id, user, message);
         
         return ResponseEntity.status(201).body(newMessage);
     }
@@ -134,12 +115,41 @@ public class ApiController {
     @PostMapping("/upload/dem")
     public ResponseEntity<Map<String, Object>> uploadDem(@RequestParam("file") MultipartFile file,
                                                        @RequestParam(value = "metadata", required = false) String metadata) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", "match_" + System.currentTimeMillis());
-        response.put("fileName", file.getOriginalFilename());
-        response.put("status", "uploaded");
-        
-        return ResponseEntity.status(201).body(response);
+        try {
+            // Validar archivo
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "No se proporcionó ningún archivo"));
+            }
+            
+            // Validar que sea un archivo .dem
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".dem")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "El archivo debe ser un archivo .dem válido"));
+            }
+            
+            // Generar ID único para el archivo
+            String fileId = "dem_" + System.currentTimeMillis();
+            
+            // Simular procesamiento con el modelo de IA
+            AIModelResponse aiResponse = createMockAIResponse(originalFilename);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", fileId);
+            response.put("fileName", originalFilename);
+            response.put("status", "processed");
+            response.put("aiResponse", aiResponse);
+            response.put("totalKills", aiResponse.getTotalKills());
+            response.put("map", aiResponse.getMap());
+            response.put("tickrate", aiResponse.getTickrate());
+            
+            return ResponseEntity.status(201).body(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(Map.of("error", "Error procesando archivo: " + e.getMessage()));
+        }
     }
     
     // POST /api/upload/video
@@ -210,5 +220,15 @@ public class ApiController {
     public ResponseEntity<List<String>> getWeapons() {
         List<String> weapons = Arrays.asList("AK-47", "M4A4", "AWP", "Glock-18", "USP-S", "Desert Eagle", "P250", "FAMAS", "Galil");
         return ResponseEntity.ok(weapons);
+    }
+    
+    // Método temporal para simular respuesta de IA
+    private AIModelResponse createMockAIResponse(String fileName) {
+        AIModelResponse response = new AIModelResponse();
+        response.setTotalKills(143);
+        response.setMap("Unknown");
+        response.setTickrate(64);
+        response.setStatus("success");
+        return response;
     }
 }

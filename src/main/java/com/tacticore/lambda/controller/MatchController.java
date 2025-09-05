@@ -3,7 +3,7 @@ package com.tacticore.lambda.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tacticore.lambda.model.MatchMetadata;
 import com.tacticore.lambda.model.MatchResponse;
-import com.tacticore.lambda.service.MatchService;
+import com.tacticore.lambda.service.DatabaseMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 public class MatchController {
     
     @Autowired
-    private MatchService matchService;
+    private DatabaseMatchService databaseMatchService;
     
     @Autowired
     private ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ public class MatchController {
             }
             
             // Process the match upload
-            MatchResponse response = matchService.uploadMatch(demFile, videoFile, metadata);
+            MatchResponse response = createMockMatchResponse(demFile, videoFile, metadata);
             
             if ("failed".equals(response.getStatus())) {
                 return ResponseEntity.badRequest().body(response);
@@ -93,5 +93,11 @@ public class MatchController {
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Tacti-Core Backend is running!");
+    }
+    
+    // Método temporal para simular respuesta de match upload
+    private MatchResponse createMockMatchResponse(MultipartFile demFile, MultipartFile videoFile, MatchMetadata metadata) {
+        String matchId = "match_" + System.currentTimeMillis();
+        return MatchResponse.processing(matchId);
     }
 }
