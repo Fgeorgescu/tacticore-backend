@@ -3,22 +3,16 @@ package com.tacticore.lambda.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tacticore.lambda.model.MatchMetadata;
 import com.tacticore.lambda.model.MatchResponse;
-import com.tacticore.lambda.service.DatabaseMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class MatchController {
-    
-    @Autowired
-    private DatabaseMatchService databaseMatchService;
     
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,7 +57,7 @@ public class MatchController {
         }
     }
     
-    @GetMapping("/matches/{matchId}")
+    @GetMapping("/matches/{matchId}/status")
     public ResponseEntity<MatchResponse> getMatchStatus(@PathVariable String matchId) {
         try {
             // Por ahora, simulamos obtener el estado de la partida

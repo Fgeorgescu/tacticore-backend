@@ -4,15 +4,16 @@ import com.tacticore.lambda.model.*;
 import com.tacticore.lambda.model.dto.ChatMessageDto;
 import com.tacticore.lambda.model.dto.MatchDto;
 import com.tacticore.lambda.model.KillEntity;
+import com.tacticore.lambda.service.AnalyticsService;
 import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
+import com.tacticore.lambda.service.GameDataService;
 import com.tacticore.lambda.service.KillAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,18 +31,14 @@ public class ApiController {
     @Autowired
     private KillAnalysisService killAnalysisService;
     
-    // Mock data for kills (keeping this for now as it's not yet migrated to DB)
-    private final Map<String, List<Kill>> mockKills = new HashMap<>();
+    @Autowired
+    private AnalyticsService analyticsService;
+    
+    @Autowired
+    private GameDataService gameDataService;
     
     public ApiController() {
-        // Initialize mock kills data (temporary until kills are fully migrated)
-        mockKills.put("1", Arrays.asList(
-            new Kill(1, "Player1", "Enemy1", "AK-47", true, 3, "1:45", new Kill.TeamAlive(4, 3), "Long A"),
-            new Kill(2, "Player1", "Enemy2", "AK-47", true, 3, "1:42", new Kill.TeamAlive(4, 2), "Long A"),
-            new Kill(3, "Enemy3", "Player1", "AWP", false, 5, "0:30", new Kill.TeamAlive(2, 3), "Mid"),
-            new Kill(4, "Player1", "Enemy4", "M4A4", true, 8, "1:15", new Kill.TeamAlive(3, 4), "Site B"),
-            new Kill(5, "Player1", "Enemy5", "Glock-18", false, 12, "0:45", new Kill.TeamAlive(1, 2), "Tunnels")
-        ));
+        // Constructor vacío - ya no usamos datos mock
     }
     
     // GET /api/matches
@@ -106,16 +103,15 @@ public class ApiController {
         List<Map<String, Object>> kills = killEntities.stream()
                 .map(kill -> {
                     Map<String, Object> killDto = new HashMap<>();
-                    killDto.put("killId", kill.getKillId());
-                    killDto.put("attacker", kill.getAttacker());
+                    killDto.put("id", kill.getKillId().hashCode()); // Convertir string a int
+                    killDto.put("killer", kill.getAttacker());
                     killDto.put("victim", kill.getVictim());
                     killDto.put("weapon", kill.getWeapon());
-                    killDto.put("headshot", kill.getHeadshot());
+                    killDto.put("isGoodPlay", kill.getHeadshot() || kill.getDistance() > 500); // Lógica simple para determinar si es buena jugada
                     killDto.put("round", kill.getRound());
-                    killDto.put("distance", kill.getDistance());
-                    killDto.put("timeInRound", kill.getTimeInRound());
-                    killDto.put("side", kill.getSide());
-                    killDto.put("place", kill.getPlace());
+                    killDto.put("time", String.format("%.1fs", kill.getTimeInRound()));
+                    killDto.put("teamAlive", Map.of("ct", 5, "t", 5)); // Mock data - en un sistema real esto vendría de la base de datos
+                    killDto.put("position", kill.getPlace());
                     return killDto;
                 })
                 .collect(Collectors.toList());
@@ -164,15 +160,19 @@ public class ApiController {
         try {
             // Validar archivo
             if (file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("error", "No se proporcionó ningún archivo"));
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "No se proporcionó ningún archivo");
+                return ResponseEntity.badRequest().body(errorResponse);
             }
             
             // Validar que sea un archivo .dem
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".dem")) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("error", "El archivo debe ser un archivo .dem válido"));
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "El archivo debe ser un archivo .dem válido");
+                return ResponseEntity.badRequest().body(errorResponse);
             }
             
             // Generar ID único para el archivo
@@ -182,6 +182,8 @@ public class ApiController {
             AIModelResponse aiResponse = createMockAIResponse(originalFilename);
             
             Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Archivo .dem procesado exitosamente");
             response.put("id", fileId);
             response.put("fileName", originalFilename);
             response.put("status", "processed");
@@ -193,18 +195,22 @@ public class ApiController {
             return ResponseEntity.status(201).body(response);
             
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(Map.of("error", "Error procesando archivo: " + e.getMessage()));
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error procesando archivo: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
     
     // POST /api/upload/video
     @PostMapping("/upload/video")
     public ResponseEntity<Map<String, Object>> uploadVideo(@RequestParam("file") MultipartFile file,
-                                                         @RequestParam("matchId") String matchId) {
+                                                         @RequestParam(value = "matchId", required = false) String matchId) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", "video_" + System.currentTimeMillis());
-        response.put("matchId", matchId);
+        if (matchId != null) {
+            response.put("matchId", matchId);
+        }
         response.put("status", "uploaded");
         
         return ResponseEntity.status(201).body(response);
@@ -214,7 +220,6 @@ public class ApiController {
     @PostMapping("/upload/process")
     public ResponseEntity<Map<String, Object>> processMatch(@RequestBody Map<String, String> request) {
         String matchId = request.get("matchId");
-        String analysisType = request.getOrDefault("analysisType", "full");
         
         Map<String, Object> response = new HashMap<>();
         response.put("matchId", matchId);
@@ -230,16 +235,7 @@ public class ApiController {
             @RequestParam(value = "timeRange", defaultValue = "all") String timeRange,
             @RequestParam(value = "metric", defaultValue = "kdr") String metric) {
         
-        List<AnalyticsData> data = Arrays.asList(
-            new AnalyticsData(LocalDate.of(2024, 1, 1), 18, 22, 0.82, 6.5, 4, 8, 1),
-            new AnalyticsData(LocalDate.of(2024, 1, 3), 21, 19, 1.11, 7.2, 6, 6, 2),
-            new AnalyticsData(LocalDate.of(2024, 1, 5), 24, 18, 1.33, 8.1, 8, 4, 3),
-            new AnalyticsData(LocalDate.of(2024, 1, 7), 19, 25, 0.76, 5.8, 3, 9, 4),
-            new AnalyticsData(LocalDate.of(2024, 1, 9), 27, 16, 1.69, 8.7, 11, 3, 5),
-            new AnalyticsData(LocalDate.of(2024, 1, 11), 22, 20, 1.1, 7.5, 7, 5, 6),
-            new AnalyticsData(LocalDate.of(2024, 1, 13), 31, 12, 2.58, 9.1, 12, 2, 7),
-            new AnalyticsData(LocalDate.of(2024, 1, 15), 24, 18, 1.33, 8.5, 8, 3, 8)
-        );
+        List<AnalyticsData> data = analyticsService.getHistoricalAnalytics(timeRange, metric);
         
         Map<String, Object> response = new HashMap<>();
         response.put("data", data);
@@ -250,21 +246,21 @@ public class ApiController {
     // GET /api/analytics/dashboard
     @GetMapping("/analytics/dashboard")
     public ResponseEntity<DashboardStats> getDashboardStats() {
-        DashboardStats stats = new DashboardStats(8, 185, 150, 58, 40, 7.6, 1.23);
+        DashboardStats stats = analyticsService.getDashboardStats();
         return ResponseEntity.ok(stats);
     }
     
     // GET /api/maps
     @GetMapping("/maps")
     public ResponseEntity<List<String>> getMaps() {
-        List<String> maps = Arrays.asList("Dust2", "Mirage", "Inferno", "Cache", "Overpass", "Nuke", "Train");
+        List<String> maps = gameDataService.getActiveMapNames();
         return ResponseEntity.ok(maps);
     }
     
     // GET /api/weapons
     @GetMapping("/weapons")
     public ResponseEntity<List<String>> getWeapons() {
-        List<String> weapons = Arrays.asList("AK-47", "M4A4", "AWP", "Glock-18", "USP-S", "Desert Eagle", "P250", "FAMAS", "Galil");
+        List<String> weapons = gameDataService.getActiveWeaponNames();
         return ResponseEntity.ok(weapons);
     }
     

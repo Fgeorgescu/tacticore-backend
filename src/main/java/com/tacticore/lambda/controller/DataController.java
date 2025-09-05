@@ -1,6 +1,7 @@
 package com.tacticore.lambda.controller;
 
 import com.tacticore.lambda.service.DataLoaderService;
+import com.tacticore.lambda.service.DummyDataService;
 import com.tacticore.lambda.service.PreloadedDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ public class DataController {
     
     @Autowired
     private PreloadedDataService preloadedDataService;
+    
+    @Autowired
+    private DummyDataService dummyDataService;
     
     // POST /api/data/load
     @PostMapping("/load")
@@ -42,6 +46,7 @@ public class DataController {
     public ResponseEntity<Map<String, String>> clearData() {
         dataLoaderService.clearAllData();
         preloadedDataService.clearPreloadedData();
+        dummyDataService.clearDummyData();
         return ResponseEntity.ok(Map.of(
             "status", "success",
             "message", "Todos los datos han sido eliminados"
@@ -61,6 +66,23 @@ public class DataController {
             return ResponseEntity.badRequest().body(Map.of(
                 "status", "error",
                 "message", "Error recargando datos precargados: " + e.getMessage()
+            ));
+        }
+    }
+    
+    // POST /api/data/reload-dummy
+    @PostMapping("/reload-dummy")
+    public ResponseEntity<Map<String, String>> reloadDummyData() {
+        try {
+            dummyDataService.loadDummyData();
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Datos dummy recargados exitosamente"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Error recargando datos dummy: " + e.getMessage()
             ));
         }
     }
