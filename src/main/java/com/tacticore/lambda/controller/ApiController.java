@@ -3,8 +3,10 @@ package com.tacticore.lambda.controller;
 import com.tacticore.lambda.model.*;
 import com.tacticore.lambda.model.dto.ChatMessageDto;
 import com.tacticore.lambda.model.dto.MatchDto;
+import com.tacticore.lambda.model.KillEntity;
 import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
+import com.tacticore.lambda.service.KillAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -23,6 +26,9 @@ public class ApiController {
     
     @Autowired
     private ChatService chatService;
+    
+    @Autowired
+    private KillAnalysisService killAnalysisService;
     
     // Mock data for kills (keeping this for now as it's not yet migrated to DB)
     private final Map<String, List<Kill>> mockKills = new HashMap<>();
@@ -40,10 +46,19 @@ public class ApiController {
     
     // GET /api/matches
     @GetMapping("/matches")
-    public ResponseEntity<Map<String, Object>> getMatches() {
+    public ResponseEntity<Map<String, Object>> getMatches(@RequestParam(required = false) String user) {
         List<MatchDto> matches = databaseMatchService.getAllMatches();
+        
+        // Si se especifica un usuario, filtrar matches que contengan kills de ese usuario
+        if (user != null && !user.isEmpty()) {
+            matches = databaseMatchService.getMatchesByUser(user);
+        }
+        
         Map<String, Object> response = new HashMap<>();
         response.put("matches", matches);
+        if (user != null) {
+            response.put("filteredBy", user);
+        }
         return ResponseEntity.ok(response);
     }
     
@@ -75,12 +90,43 @@ public class ApiController {
     
     // GET /api/matches/{id}/kills
     @GetMapping("/matches/{id}/kills")
-    public ResponseEntity<List<Kill>> getMatchKills(@PathVariable String id) {
-        List<Kill> kills = mockKills.get(id);
-        if (kills != null) {
-            return ResponseEntity.ok(kills);
+    public ResponseEntity<Object> getMatchKills(@PathVariable String id, @RequestParam(required = false) String user) {
+        // Consultar kills desde la base de datos
+        List<KillEntity> killEntities;
+        
+        if (user != null && !user.isEmpty()) {
+            // Filtrar kills por usuario específico
+            killEntities = killAnalysisService.getKillsByUser(user);
+        } else {
+            // Obtener todos los kills (necesitamos implementar este método)
+            killEntities = killAnalysisService.getAllKills();
         }
-        return ResponseEntity.notFound().build();
+        
+        // Convertir entidades a DTOs para la respuesta
+        List<Map<String, Object>> kills = killEntities.stream()
+                .map(kill -> {
+                    Map<String, Object> killDto = new HashMap<>();
+                    killDto.put("killId", kill.getKillId());
+                    killDto.put("attacker", kill.getAttacker());
+                    killDto.put("victim", kill.getVictim());
+                    killDto.put("weapon", kill.getWeapon());
+                    killDto.put("headshot", kill.getHeadshot());
+                    killDto.put("round", kill.getRound());
+                    killDto.put("distance", kill.getDistance());
+                    killDto.put("timeInRound", kill.getTimeInRound());
+                    killDto.put("side", kill.getSide());
+                    killDto.put("place", kill.getPlace());
+                    return killDto;
+                })
+                .collect(Collectors.toList());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("kills", kills);
+        response.put("matchId", id);
+        if (user != null) {
+            response.put("filteredBy", user);
+        }
+        return ResponseEntity.ok(response);
     }
     
     // GET /api/matches/{id}/chat

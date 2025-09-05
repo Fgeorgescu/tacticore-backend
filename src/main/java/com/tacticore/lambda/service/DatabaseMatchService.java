@@ -38,6 +38,15 @@ public class DatabaseMatchService {
                 .ifPresent(matchRepository::delete);
     }
     
+    public List<MatchDto> getMatchesByUser(String user) {
+        // Por ahora retornamos todos los matches, pero podríamos filtrar por matches que contengan kills del usuario
+        // Esto requeriría una consulta más compleja que relacione matches con kills
+        List<MatchEntity> entities = matchRepository.findAll();
+        return entities.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    
     private MatchDto convertToDto(MatchEntity entity) {
         MatchDto dto = new MatchDto();
         dto.setId(entity.getMatchId());

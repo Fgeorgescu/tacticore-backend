@@ -69,4 +69,45 @@ public interface KillRepository extends JpaRepository<KillEntity, Long> {
     
     @Query("SELECT COUNT(k) FROM KillEntity k")
     Long getTotalKills();
+    
+    // Consultas por usuario (attacker o victim)
+    @Query("SELECT k FROM KillEntity k WHERE k.attacker = :user OR k.victim = :user")
+    List<KillEntity> findByUser(@Param("user") String user);
+    
+    @Query("SELECT k FROM KillEntity k WHERE (k.attacker = :user OR k.victim = :user) AND k.round = :round")
+    List<KillEntity> findByUserAndRound(@Param("user") String user, @Param("round") Integer round);
+    
+    @Query("SELECT COUNT(k) FROM KillEntity k WHERE k.attacker = :user")
+    Long countKillsByUser(@Param("user") String user);
+    
+    @Query("SELECT COUNT(k) FROM KillEntity k WHERE k.victim = :user")
+    Long countDeathsByUser(@Param("user") String user);
+    
+    @Query("SELECT COUNT(k) FROM KillEntity k WHERE k.headshot = true AND k.attacker = :user")
+    Long countHeadshotsByUser(@Param("user") String user);
+    
+    @Query("SELECT AVG(k.distance) FROM KillEntity k WHERE k.distance > 0 AND k.attacker = :user")
+    Double getAverageDistanceByUser(@Param("user") String user);
+    
+    @Query("SELECT AVG(k.timeInRound) FROM KillEntity k WHERE k.attacker = :user")
+    Double getAverageTimeInRoundByUser(@Param("user") String user);
+    
+    @Query("SELECT k.weapon, COUNT(k) FROM KillEntity k WHERE k.attacker = :user GROUP BY k.weapon ORDER BY COUNT(k) DESC")
+    List<Object[]> getWeaponUsageStatsByUser(@Param("user") String user);
+    
+    @Query("SELECT k.place, COUNT(k) FROM KillEntity k WHERE k.attacker = :user GROUP BY k.place ORDER BY COUNT(k) DESC")
+    List<Object[]> getLocationStatsByUser(@Param("user") String user);
+    
+    @Query("SELECT k.round, COUNT(k) FROM KillEntity k WHERE k.attacker = :user GROUP BY k.round ORDER BY k.round")
+    List<Object[]> getKillsPerRoundByUser(@Param("user") String user);
+    
+    @Query("SELECT k.side, COUNT(k) FROM KillEntity k WHERE k.attacker = :user GROUP BY k.side")
+    List<Object[]> getKillsBySideByUser(@Param("user") String user);
+    
+    // Consultas para obtener usuarios únicos
+    @Query("SELECT DISTINCT k.attacker FROM KillEntity k ORDER BY k.attacker")
+    List<String> findAllAttackers();
+    
+    @Query("SELECT DISTINCT k.victim FROM KillEntity k ORDER BY k.victim")
+    List<String> findAllVictims();
 }

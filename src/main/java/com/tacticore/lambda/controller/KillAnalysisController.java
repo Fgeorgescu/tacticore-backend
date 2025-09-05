@@ -52,4 +52,45 @@ public class KillAnalysisController {
         // Implementar análisis de todos los jugadores si es necesario
         return ResponseEntity.ok(Map.of("message", "Análisis de todos los jugadores - implementar según necesidad"));
     }
+    
+    // Nuevos endpoints por usuario
+    @GetMapping("/user/{user}/overview")
+    public ResponseEntity<KillAnalysisDto> getUserAnalysis(@PathVariable String user) {
+        try {
+            KillAnalysisDto analysis = killAnalysisService.getAnalysisByUser(user);
+            return ResponseEntity.ok(analysis);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/user/{user}/kills")
+    public ResponseEntity<Object> getUserKills(@PathVariable String user) {
+        try {
+            var kills = killAnalysisService.getKillsByUser(user);
+            return ResponseEntity.ok(Map.of("user", user, "kills", kills));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/user/{user}/round/{round}")
+    public ResponseEntity<Object> getUserKillsByRound(@PathVariable String user, @PathVariable Integer round) {
+        try {
+            var kills = killAnalysisService.getKillsByUserAndRound(user, round);
+            return ResponseEntity.ok(Map.of("user", user, "round", round, "kills", kills));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/users")
+    public ResponseEntity<Object> getAllUsers() {
+        try {
+            var users = killAnalysisService.getAllUsers();
+            return ResponseEntity.ok(Map.of("users", users));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
