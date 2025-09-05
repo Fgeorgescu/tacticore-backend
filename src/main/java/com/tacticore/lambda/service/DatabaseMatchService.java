@@ -88,7 +88,13 @@ public class DatabaseMatchService {
     }
     
     private double calculateScore(int kills) {
-        // Mock calculation: score based on kills with some variance
-        return 5.0 + (kills * 0.2) + (Math.random() * 2.0);
+        // Normalized score calculation: scale 1-10 based on kills and performance
+        // Base score starts at 1.0, increases with kills, capped at 10.0
+        double baseScore = 1.0;
+        double killBonus = Math.min(kills * 0.15, 6.0); // Max 6 points from kills
+        double randomVariance = Math.random() * 1.5; // Random variance up to 1.5 points
+        
+        double rawScore = baseScore + killBonus + randomVariance;
+        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
     }
 }

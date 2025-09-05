@@ -1,7 +1,6 @@
 package com.tacticore.lambda.service;
 
 import com.tacticore.lambda.model.KillEntity;
-import com.tacticore.lambda.model.KillPredictionEntity;
 import com.tacticore.lambda.model.dto.KillAnalysisDto;
 import com.tacticore.lambda.model.dto.PlayerStatsDto;
 import com.tacticore.lambda.model.dto.RoundAnalysisDto;
@@ -224,7 +223,6 @@ public class KillAnalysisService {
         
         // Estadísticas básicas por usuario
         Long totalKillsLong = killRepository.countKillsByUser(user);
-        Long totalDeaths = killRepository.countDeathsByUser(user);
         Long totalHeadshotsLong = killRepository.countHeadshotsByUser(user);
         Double averageDistance = killRepository.getAverageDistanceByUser(user);
         Double averageTimeInRound = killRepository.getAverageTimeInRoundByUser(user);
@@ -337,11 +335,29 @@ public class KillAnalysisService {
     }
     
     private Double calculatePerformanceScore(Long kills, Long deaths, Double headshotRate, Double averageDistance) {
-        double baseScore = 100.0;
-        double kdBonus = kills > 0 && deaths > 0 ? Math.min((double) kills / deaths * 10, 50) : kills * 5;
-        double headshotBonus = headshotRate * 0.5;
-        double distanceBonus = Math.min(averageDistance / 100, 20);
+        // Normalized performance score: scale 1-10
+        // Base score starts at 1.0
+        double baseScore = 1.0;
         
-        return baseScore + kdBonus + headshotBonus + distanceBonus;
+        // K/D ratio bonus (max 4 points)
+        double kdBonus = 0.0;
+        if (kills > 0 && deaths > 0) {
+            double kdRatio = (double) kills / deaths;
+            kdBonus = Math.min(kdRatio * 0.8, 4.0); // Max 4 points from K/D
+        } else if (kills > 0) {
+            kdBonus = Math.min(kills * 0.1, 4.0); // Bonus for kills without deaths
+        }
+        
+        // Headshot rate bonus (max 2 points)
+        double headshotBonus = Math.min(headshotRate * 0.02, 2.0);
+        
+        // Distance bonus (max 2 points)
+        double distanceBonus = Math.min(averageDistance / 500, 2.0);
+        
+        // Random variance (max 1 point)
+        double randomVariance = Math.random() * 1.0;
+        
+        double rawScore = baseScore + kdBonus + headshotBonus + distanceBonus + randomVariance;
+        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
     }
 }
