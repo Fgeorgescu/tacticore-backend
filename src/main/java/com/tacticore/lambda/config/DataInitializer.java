@@ -1,6 +1,5 @@
 package com.tacticore.lambda.config;
 
-import com.tacticore.lambda.service.DataLoaderService;
 import com.tacticore.lambda.service.DummyDataService;
 import com.tacticore.lambda.service.PreloadedDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
-    
-    @Autowired
-    private DataLoaderService dataLoaderService;
     
     @Autowired
     private PreloadedDataService preloadedDataService;
@@ -26,13 +22,9 @@ public class DataInitializer implements CommandLineRunner {
             dummyDataService.loadDummyData();
             System.out.println("Datos dummy inicializados exitosamente!");
             
-            System.out.println("Inicializando datos precargados...");
-            preloadedDataService.loadPreloadedData();
-            System.out.println("Datos precargados inicializados exitosamente!");
-            
-            System.out.println("Inicializando datos desde example.json...");
-            dataLoaderService.loadDataFromJson("example.json");
-            System.out.println("Datos de kills inicializados exitosamente!");
+            System.out.println("Inicializando partida de prueba...");
+            preloadedDataService.loadTestMatch();
+            System.out.println("Partida de prueba inicializada exitosamente!");
             
         } catch (Exception e) {
             System.err.println("Error inicializando datos: " + e.getMessage());

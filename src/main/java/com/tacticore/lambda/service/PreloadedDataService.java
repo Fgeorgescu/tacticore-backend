@@ -49,33 +49,6 @@ public class PreloadedDataService {
                 16, 
                 "processed", 
                 false
-            ),
-            new MatchEntity(
-                "3", 
-                "inferno_training_2024.dem", 
-                "Inferno", 
-                64, 
-                31, 
-                "processed", 
-                true
-            ),
-            new MatchEntity(
-                "4", 
-                "cache_ranked_2024.dem", 
-                "Cache", 
-                64, 
-                28, 
-                "processed", 
-                true
-            ),
-            new MatchEntity(
-                "5", 
-                "overpass_casual_2024.dem", 
-                "Overpass", 
-                64, 
-                22, 
-                "processed", 
-                false
             )
         );
         
@@ -90,103 +63,56 @@ public class PreloadedDataService {
         }
         
         List<ChatMessageEntity> preloadedMessages = Arrays.asList(
-            // Mensajes para match 1
+            // Mensaje de bienvenida para match 1
             new ChatMessageEntity(
                 "1", 
-                "Analyst", 
-                "¿Qué opinas de la jugada en el round 3?", 
+                "Bot", 
+                "Si tienes una duda, podes realizarme cualquier consulta", 
                 LocalDateTime.of(2024, 1, 15, 14, 30)
             ),
-            new ChatMessageEntity(
-                "1", 
-                "Player", 
-                "Fue una buena rotación, aproveché que estaban distraídos en B", 
-                LocalDateTime.of(2024, 1, 15, 14, 32)
-            ),
-            new ChatMessageEntity(
-                "1", 
-                "Coach", 
-                "El timing fue perfecto, pero podrías haber usado mejor cobertura", 
-                LocalDateTime.of(2024, 1, 15, 14, 35)
-            ),
-            new ChatMessageEntity(
-                "1", 
-                "Analyst", 
-                "El headshot en el round 5 fue impresionante", 
-                LocalDateTime.of(2024, 1, 15, 14, 40)
-            ),
             
-            // Mensajes para match 2
+            // Mensaje de bienvenida para match 2
             new ChatMessageEntity(
                 "2", 
-                "Player", 
-                "Esta partida casual está muy equilibrada", 
+                "Bot", 
+                "Si tienes una duda, podes realizarme cualquier consulta", 
                 LocalDateTime.of(2024, 1, 14, 16, 20)
-            ),
-            new ChatMessageEntity(
-                "2", 
-                "Spectator", 
-                "Buena estrategia en Mirage, especialmente en el sitio A", 
-                LocalDateTime.of(2024, 1, 14, 16, 25)
-            ),
-            new ChatMessageEntity(
-                "2", 
-                "Coach", 
-                "Necesitas mejorar el crosshair placement", 
-                LocalDateTime.of(2024, 1, 14, 16, 30)
-            ),
-            
-            // Mensajes para match 3
-            new ChatMessageEntity(
-                "3", 
-                "Analyst", 
-                "Excelente entrenamiento en Inferno", 
-                LocalDateTime.of(2024, 1, 13, 10, 15)
-            ),
-            new ChatMessageEntity(
-                "3", 
-                "Player", 
-                "Los smokes están funcionando muy bien", 
-                LocalDateTime.of(2024, 1, 13, 10, 18)
-            ),
-            new ChatMessageEntity(
-                "3", 
-                "Coach", 
-                "El trabajo en equipo mejoró mucho", 
-                LocalDateTime.of(2024, 1, 13, 10, 22)
-            ),
-            
-            // Mensajes para match 4
-            new ChatMessageEntity(
-                "4", 
-                "Player", 
-                "Cache es uno de mis mapas favoritos", 
-                LocalDateTime.of(2024, 1, 12, 20, 10)
-            ),
-            new ChatMessageEntity(
-                "4", 
-                "Analyst", 
-                "Buena estrategia en el sitio B", 
-                LocalDateTime.of(2024, 1, 12, 20, 15)
-            ),
-            
-            // Mensajes para match 5
-            new ChatMessageEntity(
-                "5", 
-                "Spectator", 
-                "Overpass tiene muchas oportunidades de flanqueo", 
-                LocalDateTime.of(2024, 1, 11, 18, 30)
-            ),
-            new ChatMessageEntity(
-                "5", 
-                "Player", 
-                "El timing de las rotaciones fue clave", 
-                LocalDateTime.of(2024, 1, 11, 18, 35)
             )
         );
         
         chatMessageRepository.saveAll(preloadedMessages);
         System.out.println("Mensajes de chat precargados: " + preloadedMessages.size());
+    }
+    
+    public void loadTestMatch() {
+        // Verificar si ya existe la partida de prueba
+        if (matchRepository.existsByMatchId("test_match")) {
+            return; // Ya existe
+        }
+        
+        // Crear partida de prueba
+        MatchEntity testMatch = new MatchEntity(
+            "test_match", 
+            "test_demo.dem", 
+            "Dust2", 
+            64, 
+            25, 
+            "completed", 
+            true
+        );
+        
+        matchRepository.save(testMatch);
+        
+        // Crear mensaje de bienvenida del Bot para la partida de prueba
+        ChatMessageEntity welcomeMessage = new ChatMessageEntity(
+            "test_match",
+            "Bot",
+            "Si tienes una duda, podes realizarme cualquier consulta",
+            LocalDateTime.of(2024, 1, 15, 14, 30)
+        );
+        chatMessageRepository.save(welcomeMessage);
+        
+        System.out.println("Partida de prueba creada: " + testMatch.getMatchId());
     }
     
     public void clearPreloadedData() {

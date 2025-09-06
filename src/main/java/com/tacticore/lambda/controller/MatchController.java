@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tacticore.lambda.model.MatchMetadata;
 import com.tacticore.lambda.model.MatchResponse;
 import com.tacticore.lambda.model.MatchEntity;
+import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,6 +24,9 @@ public class MatchController {
     
     @Autowired
     private DatabaseMatchService databaseMatchService;
+    
+    @Autowired
+    private ChatService chatService;
     
     @PostMapping(value = "/matches", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MatchResponse> uploadMatch(
@@ -118,6 +122,13 @@ public class MatchController {
     // Método para guardar partida en DB
     private void saveMatch(MatchEntity matchEntity) {
         databaseMatchService.saveMatch(matchEntity);
+        
+        // Crear mensaje de bienvenida del Bot para la nueva partida
+        chatService.addChatMessage(
+            matchEntity.getMatchId(), 
+            "Bot", 
+            "Si tienes una duda, podes realizarme cualquier consulta"
+        );
     }
     
     // Método para simular procesamiento asíncrono
