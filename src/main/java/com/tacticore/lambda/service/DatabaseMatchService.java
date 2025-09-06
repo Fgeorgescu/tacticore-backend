@@ -38,6 +38,34 @@ public class DatabaseMatchService {
                 .ifPresent(matchRepository::delete);
     }
     
+    public MatchEntity saveMatch(MatchEntity matchEntity) {
+        return matchRepository.save(matchEntity);
+    }
+    
+    public void updateMatchWithResults(String matchId, int totalKills, int tickrate, String mapName) {
+        matchRepository.findByMatchId(matchId).ifPresent(match -> {
+            match.setTotalKills(totalKills);
+            match.setTickrate(tickrate);
+            match.setMapName(mapName);
+            match.setStatus("completed");
+            matchRepository.save(match);
+        });
+    }
+    
+    public void updateMatchWithError(String matchId, String errorMessage) {
+        matchRepository.findByMatchId(matchId).ifPresent(match -> {
+            match.setStatus("failed");
+            // Podríamos agregar un campo errorMessage a la entidad si es necesario
+            matchRepository.save(match);
+        });
+    }
+    
+    public String getMatchStatus(String matchId) {
+        return matchRepository.findByMatchId(matchId)
+                .map(MatchEntity::getStatus)
+                .orElse("not_found");
+    }
+    
     public List<MatchDto> getMatchesByUser(String user) {
         // Por ahora retornamos todos los matches, pero podríamos filtrar por matches que contengan kills del usuario
         // Esto requeriría una consulta más compleja que relacione matches con kills
