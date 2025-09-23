@@ -253,12 +253,12 @@ docs-serve: ## Servir documentación con Docsify
 	@echo "$(BLUE)📚 Iniciando servidor de documentación...$(NC)"
 	@echo "$(YELLOW)📖 Documentación disponible en: http://localhost:3000$(NC)"
 	@echo "$(YELLOW)⏹️  Presiona Ctrl+C para detener$(NC)"
-	@cd docs-site && python3 -m http.server 3000
+	@cd docs && python3 -m http.server 3000
 
 .PHONY: docs-build
 docs-build: ## Construir documentación estática
 	@echo "$(BLUE)📚 Construyendo documentación...$(NC)"
-	@echo "$(GREEN)✅ Documentación construida en docs-site/$(NC)"
+	@echo "$(GREEN)✅ Documentación construida en docs/$(NC)"
 
 .PHONY: docs-open
 docs-open: ## Abrir documentación en el navegador
@@ -268,7 +268,11 @@ docs-open: ## Abrir documentación en el navegador
 .PHONY: docs-github
 docs-github: ## Abrir documentación en GitHub Pages
 	@echo "$(BLUE)🌐 Abriendo GitHub Pages...$(NC)"
-	@open https://fgeorgescu.github.io/tacticore-backend/ 2>/dev/null || echo "$(YELLOW)⚠️  Abre manualmente: https://fgeorgescu.github.io/tacticore-backend/$(NC)"
+	@echo "$(YELLOW)📖 Para habilitar GitHub Pages:$(NC)"
+	@echo "$(YELLOW)   1. Ve a Settings > Pages$(NC)"
+	@echo "$(YELLOW)   2. Selecciona 'Deploy from a branch'$(NC)"
+	@echo "$(YELLOW)   3. Elige branch 'main' y folder '/docs'$(NC)"
+	@echo "$(YELLOW)   4. URL: https://fgeorgescu.github.io/tacticore-backend/$(NC)"
 
 # Utilidades
 # ==========
