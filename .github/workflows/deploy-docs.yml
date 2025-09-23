@@ -33,15 +33,6 @@ jobs:
       with:
         fetch-depth: 0  # Necesario para obtener el historial completo
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install Docsify CLI
-      run: npm install -g docsify-cli@latest
-    
     - name: Build documentation
       run: |
         # Verificar que docs-site existe
