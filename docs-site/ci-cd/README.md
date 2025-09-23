@@ -259,6 +259,13 @@ make test
 make test-coverage
 ```
 
+## 📚 Secciones
+
+- **[GitHub Actions](github-actions.md)** - Configuración de GitHub Actions
+- **[Calidad de Código](quality.md)** - Herramientas de calidad
+- **[Despliegue](deployment.md)** - Estrategias de despliegue
+- **[GitHub Pages](github-pages.md)** - Documentación en GitHub Pages
+
 ## 📚 Recursos Adicionales
 
 ### Documentación

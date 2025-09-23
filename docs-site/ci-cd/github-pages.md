@@ -1,4 +1,6 @@
-# 📖 Configuración de GitHub Pages
+# 📖 GitHub Pages
+
+> Configuración y despliegue de documentación en GitHub Pages
 
 ## 🚀 Configuración Automática
 
