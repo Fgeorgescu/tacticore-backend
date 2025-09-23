@@ -110,4 +110,14 @@ public interface KillRepository extends JpaRepository<KillEntity, Long> {
     
     @Query("SELECT DISTINCT k.victim FROM KillEntity k ORDER BY k.victim")
     List<String> findAllVictims();
+    
+    // Métodos para filtrado por match y usuario
+    @Query("SELECT COUNT(k) FROM KillEntity k WHERE k.attacker = :user AND k.matchId = :matchId")
+    Long countKillsByUserAndMatchId(@Param("user") String user, @Param("matchId") String matchId);
+    
+    @Query("SELECT COUNT(k) FROM KillEntity k WHERE k.victim = :user AND k.matchId = :matchId")
+    Long countDeathsByUserAndMatchId(@Param("user") String user, @Param("matchId") String matchId);
+    
+    @Query("SELECT CASE WHEN COUNT(k) > 0 THEN true ELSE false END FROM KillEntity k WHERE k.matchId = :matchId AND k.attacker = :user")
+    boolean existsByMatchIdAndAttackerName(@Param("matchId") String matchId, @Param("user") String user);
 }

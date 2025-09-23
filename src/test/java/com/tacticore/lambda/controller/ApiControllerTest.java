@@ -1,6 +1,7 @@
 package com.tacticore.lambda.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tacticore.lambda.model.dto.MatchDto;
 import com.tacticore.lambda.service.AnalyticsService;
 import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
@@ -81,21 +82,41 @@ class ApiControllerTest {
     @Test
     void testGetDashboardStats() throws Exception {
         // Given
-        when(analyticsService.getDashboardStats()).thenReturn(
-            new com.tacticore.lambda.model.DashboardStats(5, 100, 80, 30, 10, 7.5, 1.25)
+        when(analyticsService.getDashboardStats(null)).thenReturn(
+            new com.tacticore.lambda.model.DashboardStats(2, 148, 148, 44, 14, 6.59, 1.06)
         );
 
         // When & Then
         mockMvc.perform(get("/api/analytics/dashboard"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.totalMatches").value(5))
-                .andExpect(jsonPath("$.totalKills").value(100))
-                .andExpect(jsonPath("$.totalDeaths").value(80))
-                .andExpect(jsonPath("$.totalGoodPlays").value(30))
-                .andExpect(jsonPath("$.totalBadPlays").value(10))
-                .andExpect(jsonPath("$.averageScore").value(7.5))
-                .andExpect(jsonPath("$.kdr").value(1.25));
+                .andExpect(jsonPath("$.totalMatches").value(2))
+                .andExpect(jsonPath("$.totalKills").value(148))
+                .andExpect(jsonPath("$.totalDeaths").value(148))
+                .andExpect(jsonPath("$.totalGoodPlays").value(44))
+                .andExpect(jsonPath("$.totalBadPlays").value(14))
+                .andExpect(jsonPath("$.averageScore").value(6.59))
+                .andExpect(jsonPath("$.kdr").value(1.06));
+    }
+
+    @Test
+    void testGetDashboardStatsWithUser() throws Exception {
+        // Given
+        when(analyticsService.getDashboardStats("flameZ")).thenReturn(
+            new com.tacticore.lambda.model.DashboardStats(1, 11, 18, 3, 1, 3.05, 0.61)
+        );
+
+        // When & Then
+        mockMvc.perform(get("/api/analytics/dashboard").param("user", "flameZ"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.totalMatches").value(1))
+                .andExpect(jsonPath("$.totalKills").value(11))
+                .andExpect(jsonPath("$.totalDeaths").value(18))
+                .andExpect(jsonPath("$.totalGoodPlays").value(3))
+                .andExpect(jsonPath("$.totalBadPlays").value(1))
+                .andExpect(jsonPath("$.averageScore").value(3.05))
+                .andExpect(jsonPath("$.kdr").value(0.61));
     }
 
     @Test
@@ -145,6 +166,28 @@ class ApiControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(1));
+    }
+
+    @Test
+    void testGetMatchesWithUser() throws Exception {
+        // Given
+        List<MatchDto> expectedMatches = Arrays.asList(
+            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDate.of(2025, 1, 15))
+        );
+        when(databaseMatchService.getMatchesByUser("flameZ")).thenReturn(expectedMatches);
+
+        // When & Then
+        mockMvc.perform(get("/api/matches").param("user", "flameZ"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.matches").isArray())
+                .andExpect(jsonPath("$.matches.length()").value(1))
+                .andExpect(jsonPath("$.filteredBy").value("flameZ"))
+                .andExpect(jsonPath("$.matches[0].id").value("match1"))
+                .andExpect(jsonPath("$.matches[0].kills").value(11))
+                .andExpect(jsonPath("$.matches[0].deaths").value(18))
+                .andExpect(jsonPath("$.matches[0].goodPlays").value(3))
+                .andExpect(jsonPath("$.matches[0].badPlays").value(1));
     }
 }
 
