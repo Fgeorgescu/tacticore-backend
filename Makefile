@@ -32,6 +32,7 @@ help: ## Mostrar esta ayuda
 	@echo "  make run            # Iniciar la aplicación"
 	@echo "  make test-api       # Probar endpoints de la API"
 	@echo "  make docs-serve     # Servir documentación"
+	@echo "  make docs-github    # Abrir GitHub Pages"
 
 # Desarrollo
 # ==========
@@ -263,6 +264,11 @@ docs-build: ## Construir documentación estática
 docs-open: ## Abrir documentación en el navegador
 	@echo "$(BLUE)🌐 Abriendo documentación...$(NC)"
 	@open http://localhost:3000 2>/dev/null || echo "$(YELLOW)⚠️  Abre manualmente: http://localhost:3000$(NC)"
+
+.PHONY: docs-github
+docs-github: ## Abrir documentación en GitHub Pages
+	@echo "$(BLUE)🌐 Abriendo GitHub Pages...$(NC)"
+	@open https://fgeorgescu.github.io/tacticore-backend/ 2>/dev/null || echo "$(YELLOW)⚠️  Abre manualmente: https://fgeorgescu.github.io/tacticore-backend/$(NC)"
 
 # Utilidades
 # ==========

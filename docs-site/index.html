@@ -184,6 +184,7 @@
       loadSidebar: true,
       loadNavbar: true,
       subMaxLevel: 3,
+      basePath: '/tacticore-backend/',
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -202,6 +203,7 @@
         crossChapter: true,
         crossChapterText: true
       },
+      notFoundPage: '_404.md',
       plugins: [
         function (hook, vm) {
           hook.beforeEach(function (html) {
