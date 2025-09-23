@@ -2,9 +2,11 @@ package com.tacticore.lambda.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tacticore.lambda.model.ChatMessageEntity;
 import com.tacticore.lambda.model.KillEntity;
 import com.tacticore.lambda.model.KillPredictionEntity;
 import com.tacticore.lambda.model.MatchEntity;
+import com.tacticore.lambda.repository.ChatMessageRepository;
 import com.tacticore.lambda.repository.KillPredictionRepository;
 import com.tacticore.lambda.repository.KillRepository;
 import com.tacticore.lambda.repository.MatchRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Service
 public class DataLoaderService {
@@ -25,6 +28,9 @@ public class DataLoaderService {
     
     @Autowired
     private MatchRepository matchRepository;
+    
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     
@@ -48,6 +54,15 @@ public class DataLoaderService {
         
         if (!matchRepository.existsByMatchId("example_match")) {
             matchRepository.save(match);
+            
+            // Agregar mensaje de bienvenida del Bot para esta partida
+            ChatMessageEntity welcomeMessage = new ChatMessageEntity(
+                "example_match",
+                "Bot",
+                "Si tienes una duda, podes realizarme cualquier consulta",
+                LocalDateTime.now()
+            );
+            chatMessageRepository.save(welcomeMessage);
         }
         
         // Cargar kills y predicciones

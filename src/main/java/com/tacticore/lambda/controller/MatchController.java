@@ -4,13 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tacticore.lambda.model.MatchMetadata;
 import com.tacticore.lambda.model.MatchResponse;
 import com.tacticore.lambda.model.MatchEntity;
+import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
+import com.tacticore.lambda.service.MLServiceClient;
+import com.tacticore.lambda.service.SimulationDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -23,6 +27,15 @@ public class MatchController {
     
     @Autowired
     private DatabaseMatchService databaseMatchService;
+    
+    @Autowired
+    private ChatService chatService;
+    
+    @Autowired
+    private MLServiceClient mlServiceClient;
+    
+    @Autowired
+    private SimulationDataMapper simulationDataMapper;
     
     @PostMapping(value = "/matches", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MatchResponse> uploadMatch(
@@ -118,6 +131,13 @@ public class MatchController {
     // Método para guardar partida en DB
     private void saveMatch(MatchEntity matchEntity) {
         databaseMatchService.saveMatch(matchEntity);
+        
+        // Crear mensaje de bienvenida del Bot para la nueva partida
+        chatService.addChatMessage(
+            matchEntity.getMatchId(), 
+            "Bot", 
+            "Si tienes una duda, podes realizarme cualquier consulta"
+        );
     }
     
     // Método para simular procesamiento asíncrono
@@ -127,13 +147,22 @@ public class MatchController {
                 // Simular delay de procesamiento (2-5 segundos)
                 Thread.sleep(2000 + (int)(Math.random() * 3000));
                 
-                // Simular resultados del procesamiento
-                int totalKills = 100 + (int)(Math.random() * 100); // 100-200 kills
-                int tickrate = 64;
-                String mapName = "Dust2"; // Por ahora fijo
+                // Llamar al servicio ML (que ahora puede ser simulación o real)
+                Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
                 
-                // Actualizar partida en DB con resultados
-                updateMatchWithResults(matchId, totalKills, tickrate, mapName);
+                // Mapear respuesta ML a entidades
+                SimulationDataMapper.SimulationResult result = simulationDataMapper.mapMLResponseToEntities(
+                    mlResponse, matchId, demFile.getOriginalFilename()
+                );
+                
+                // Actualizar match existente con resultados y persistir kills
+                databaseMatchService.updateMatchWithKills(
+                    matchId, 
+                    result.getTotalKills(), 
+                    result.getTickrate(), 
+                    result.getMapName(), 
+                    result.getKillEntities()
+                );
                 
                 System.out.println("Match processing completed for: " + matchId);
                 
@@ -145,12 +174,6 @@ public class MatchController {
                 updateMatchWithError(matchId, "Processing failed: " + e.getMessage());
             }
         });
-    }
-    
-    // Método para actualizar partida con resultados
-    private void updateMatchWithResults(String matchId, int totalKills, int tickrate, String mapName) {
-        System.out.println("Updating match " + matchId + " with results: kills=" + totalKills + ", tickrate=" + tickrate + ", map=" + mapName);
-        databaseMatchService.updateMatchWithResults(matchId, totalKills, tickrate, mapName);
     }
     
     // Método para actualizar partida con error

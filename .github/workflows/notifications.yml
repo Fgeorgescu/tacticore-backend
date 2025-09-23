@@ -1,0 +1,42 @@
+name: CI Notifications
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types: [completed]
+
+jobs:
+  notify:
+    name: Notify CI Status
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify Success
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      run: |
+        echo "✅ CI/CD Pipeline completed successfully!"
+        echo "🎉 All tests passed and code quality checks completed"
+        # Aquí se pueden agregar notificaciones a Slack, Discord, etc.
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"✅ Tacticore Backend CI/CD completed successfully!"}' \
+        #   $SLACK_WEBHOOK_URL
+        
+    - name: Notify Failure
+      if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+      run: |
+        echo "❌ CI/CD Pipeline failed!"
+        echo "🔍 Please check the logs for details"
+        # Aquí se pueden agregar notificaciones de error
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"❌ Tacticore Backend CI/CD failed! Check logs: ${{ github.event.workflow_run.html_url }}"}' \
+        #   $SLACK_WEBHOOK_URL
+        
+    - name: Notify Cancelled
+      if: ${{ github.event.workflow_run.conclusion == 'cancelled' }}
+      run: |
+        echo "⏹️ CI/CD Pipeline was cancelled"
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"⏹️ Tacticore Backend CI/CD was cancelled"}' \
+        #   $SLACK_WEBHOOK_URL
+
