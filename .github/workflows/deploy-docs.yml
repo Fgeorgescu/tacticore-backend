@@ -1,0 +1,125 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'docs-site/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'docs-site/**' ]
+
+  # Permite ejecutar manualmente desde GitHub Actions
+  workflow_dispatch:
+
+# Configura permisos para GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita ejecuciones concurrentes
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Job para construir la documentación
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Necesario para obtener el historial completo
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Docsify CLI
+      run: npm install -g docsify-cli@latest
+    
+    - name: Build documentation
+      run: |
+        # Verificar que docs-site existe
+        if [ ! -d "docs-site" ]; then
+          echo "❌ docs-site directory not found"
+          exit 1
+        fi
+        
+        # Crear directorio de salida
+        mkdir -p docs-build
+        
+        # Copiar archivos de documentación
+        cp -r docs-site/* docs-build/
+        
+        # Verificar que index.html existe
+        if [ ! -f "docs-build/index.html" ]; then
+          echo "❌ index.html not found in docs-site"
+          exit 1
+        fi
+        
+        echo "✅ Documentation built successfully"
+        echo "📁 Files in docs-build:"
+        ls -la docs-build/
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: docs-build/
+        retention-days: 1
+
+  # Job para desplegar a GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: documentation
+        path: docs-build/
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs-build/
+    
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  # Job para verificar el despliegue
+  verify:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Wait for deployment
+      run: sleep 30
+    
+    - name: Verify deployment
+      run: |
+        echo "🔍 Verificando despliegue en GitHub Pages..."
+        echo "📖 URL: https://fgeorgescu.github.io/tacticore-backend/"
+        
+        # Verificar que la página responde
+        if curl -f -s "https://fgeorgescu.github.io/tacticore-backend/" > /dev/null; then
+          echo "✅ GitHub Pages desplegado correctamente"
+        else
+          echo "❌ Error: GitHub Pages no responde"
+          exit 1
+        fi

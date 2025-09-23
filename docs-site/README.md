@@ -347,7 +347,8 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 - **Repositorio**: [GitHub](https://github.com/Fgeorgescu/tacticore-backend)
 - **Issues**: [GitHub Issues](https://github.com/Fgeorgescu/tacticore-backend/issues)
-- **Documentación**: [Docsify](http://localhost:3000)
+- **Documentación**: [GitHub Pages](https://fgeorgescu.github.io/tacticore-backend/)
+- **Documentación Local**: [Docsify](http://localhost:3000)
 
 ---
 
