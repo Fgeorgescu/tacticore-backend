@@ -37,13 +37,13 @@ help: ## Mostrar esta ayuda
 .PHONY: build
 build: ## Compilar el proyecto
 	@echo "$(BLUE)🔨 Compilando proyecto...$(NC)"
-	@mvn clean compile
+	@mvn clean compile -P dev
 	@echo "$(GREEN)✅ Compilación exitosa$(NC)"
 
 .PHONY: package
 package: ## Empaquetar la aplicación
 	@echo "$(BLUE)📦 Empaquetando aplicación...$(NC)"
-	@mvn clean package -DskipTests
+	@mvn clean package -DskipTests -P dev
 	@echo "$(GREEN)✅ Aplicación empaquetada: $(JAR_FILE)$(NC)"
 
 .PHONY: clean
@@ -184,6 +184,14 @@ ci: ## Ejecutar pipeline de CI localmente
 
 .PHONY: ci-quick
 ci-quick: build test package ## Pipeline de CI rápido (sin análisis de calidad)
+
+# Despliegue
+# ==========
+.PHONY: lambda-package
+lambda-package: ## Empaquetar para AWS Lambda
+	@echo "$(BLUE)📦 Empaquetando para AWS Lambda...$(NC)"
+	@mvn clean package -DskipTests -P lambda
+	@echo "$(GREEN)✅ JAR para Lambda creado: $(JAR_FILE)$(NC)"
 
 # Docker
 # ======
