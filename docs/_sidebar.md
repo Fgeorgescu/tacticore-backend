@@ -22,7 +22,7 @@
   - [GitHub Actions](ci-cd/github-actions.md)
   - [Calidad de Código](ci-cd/quality.md)
   - [Despliegue](ci-cd/deployment.md)
-  - [GitHub Pages](ci-cd/github-pages.md)
+  - [GitHub Pages](ci-cd/github-pages-setup.md)
 
 - [📚 Referencias](references/README.md)
   - [Tecnologías](references/technologies.md)

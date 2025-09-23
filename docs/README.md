@@ -1,167 +1,114 @@
-# Documentación de la API de Análisis de Kills
+# TactiCore Backend - Documentación
 
-## Índice de Documentación
+## 📚 Bienvenido a la Documentación
 
-Esta carpeta contiene toda la documentación necesaria para entender y utilizar la API de análisis de kills de Counter-Strike.
+Esta es la documentación completa del backend de TactiCore, un proyecto Spring Boot con AWS Lambda para análisis de partidas de Counter-Strike.
 
-### 📋 Documentos Principales
+## 🚀 Acceso Rápido
 
-1. **[API-ENDPOINTS-DOCUMENTATION.md](./API-ENDPOINTS-DOCUMENTATION.md)**
-   - Documentación detallada de cada endpoint
-   - Parámetros, respuestas y ejemplos de uso
-   - Casos de uso específicos para frontend
-   - Manejo de errores y códigos de estado
+- **Documentación Local**: `make docs-serve` (http://localhost:3000)
+- **GitHub Pages**: https://fgeorgescu.github.io/tacticore-backend/
+- **API Swagger**: http://localhost:8080/swagger-ui.html
 
-2. **[API-RESPONSE-EXAMPLES.md](./API-RESPONSE-EXAMPLES.md)**
-   - Ejemplos completos de respuestas JSON
-   - Estructuras de datos para diferentes escenarios
-   - Datos de ejemplo para desarrollo frontend
-   - Validaciones y constantes recomendadas
+## 📋 Estructura de la Documentación
 
-3. **[FRONTEND-TYPESCRIPT-INTERFACES.md](./FRONTEND-TYPESCRIPT-INTERFACES.md)**
-   - Interfaces TypeScript completas
-   - Servicios y hooks de React
-   - Utilidades y formateadores
-   - Configuración de TypeScript
+### 🔌 API
+- **[Endpoints](./api/endpoints.md)** - Documentación completa de endpoints
+- **[Ejemplos](./api/examples.md)** - Ejemplos de uso y respuestas
+- **[Interfaces TypeScript](./api/typescript.md)** - Tipos para frontend
+- **[Análisis de Kills](./api/kill-analysis.md)** - Algoritmos y métricas
 
-4. **[TECHNICAL-DOCUMENTATION.md](./TECHNICAL-DOCUMENTATION.md)**
-   - Documentación técnica completa de la implementación
-   - Estructura de la base de datos y entidades JPA
-   - Servicios, repositorios y controladores
-   - Consideraciones técnicas y arquitectura
+### 🏗️ Infraestructura
+- **[Terraform](./infrastructure/terraform.md)** - Infraestructura como código
+- **[AWS Lambda](./infrastructure/lambda.md)** - Configuración de Lambda
+- **[Base de Datos](./infrastructure/database.md)** - H2 y JPA
+- **[Docker](./infrastructure/docker.md)** - Contenedores
 
-5. **[KILL-ANALYSIS-RECOMMENDATIONS.md](./KILL-ANALYSIS-RECOMMENDATIONS.md)**
-   - Recomendaciones de algoritmos
-   - Patrones identificados en los datos
-   - Métricas clave para dashboards
-   - Consideraciones de implementación
+### 💻 Desarrollo
+- **[Configuración](./development/setup.md)** - Setup del entorno
+- **[Estructura](./development/structure.md)** - Arquitectura del proyecto
+- **[Makefile](./development/makefile.md)** - Comandos disponibles
+- **[Testing](./development/testing.md)** - Pruebas y CI
 
----
+### 🔄 CI/CD
+- **[GitHub Actions](./ci-cd/github-actions.md)** - Pipelines de CI/CD
+- **[Calidad](./ci-cd/quality.md)** - Análisis de código
+- **[Despliegue](./ci-cd/deployment.md)** - Estrategias de deploy
+- **[GitHub Pages](./ci-cd/github-pages.md)** - Documentación web
 
-## 🚀 Inicio Rápido
+### 📖 Referencias
+- **[Tecnologías](./references/technologies.md)** - Stack tecnológico
+- **[Enlaces](./references/links.md)** - Recursos útiles
+- **[Solución de Problemas](./references/troubleshooting.md)** - FAQ y fixes
 
-### Para Desarrolladores Frontend
+## 🛠️ Comandos Útiles
 
-1. **Leer la documentación de endpoints**: [API-ENDPOINTS-DOCUMENTATION.md](./API-ENDPOINTS-DOCUMENTATION.md)
-2. **Revisar ejemplos de respuestas**: [API-RESPONSE-EXAMPLES.md](./API-RESPONSE-EXAMPLES.md)
-3. **Implementar interfaces TypeScript**: [FRONTEND-TYPESCRIPT-INTERFACES.md](./FRONTEND-TYPESCRIPT-INTERFACES.md)
+```bash
+# Servir documentación localmente
+make docs-serve
 
-### Para Desarrolladores Backend
+# Construir documentación
+make docs-build
 
-1. **Entender la implementación**: [TECHNICAL-DOCUMENTATION.md](./TECHNICAL-DOCUMENTATION.md)
-2. **Revisar recomendaciones**: [KILL-ANALYSIS-RECOMMENDATIONS.md](./KILL-ANALYSIS-RECOMMENDATIONS.md)
+# Abrir documentación en navegador
+make docs-open
 
----
+# Abrir GitHub Pages
+make docs-github
 
-## 📊 Endpoints Disponibles
+# Ejecutar aplicación
+make run
 
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/api/analysis/overview` | GET | Análisis general de todos los kills |
-| `/api/analysis/player/{name}` | GET | Estadísticas de jugador específico |
-| `/api/analysis/round/{number}` | GET | Análisis de ronda específica |
-| `/api/data/load` | POST | Cargar datos desde JSON |
-| `/api/data/clear` | DELETE | Limpiar todos los datos |
-| `/api/data/status` | GET | Estado de la base de datos |
+# Ejecutar tests
+make test
 
----
+# Análisis de calidad
+make quality
+```
 
 ## 🔧 Configuración
 
-### Base de Datos H2
-- **URL**: `jdbc:h2:mem:testdb`
-- **Consola**: `http://localhost:8080/h2-console`
-- **Usuario**: `sa`
-- **Contraseña**: `password`
+### Requisitos
+- Java 17+
+- Maven 3.8+
+- Python 3+ (para documentación)
 
-### Aplicación
-- **Puerto**: `8080`
-- **Base URL**: `http://localhost:8080`
-- **CORS**: Habilitado para todos los orígenes
-
----
-
-## 📈 Datos de Ejemplo
-
-La aplicación incluye datos de ejemplo con:
-- **143 kills** de Counter-Strike
-- **10 jugadores** diferentes
-- **21 rondas** de juego
-- **Predicciones del modelo IA** para cada kill
-- **Información detallada** de contexto y posiciones
-
----
-
-## 🧪 Pruebas
-
-### Script de Prueba
+### Variables de Entorno
 ```bash
-./test-kill-analysis-api.sh
+# Base de datos H2
+export SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
+export SPRING_DATASOURCE_USERNAME=sa
+export SPRING_DATASOURCE_PASSWORD=password
+
+# Puerto de la aplicación
+export SERVER_PORT=8080
 ```
 
-### Ejemplos de Uso
-```bash
-# Análisis general
-curl http://localhost:8080/api/analysis/overview
+## 📊 Características Principales
 
-# Estadísticas de jugador
-curl http://localhost:8080/api/analysis/player/makazze
-
-# Análisis de ronda
-curl http://localhost:8080/api/analysis/round/1
-
-# Estado de datos
-curl http://localhost:8080/api/data/status
-```
-
----
-
-## 📝 Notas Importantes
-
-### Para el Frontend
-- Todos los endpoints retornan JSON
-- Los datos se calculan en tiempo real
-- Implementar manejo de errores apropiado
-- Considerar estados de carga y validación
-
-### Para el Backend
-- Base de datos en memoria (se pierde al reiniciar)
-- Datos se cargan automáticamente al iniciar
-- Estructura preparada para escalabilidad
-- Consultas optimizadas para rendimiento
-
----
+- ✅ **API REST** completa para análisis de kills
+- ✅ **Base de datos H2** en memoria
+- ✅ **Análisis en tiempo real** de partidas
+- ✅ **Filtrado por usuario** y rondas
+- ✅ **Documentación interactiva** con Docsify
+- ✅ **CI/CD** con GitHub Actions
+- ✅ **Infraestructura** con Terraform
+- ✅ **Despliegue** en AWS Lambda
 
 ## 🤝 Contribución
 
-Para agregar nuevos endpoints o funcionalidades:
-
-1. Actualizar las entidades JPA si es necesario
-2. Agregar métodos al repositorio correspondiente
-3. Implementar lógica en el servicio
-4. Crear endpoint en el controlador
-5. Actualizar la documentación
-6. Agregar tests si es necesario
-
----
+1. Fork el repositorio
+2. Crea un branch: `git checkout -b feature/nueva-funcionalidad`
+3. Commit cambios: `git commit -m 'Agregar nueva funcionalidad'`
+4. Push al branch: `git push origin feature/nueva-funcionalidad`
+5. Abre un Pull Request
 
 ## 📞 Soporte
 
-Para preguntas o problemas:
-
-1. Revisar la documentación correspondiente
-2. Verificar los ejemplos de uso
-3. Consultar los logs de la aplicación
-4. Usar la consola H2 para inspeccionar datos
+- **Issues**: [GitHub Issues](https://github.com/Fgeorgescu/tacticore-backend/issues)
+- **Documentación**: Esta documentación
+- **API**: Swagger UI en `/swagger-ui.html`
 
 ---
-
-## 🔄 Actualizaciones
-
-Esta documentación se actualiza cuando:
-- Se agregan nuevos endpoints
-- Se modifican estructuras de datos
-- Se implementan nuevas funcionalidades
-- Se corrigen errores o mejoran ejemplos
 
 **Última actualización**: Enero 2024
