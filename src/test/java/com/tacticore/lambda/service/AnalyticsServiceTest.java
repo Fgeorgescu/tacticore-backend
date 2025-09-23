@@ -3,6 +3,7 @@ package com.tacticore.lambda.service;
 import com.tacticore.lambda.model.AnalyticsData;
 import com.tacticore.lambda.model.AnalyticsDataEntity;
 import com.tacticore.lambda.model.DashboardStats;
+import com.tacticore.lambda.model.dto.MatchDto;
 import com.tacticore.lambda.repository.AnalyticsDataRepository;
 import com.tacticore.lambda.repository.KillRepository;
 import com.tacticore.lambda.repository.MatchRepository;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.times;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,6 +33,9 @@ class AnalyticsServiceTest {
 
     @Mock
     private MatchRepository matchRepository;
+    
+    @Mock
+    private DatabaseMatchService databaseMatchService;
 
     @InjectMocks
     private AnalyticsService analyticsService;
@@ -101,17 +106,44 @@ class AnalyticsServiceTest {
         when(matchRepository.findAll()).thenReturn(Arrays.asList(match1, match2));
 
         // When
-        DashboardStats result = analyticsService.getDashboardStats();
+        DashboardStats result = analyticsService.getDashboardStats(null);
 
         // Then
         assertNotNull(result);
-        assertEquals(6, result.getTotalMatches());
-        assertEquals(143, result.getTotalKills());
+        assertEquals(6, result.getTotalMatches()); // El mock devuelve 6 matches
+        assertEquals(143, result.getTotalKills()); // El mock devuelve 143 kills
+        assertEquals(143, result.getTotalDeaths()); // Ahora las deaths son iguales a kills para todos los usuarios
         assertTrue(result.getKdr() > 0);
         assertTrue(result.getAverageScore() > 0);
         
         verify(killRepository).count();
         verify(matchRepository).count();
+    }
+
+    @Test
+    void testGetDashboardStatsWithUser() {
+        // Given
+        String user = "flameZ";
+        when(killRepository.countKillsByUser(user)).thenReturn(11L);
+        when(killRepository.countDeathsByUser(user)).thenReturn(18L);
+        when(databaseMatchService.getMatchesByUser(user)).thenReturn(Arrays.asList(
+            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDate.of(2025, 1, 15))
+        ));
+
+        // When
+        DashboardStats result = analyticsService.getDashboardStats(user);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalMatches());
+        assertEquals(11, result.getTotalKills());
+        assertEquals(18, result.getTotalDeaths()); // Ahora las deaths se calculan correctamente por usuario
+        assertTrue(result.getKdr() > 0);
+        assertTrue(result.getAverageScore() > 0);
+        
+        verify(killRepository, times(2)).countKillsByUser(user); // Se llama 2 veces: línea 62 y 74
+        verify(killRepository, times(2)).countDeathsByUser(user); // Se llama 2 veces: línea 75 y 101
+        verify(databaseMatchService, times(2)).getMatchesByUser(user); // Se llama 2 veces: línea 63 y 112
     }
 
     @Test

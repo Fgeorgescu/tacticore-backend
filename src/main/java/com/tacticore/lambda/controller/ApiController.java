@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Comparator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,22 +100,45 @@ public class ApiController {
             killEntities = killAnalysisService.getAllKills();
         }
         
-        // Convertir entidades a DTOs para la respuesta
-        List<Map<String, Object>> kills = killEntities.stream()
-                .map(kill -> {
-                    Map<String, Object> killDto = new HashMap<>();
-                    killDto.put("id", kill.getKillId().hashCode()); // Convertir string a int
-                    killDto.put("killer", kill.getAttacker());
-                    killDto.put("victim", kill.getVictim());
-                    killDto.put("weapon", kill.getWeapon());
-                    killDto.put("isGoodPlay", kill.getHeadshot() || kill.getDistance() > 500); // Lógica simple para determinar si es buena jugada
-                    killDto.put("round", kill.getRound());
-                    killDto.put("time", String.format("%.1fs", kill.getTimeInRound()));
-                    killDto.put("teamAlive", Map.of("ct", 5, "t", 5)); // Mock data - en un sistema real esto vendría de la base de datos
-                    killDto.put("position", kill.getPlace());
-                    return killDto;
-                })
+        // Ordenar kills por ronda y tiempo para calcular jugadores vivos correctamente
+        List<KillEntity> sortedKills = killEntities.stream()
+                .sorted(Comparator.comparing(KillEntity::getRound)
+                        .thenComparing(KillEntity::getTimeInRound))
                 .collect(Collectors.toList());
+
+        // Convertir entidades a DTOs para la respuesta
+        List<Map<String, Object>> kills = new ArrayList<>();
+        Map<Integer, Map<String, Integer>> roundTeamCounts = new HashMap<>();
+        
+        for (KillEntity kill : sortedKills) {
+            int round = kill.getRound();
+            String victimSide = kill.getSide(); // El lado de la víctima
+            
+            // Inicializar contadores para la ronda si no existen
+            roundTeamCounts.putIfAbsent(round, new HashMap<>());
+            Map<String, Integer> teamCounts = roundTeamCounts.get(round);
+            teamCounts.putIfAbsent("ct", 5);
+            teamCounts.putIfAbsent("t", 5);
+            
+            // Decrementar el contador del equipo de la víctima
+            if ("ct".equals(victimSide)) {
+                teamCounts.put("ct", Math.max(0, teamCounts.get("ct") - 1));
+            } else if ("t".equals(victimSide)) {
+                teamCounts.put("t", Math.max(0, teamCounts.get("t") - 1));
+            }
+            
+            Map<String, Object> killDto = new HashMap<>();
+            killDto.put("id", kill.getKillId().hashCode()); // Convertir string a int
+            killDto.put("killer", kill.getAttacker());
+            killDto.put("victim", kill.getVictim());
+            killDto.put("weapon", kill.getWeapon());
+            killDto.put("isGoodPlay", kill.getHeadshot() || kill.getDistance() > 500); // Lógica simple para determinar si es buena jugada
+            killDto.put("round", kill.getRound());
+            killDto.put("time", String.format("%.1fs", kill.getTimeInRound()));
+            killDto.put("teamAlive", Map.of("ct", teamCounts.get("ct"), "t", teamCounts.get("t")));
+            killDto.put("position", kill.getPlace());
+            kills.add(killDto);
+        }
         
         Map<String, Object> response = new HashMap<>();
         response.put("kills", kills);
@@ -245,8 +269,8 @@ public class ApiController {
     
     // GET /api/analytics/dashboard
     @GetMapping("/analytics/dashboard")
-    public ResponseEntity<DashboardStats> getDashboardStats() {
-        DashboardStats stats = analyticsService.getDashboardStats();
+    public ResponseEntity<DashboardStats> getDashboardStats(@RequestParam(required = false) String user) {
+        DashboardStats stats = analyticsService.getDashboardStats(user);
         return ResponseEntity.ok(stats);
     }
     

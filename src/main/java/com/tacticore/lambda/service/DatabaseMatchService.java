@@ -104,11 +104,14 @@ public class DatabaseMatchService {
     }
     
     public List<MatchDto> getMatchesByUser(String user) {
-        // Por ahora retornamos todos los matches, pero podríamos filtrar por matches que contengan kills del usuario
-        // Esto requeriría una consulta más compleja que relacione matches con kills
+        // Obtener todos los matches que contienen kills del usuario
         List<MatchEntity> entities = matchRepository.findAll();
         return entities.stream()
-                .map(this::convertToDto)
+                .filter(match -> {
+                    // Verificar si el match tiene kills del usuario
+                    return killRepository.existsByMatchIdAndAttackerName(match.getMatchId(), user);
+                })
+                .map(entity -> convertToDtoForUser(entity, user))
                 .collect(Collectors.toList());
     }
     
@@ -135,6 +138,44 @@ public class DatabaseMatchService {
             dto.setDeaths(0);
             dto.setGoodPlays(0);
             dto.setBadPlays(0);
+            dto.setDuration("00:00");
+            dto.setScore(0.0);
+        }
+        
+        dto.setDate(LocalDate.now().minusDays((int)(Math.random() * 30))); // Random date within last 30 days
+        return dto;
+    }
+    
+    private MatchDto convertToDtoForUser(MatchEntity entity, String user) {
+        MatchDto dto = new MatchDto();
+        dto.setId(entity.getMatchId());
+        dto.setFileName(entity.getFileName());
+        dto.setHasVideo(entity.getHasVideo());
+        dto.setMap(entity.getMapName());
+        dto.setGameType("Ranked"); // Default value
+        
+        // Calcular estadísticas específicas del usuario
+        Long userKills = killRepository.countKillsByUserAndMatchId(user, entity.getMatchId());
+        Long userDeaths = killRepository.countDeathsByUserAndMatchId(user, entity.getMatchId());
+        
+        // Debug: verificar que los valores no sean null
+        if (userKills == null) userKills = 0L;
+        if (userDeaths == null) userDeaths = 0L;
+        
+        dto.setKills(userKills.intValue());
+        dto.setDeaths(userDeaths.intValue());
+        
+        // Calcular good/bad plays basado en los kills del usuario
+        dto.setGoodPlays(calculateGoodPlays(userKills.intValue()));
+        dto.setBadPlays(calculateBadPlays(userKills.intValue()));
+        
+        // Para duración y score, usar los valores del match completo
+        Integer totalKills = entity.getTotalKills();
+        if (totalKills != null) {
+            dto.setDuration(calculateDuration(totalKills));
+            // Calcular score basado en el rendimiento del usuario
+            dto.setScore(calculateUserScore(userKills.intValue(), userDeaths.intValue()));
+        } else {
             dto.setDuration("00:00");
             dto.setScore(0.0);
         }
@@ -174,6 +215,28 @@ public class DatabaseMatchService {
         double randomVariance = Math.random() * 1.5; // Random variance up to 1.5 points
         
         double rawScore = baseScore + killBonus + randomVariance;
+        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
+    }
+    
+    private double calculateUserScore(int userKills, int userDeaths) {
+        // Score específico del usuario basado en su KDR y rendimiento
+        if (userKills == 0 && userDeaths == 0) {
+            return 5.0; // Score neutral si no hay actividad
+        }
+        
+        // Calcular KDR
+        double kdr = userDeaths > 0 ? (double) userKills / userDeaths : userKills;
+        
+        // Score base basado en KDR
+        double baseScore = Math.min(kdr * 2.0, 8.0); // Max 8 puntos por KDR
+        
+        // Bonus por cantidad de kills
+        double killBonus = Math.min(userKills * 0.1, 2.0); // Max 2 puntos por kills
+        
+        // Penalización por muchas muertes
+        double deathPenalty = Math.min(userDeaths * 0.05, 1.0); // Max 1 punto de penalización
+        
+        double rawScore = baseScore + killBonus - deathPenalty;
         return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
     }
 }

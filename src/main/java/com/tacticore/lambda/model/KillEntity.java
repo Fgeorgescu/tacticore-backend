@@ -14,6 +14,9 @@ public class KillEntity {
     @Column(name = "kill_id", unique = true, nullable = false)
     private String killId;
     
+    @Column(name = "match_id", nullable = false)
+    private String matchId;
+    
     @Column(name = "attacker", nullable = false)
     private String attacker;
     
@@ -94,6 +97,9 @@ public class KillEntity {
     
     public String getKillId() { return killId; }
     public void setKillId(String killId) { this.killId = killId; }
+    
+    public String getMatchId() { return matchId; }
+    public void setMatchId(String matchId) { this.matchId = matchId; }
     
     public String getAttacker() { return attacker; }
     public void setAttacker(String attacker) { this.attacker = attacker; }

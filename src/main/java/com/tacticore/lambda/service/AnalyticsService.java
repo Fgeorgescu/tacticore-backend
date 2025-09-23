@@ -25,6 +25,9 @@ public class AnalyticsService {
     @Autowired
     private MatchRepository matchRepository;
     
+    @Autowired
+    private DatabaseMatchService databaseMatchService;
+    
     // Obtener datos históricos de analytics
     public List<AnalyticsData> getHistoricalAnalytics(String timeRange, String metric) {
         List<AnalyticsDataEntity> entities;
@@ -49,48 +52,100 @@ public class AnalyticsService {
     }
     
     // Obtener estadísticas del dashboard
-    public DashboardStats getDashboardStats() {
+    public DashboardStats getDashboardStats(String user) {
         // Calcular estadísticas desde los datos reales de kills y matches
-        Long totalKills = killRepository.count();
-        Long totalMatches = matchRepository.count();
+        Long totalKills;
+        Long totalMatches;
         
-        // Calcular kills y deaths por usuario para obtener KDR promedio
-        List<String> users = killRepository.findAllAttackers();
-        double totalKdr = 0.0;
-        int userCount = 0;
+        if (user != null && !user.isEmpty()) {
+            // Filtrar por usuario específico
+            totalKills = killRepository.countKillsByUser(user);
+            totalMatches = (long) databaseMatchService.getMatchesByUser(user).size();
+        } else {
+            // Todos los datos
+            totalKills = killRepository.count();
+            totalMatches = matchRepository.count();
+        }
         
-        for (String user : users) {
+        // Calcular KDR
+        double averageKdr = 0.0;
+        if (user != null && !user.isEmpty()) {
+            // KDR del usuario específico
             Long userKills = killRepository.countKillsByUser(user);
             Long userDeaths = killRepository.countDeathsByUser(user);
             if (userDeaths > 0) {
-                totalKdr += (double) userKills / userDeaths;
-                userCount++;
+                averageKdr = (double) userKills / userDeaths;
             }
+        } else {
+            // KDR promedio de todos los usuarios
+            List<String> users = killRepository.findAllAttackers();
+            double totalKdr = 0.0;
+            int userCount = 0;
+            
+            for (String u : users) {
+                Long userKills = killRepository.countKillsByUser(u);
+                Long userDeaths = killRepository.countDeathsByUser(u);
+                if (userDeaths > 0) {
+                    totalKdr += (double) userKills / userDeaths;
+                    userCount++;
+                }
+            }
+            
+            averageKdr = userCount > 0 ? totalKdr / userCount : 0.0;
         }
         
-        double averageKdr = userCount > 0 ? totalKdr / userCount : 0.0;
-        
         // Calcular estadísticas adicionales
-        Long totalDeaths = killRepository.countDeathsByUser(""); // Esto necesita ser ajustado
+        // Calcular muertes reales del usuario
+        Long totalDeaths;
+        if (user != null && !user.isEmpty()) {
+            totalDeaths = killRepository.countDeathsByUser(user);
+        } else {
+            // Para todos los usuarios, las muertes son iguales a los kills (cada kill es una muerte)
+            totalDeaths = totalKills;
+        }
         
         // Calcular promedio real de scores de las partidas
         double averageScore = 0.0;
         if (totalMatches > 0) {
-            // Obtener todas las partidas y calcular el promedio de sus scores
-            List<com.tacticore.lambda.model.MatchEntity> matches = matchRepository.findAll();
-            double totalScore = 0.0;
-            int matchesWithScore = 0;
-            
-            for (com.tacticore.lambda.model.MatchEntity match : matches) {
-                if (match.getTotalKills() != null && match.getTotalKills() > 0) {
-                    // Usar la misma lógica de cálculo de score que DatabaseMatchService
-                    double score = calculateScore(match.getTotalKills());
-                    totalScore += score;
-                    matchesWithScore++;
+            if (user != null && !user.isEmpty()) {
+                // Score promedio del usuario específico
+                List<com.tacticore.lambda.model.MatchEntity> userMatches = databaseMatchService.getMatchesByUser(user)
+                    .stream()
+                    .map(dto -> {
+                        com.tacticore.lambda.model.MatchEntity entity = new com.tacticore.lambda.model.MatchEntity();
+                        entity.setTotalKills(dto.getKills());
+                        return entity;
+                    })
+                    .collect(Collectors.toList());
+                
+                double totalScore = 0.0;
+                int matchesWithScore = 0;
+                
+                for (com.tacticore.lambda.model.MatchEntity match : userMatches) {
+                    if (match.getTotalKills() != null && match.getTotalKills() > 0) {
+                        double score = calculateScore(match.getTotalKills());
+                        totalScore += score;
+                        matchesWithScore++;
+                    }
                 }
+                
+                averageScore = matchesWithScore > 0 ? totalScore / matchesWithScore : 0.0;
+            } else {
+                // Score promedio de todas las partidas
+                List<com.tacticore.lambda.model.MatchEntity> matches = matchRepository.findAll();
+                double totalScore = 0.0;
+                int matchesWithScore = 0;
+                
+                for (com.tacticore.lambda.model.MatchEntity match : matches) {
+                    if (match.getTotalKills() != null && match.getTotalKills() > 0) {
+                        double score = calculateScore(match.getTotalKills());
+                        totalScore += score;
+                        matchesWithScore++;
+                    }
+                }
+                
+                averageScore = matchesWithScore > 0 ? totalScore / matchesWithScore : 0.0;
             }
-            
-            averageScore = matchesWithScore > 0 ? totalScore / matchesWithScore : 0.0;
         }
         
         // Por ahora, usar valores calculados básicos

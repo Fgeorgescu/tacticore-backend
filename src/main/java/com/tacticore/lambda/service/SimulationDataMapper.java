@@ -36,6 +36,7 @@ public class SimulationDataMapper {
             if (predictions != null) {
                 for (Map<String, Object> prediction : predictions) {
                     KillEntity killEntity = mapPredictionToKillEntity(prediction);
+                    killEntity.setMatchId(matchId); // Asignar el matchId al kill
                     killEntities.add(killEntity);
                 }
             }
