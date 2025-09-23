@@ -1,0 +1,29 @@
+- [🏠 Inicio](README.md)
+
+- [📋 API](api/README.md)
+  - [Endpoints](api/endpoints.md)
+  - [Ejemplos de Respuesta](api/examples.md)
+  - [Interfaces TypeScript](api/typescript.md)
+  - [Análisis de Kills](api/kill-analysis.md)
+
+- [🏗️ Infraestructura](infrastructure/README.md)
+  - [Terraform](infrastructure/terraform.md)
+  - [AWS Lambda](infrastructure/lambda.md)
+  - [Base de Datos](infrastructure/database.md)
+  - [Docker](infrastructure/docker.md)
+
+- [🔧 Desarrollo](development/README.md)
+  - [Configuración](development/setup.md)
+  - [Estructura del Proyecto](development/structure.md)
+  - [Comandos Makefile](development/makefile.md)
+  - [Testing](development/testing.md)
+
+- [📊 CI/CD](ci-cd/README.md)
+  - [GitHub Actions](ci-cd/github-actions.md)
+  - [Calidad de Código](ci-cd/quality.md)
+  - [Despliegue](ci-cd/deployment.md)
+
+- [📚 Referencias](references/README.md)
+  - [Tecnologías](references/technologies.md)
+  - [Enlaces Útiles](references/links.md)
+  - [Troubleshooting](references/troubleshooting.md)

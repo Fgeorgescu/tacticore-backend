@@ -31,6 +31,7 @@ help: ## Mostrar esta ayuda
 	@echo "  make test           # Ejecutar tests"
 	@echo "  make run            # Iniciar la aplicación"
 	@echo "  make test-api       # Probar endpoints de la API"
+	@echo "  make docs-serve     # Servir documentación"
 
 # Desarrollo
 # ==========
@@ -243,6 +244,25 @@ terraform-destroy: ## Destruir infraestructura de Terraform
 	@echo "$(BLUE)💥 Destruyendo infraestructura...$(NC)"
 	@cd terraform/environments/dev && terraform destroy
 	@echo "$(GREEN)✅ Infraestructura destruida$(NC)"
+
+# Documentación
+# =============
+.PHONY: docs-serve
+docs-serve: ## Servir documentación con Docsify
+	@echo "$(BLUE)📚 Iniciando servidor de documentación...$(NC)"
+	@echo "$(YELLOW)📖 Documentación disponible en: http://localhost:3000$(NC)"
+	@echo "$(YELLOW)⏹️  Presiona Ctrl+C para detener$(NC)"
+	@cd docs-site && python3 -m http.server 3000
+
+.PHONY: docs-build
+docs-build: ## Construir documentación estática
+	@echo "$(BLUE)📚 Construyendo documentación...$(NC)"
+	@echo "$(GREEN)✅ Documentación construida en docs-site/$(NC)"
+
+.PHONY: docs-open
+docs-open: ## Abrir documentación en el navegador
+	@echo "$(BLUE)🌐 Abriendo documentación...$(NC)"
+	@open http://localhost:3000 2>/dev/null || echo "$(YELLOW)⚠️  Abre manualmente: http://localhost:3000$(NC)"
 
 # Utilidades
 # ==========

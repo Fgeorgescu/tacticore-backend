@@ -1,0 +1,7 @@
+- [🏠 Inicio](README.md)
+- [📋 API](api/README.md)
+- [🏗️ Infraestructura](infrastructure/README.md)
+- [🔧 Desarrollo](development/README.md)
+- [📊 CI/CD](ci-cd/README.md)
+- [📚 Referencias](references/README.md)
+- [🔗 GitHub](https://github.com/Fgeorgescu/tacticore-backend)
