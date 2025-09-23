@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -142,7 +141,7 @@ public class DatabaseMatchService {
             dto.setScore(0.0);
         }
         
-        dto.setDate(LocalDate.now().minusDays((int)(Math.random() * 30))); // Random date within last 30 days
+        dto.setDate(entity.getCreatedAt().toLocalDate()); // Usar fecha de creación real
         return dto;
     }
     
@@ -180,7 +179,7 @@ public class DatabaseMatchService {
             dto.setScore(0.0);
         }
         
-        dto.setDate(LocalDate.now().minusDays((int)(Math.random() * 30))); // Random date within last 30 days
+        dto.setDate(entity.getCreatedAt().toLocalDate()); // Usar fecha de creación real
         return dto;
     }
     
