@@ -1,5 +1,7 @@
 package com.tacticore.lambda.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @Service
@@ -15,6 +21,15 @@ public class MLServiceClient {
     
     @Value("${ml.service.url:http://ml-service:8000}")
     private String mlServiceUrl;
+    
+    @Value("${simulation.enabled:false}")
+    private boolean simulationEnabled;
+    
+    @Value("${simulation.json-directory:demos-jsons}")
+    private String jsonDirectory;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
     
     private final RestTemplate restTemplate;
     
@@ -29,6 +44,51 @@ public class MLServiceClient {
      * @return Respuesta del servicio ML con análisis de kills
      */
     public Map<String, Object> analyzeDemoFile(MultipartFile file) {
+        if (simulationEnabled) {
+            return simulateMLResponse(file);
+        } else {
+            return callRealMLService(file);
+        }
+    }
+    
+    /**
+     * Simula la respuesta del servicio ML usando archivos JSON locales
+     */
+    private Map<String, Object> simulateMLResponse(MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || !fileName.endsWith(".dem")) {
+                throw new RuntimeException("Archivo DEM inválido: " + fileName);
+            }
+            
+            // Extraer nombre base del archivo (sin extensión)
+            String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+            
+            // Buscar archivo JSON correspondiente
+            String jsonFileName = baseName + ".json";
+            Path jsonPath = Paths.get(jsonDirectory, jsonFileName);
+            
+            if (!Files.exists(jsonPath)) {
+                throw new RuntimeException("No se encontró archivo JSON correspondiente: " + jsonFileName);
+            }
+            
+            // Leer y parsear el archivo JSON
+            String jsonContent = Files.readString(jsonPath);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = objectMapper.readValue(jsonContent, Map.class);
+            
+            System.out.println("Simulación ML: Usando archivo " + jsonFileName + " para " + fileName);
+            return response;
+            
+        } catch (IOException e) {
+            throw new RuntimeException("Error leyendo archivo JSON de simulación: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Llama al servicio ML real (método original)
+     */
+    private Map<String, Object> callRealMLService(MultipartFile file) {
         try {
             // Preparar headers
             HttpHeaders headers = new HttpHeaders();
@@ -43,10 +103,13 @@ public class MLServiceClient {
             
             // Hacer request al servicio ML
             String analyzeUrl = mlServiceUrl + "/analyze-demo";
+            @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.postForEntity(analyzeUrl, requestEntity, Map.class);
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return response.getBody();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+                return responseBody;
             } else {
                 throw new RuntimeException("Error en respuesta del servicio ML: " + response.getStatusCode());
             }
@@ -64,6 +127,7 @@ public class MLServiceClient {
     public boolean isServiceAvailable() {
         try {
             String healthUrl = mlServiceUrl + "/";
+            @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.getForEntity(healthUrl, Map.class);
             return response.getStatusCode() == HttpStatus.OK;
         } catch (Exception e) {
@@ -79,10 +143,13 @@ public class MLServiceClient {
     public Map<String, Object> getModelInfo() {
         try {
             String modelInfoUrl = mlServiceUrl + "/model-info";
+            @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.getForEntity(modelInfoUrl, Map.class);
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return response.getBody();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+                return responseBody;
             } else {
                 throw new RuntimeException("Error obteniendo información del modelo: " + response.getStatusCode());
             }

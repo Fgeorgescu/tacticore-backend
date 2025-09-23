@@ -1,10 +1,13 @@
 package com.tacticore.lambda.service;
 
+import com.tacticore.lambda.model.KillEntity;
 import com.tacticore.lambda.model.MatchEntity;
 import com.tacticore.lambda.model.dto.MatchDto;
+import com.tacticore.lambda.repository.KillRepository;
 import com.tacticore.lambda.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +19,9 @@ public class DatabaseMatchService {
     
     @Autowired
     private MatchRepository matchRepository;
+    
+    @Autowired
+    private KillRepository killRepository;
     
     public List<MatchDto> getAllMatches() {
         List<MatchEntity> entities = matchRepository.findAll();
@@ -40,6 +46,37 @@ public class DatabaseMatchService {
     
     public MatchEntity saveMatch(MatchEntity matchEntity) {
         return matchRepository.save(matchEntity);
+    }
+    
+    /**
+     * Actualiza un match existente con resultados y guarda todos sus kills
+     */
+    @Transactional
+    public void updateMatchWithKills(String matchId, Integer totalKills, Integer tickrate, String mapName, List<KillEntity> killEntities) {
+        // Buscar el match existente
+        Optional<MatchEntity> matchOpt = matchRepository.findByMatchId(matchId);
+        if (matchOpt.isPresent()) {
+            MatchEntity match = matchOpt.get();
+            
+            // Actualizar datos del match
+            match.setTotalKills(totalKills);
+            match.setTickrate(tickrate);
+            match.setMapName(mapName);
+            match.setStatus("completed");
+            
+            // Guardar el match actualizado
+            matchRepository.save(match);
+            
+            // Guardar todos los kills
+            if (killEntities != null && !killEntities.isEmpty()) {
+                killRepository.saveAll(killEntities);
+            }
+            
+            System.out.println("Actualizado match " + matchId + " con " + 
+                              (killEntities != null ? killEntities.size() : 0) + " kills");
+        } else {
+            throw new RuntimeException("Match no encontrado: " + matchId);
+        }
     }
     
     public void updateMatchWithResults(String matchId, int totalKills, int tickrate, String mapName) {
@@ -82,12 +119,26 @@ public class DatabaseMatchService {
         dto.setHasVideo(entity.getHasVideo());
         dto.setMap(entity.getMapName());
         dto.setGameType("Ranked"); // Default value
-        dto.setKills(entity.getTotalKills());
-        dto.setDeaths(calculateDeaths(entity.getTotalKills())); // Mock calculation
-        dto.setGoodPlays(calculateGoodPlays(entity.getTotalKills()));
-        dto.setBadPlays(calculateBadPlays(entity.getTotalKills()));
-        dto.setDuration(calculateDuration(entity.getTotalKills()));
-        dto.setScore(calculateScore(entity.getTotalKills()));
+        
+        // Manejar valores nulos para matches en procesamiento
+        Integer totalKills = entity.getTotalKills();
+        if (totalKills != null) {
+            dto.setKills(totalKills);
+            dto.setDeaths(calculateDeaths(totalKills));
+            dto.setGoodPlays(calculateGoodPlays(totalKills));
+            dto.setBadPlays(calculateBadPlays(totalKills));
+            dto.setDuration(calculateDuration(totalKills));
+            dto.setScore(calculateScore(totalKills));
+        } else {
+            // Valores por defecto para matches en procesamiento
+            dto.setKills(0);
+            dto.setDeaths(0);
+            dto.setGoodPlays(0);
+            dto.setBadPlays(0);
+            dto.setDuration("00:00");
+            dto.setScore(0.0);
+        }
+        
         dto.setDate(LocalDate.now().minusDays((int)(Math.random() * 30))); // Random date within last 30 days
         return dto;
     }

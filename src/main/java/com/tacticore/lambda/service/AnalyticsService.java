@@ -72,12 +72,30 @@ public class AnalyticsService {
         
         // Calcular estadísticas adicionales
         Long totalDeaths = killRepository.countDeathsByUser(""); // Esto necesita ser ajustado
-        Long totalHeadshots = killRepository.countHeadshotsByUser(""); // Esto también
+        
+        // Calcular promedio real de scores de las partidas
+        double averageScore = 0.0;
+        if (totalMatches > 0) {
+            // Obtener todas las partidas y calcular el promedio de sus scores
+            List<com.tacticore.lambda.model.MatchEntity> matches = matchRepository.findAll();
+            double totalScore = 0.0;
+            int matchesWithScore = 0;
+            
+            for (com.tacticore.lambda.model.MatchEntity match : matches) {
+                if (match.getTotalKills() != null && match.getTotalKills() > 0) {
+                    // Usar la misma lógica de cálculo de score que DatabaseMatchService
+                    double score = calculateScore(match.getTotalKills());
+                    totalScore += score;
+                    matchesWithScore++;
+                }
+            }
+            
+            averageScore = matchesWithScore > 0 ? totalScore / matchesWithScore : 0.0;
+        }
         
         // Por ahora, usar valores calculados básicos
         int totalGoodPlays = (int) (totalKills * 0.3); // Estimación: 30% de kills son "good plays"
         int totalBadPlays = (int) (totalKills * 0.1); // Estimación: 10% de kills son "bad plays"
-        double averageScore = totalKills > 0 ? (double) totalKills / totalMatches : 0.0;
         
         return new DashboardStats(
             totalMatches.intValue(),
@@ -117,5 +135,17 @@ public class AnalyticsService {
             analyticsData.getMatches()
         );
         return analyticsDataRepository.save(entity);
+    }
+    
+    // Método para calcular score individual (misma lógica que DatabaseMatchService)
+    private double calculateScore(int kills) {
+        // Normalized score calculation: scale 1-10 based on kills and performance
+        // Base score starts at 1.0, increases with kills, capped at 10.0
+        double baseScore = 1.0;
+        double killBonus = Math.min(kills * 0.15, 6.0); // Max 6 points from kills
+        double randomVariance = Math.random() * 1.5; // Random variance up to 1.5 points
+        
+        double rawScore = baseScore + killBonus + randomVariance;
+        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
     }
 }
