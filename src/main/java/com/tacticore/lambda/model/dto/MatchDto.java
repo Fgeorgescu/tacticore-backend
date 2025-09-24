@@ -1,7 +1,7 @@
 package com.tacticore.lambda.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class MatchDto {
     
@@ -39,14 +39,14 @@ public class MatchDto {
     private double score;
     
     @JsonProperty("date")
-    private LocalDate date;
+    private LocalDateTime date;
     
     // Constructors
     public MatchDto() {}
     
     public MatchDto(String id, String fileName, boolean hasVideo, String map, String gameType,
                    int kills, int deaths, int goodPlays, int badPlays, String duration, 
-                   double score, LocalDate date) {
+                   double score, LocalDateTime date) {
         this.id = id;
         this.fileName = fileName;
         this.hasVideo = hasVideo;
@@ -95,6 +95,6 @@ public class MatchDto {
     public double getScore() { return score; }
     public void setScore(double score) { this.score = score; }
     
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 }

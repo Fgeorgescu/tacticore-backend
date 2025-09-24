@@ -98,12 +98,14 @@ class AnalyticsServiceTest {
         when(killRepository.countKillsByUser("player2")).thenReturn(18L);
         when(killRepository.countDeathsByUser("player2")).thenReturn(12L);
         
-        // Mock MatchEntity objects for score calculation
-        com.tacticore.lambda.model.MatchEntity match1 = new com.tacticore.lambda.model.MatchEntity();
-        match1.setTotalKills(20);
-        com.tacticore.lambda.model.MatchEntity match2 = new com.tacticore.lambda.model.MatchEntity();
-        match2.setTotalKills(18);
-        when(matchRepository.findAll()).thenReturn(Arrays.asList(match1, match2));
+        // Mock MatchDto objects for score calculation
+        com.tacticore.lambda.model.dto.MatchDto match1 = new com.tacticore.lambda.model.dto.MatchDto();
+        match1.setKills(20);
+        match1.setScore(7.5); // Mock score
+        com.tacticore.lambda.model.dto.MatchDto match2 = new com.tacticore.lambda.model.dto.MatchDto();
+        match2.setKills(18);
+        match2.setScore(6.8); // Mock score
+        when(databaseMatchService.getAllMatches()).thenReturn(Arrays.asList(match1, match2));
 
         // When
         DashboardStats result = analyticsService.getDashboardStats(null);
@@ -127,7 +129,7 @@ class AnalyticsServiceTest {
         when(killRepository.countKillsByUser(user)).thenReturn(11L);
         when(killRepository.countDeathsByUser(user)).thenReturn(18L);
         when(databaseMatchService.getMatchesByUser(user)).thenReturn(Arrays.asList(
-            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDate.of(2025, 1, 15))
+            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDateTime.of(2025, 1, 15, 10, 30))
         ));
 
         // When

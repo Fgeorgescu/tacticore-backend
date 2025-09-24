@@ -108,38 +108,34 @@ public class AnalyticsService {
         double averageScore = 0.0;
         if (totalMatches > 0) {
             if (user != null && !user.isEmpty()) {
-                // Score promedio del usuario específico
-                List<com.tacticore.lambda.model.MatchEntity> userMatches = databaseMatchService.getMatchesByUser(user)
-                    .stream()
-                    .map(dto -> {
-                        com.tacticore.lambda.model.MatchEntity entity = new com.tacticore.lambda.model.MatchEntity();
-                        entity.setTotalKills(dto.getKills());
-                        return entity;
-                    })
-                    .collect(Collectors.toList());
+                // Score promedio del usuario específico en sus partidas
+                List<com.tacticore.lambda.model.dto.MatchDto> userMatches = databaseMatchService.getMatchesByUser(user);
                 
                 double totalScore = 0.0;
                 int matchesWithScore = 0;
                 
-                for (com.tacticore.lambda.model.MatchEntity match : userMatches) {
-                    if (match.getTotalKills() != null && match.getTotalKills() > 0) {
-                        double score = calculateScore(match.getTotalKills());
-                        totalScore += score;
+                for (com.tacticore.lambda.model.dto.MatchDto match : userMatches) {
+                    // Usar el score específico del usuario en esta partida
+                    double userScore = match.getScore();
+                    if (userScore > 0) {
+                        totalScore += userScore;
                         matchesWithScore++;
                     }
                 }
                 
                 averageScore = matchesWithScore > 0 ? totalScore / matchesWithScore : 0.0;
             } else {
-                // Score promedio de todas las partidas
-                List<com.tacticore.lambda.model.MatchEntity> matches = matchRepository.findAll();
+                // Score promedio de todas las partidas (usar scores ya calculados)
+                List<com.tacticore.lambda.model.dto.MatchDto> allMatches = databaseMatchService.getAllMatches();
+                
                 double totalScore = 0.0;
                 int matchesWithScore = 0;
                 
-                for (com.tacticore.lambda.model.MatchEntity match : matches) {
-                    if (match.getTotalKills() != null && match.getTotalKills() > 0) {
-                        double score = calculateScore(match.getTotalKills());
-                        totalScore += score;
+                for (com.tacticore.lambda.model.dto.MatchDto match : allMatches) {
+                    // Usar el score ya calculado de la partida
+                    double matchScore = match.getScore();
+                    if (matchScore > 0) {
+                        totalScore += matchScore;
                         matchesWithScore++;
                     }
                 }

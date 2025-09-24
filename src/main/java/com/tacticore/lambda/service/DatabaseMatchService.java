@@ -130,7 +130,9 @@ public class DatabaseMatchService {
             dto.setGoodPlays(calculateGoodPlays(totalKills));
             dto.setBadPlays(calculateBadPlays(totalKills));
             dto.setDuration(calculateDuration(totalKills));
-            dto.setScore(calculateScore(totalKills));
+            // Usar fórmula unificada para score general
+            dto.setScore(calculateUnifiedScore(totalKills, calculateDeaths(totalKills), 
+                calculateGoodPlays(totalKills), calculateBadPlays(totalKills)));
         } else {
             // Valores por defecto para matches en procesamiento
             dto.setKills(0);
@@ -141,7 +143,7 @@ public class DatabaseMatchService {
             dto.setScore(0.0);
         }
         
-        dto.setDate(entity.getCreatedAt().toLocalDate()); // Usar fecha de creación real
+        dto.setDate(entity.getCreatedAt()); // Usar fecha y hora de creación real
         return dto;
     }
     
@@ -172,70 +174,82 @@ public class DatabaseMatchService {
         Integer totalKills = entity.getTotalKills();
         if (totalKills != null) {
             dto.setDuration(calculateDuration(totalKills));
-            // Calcular score basado en el rendimiento del usuario
-            dto.setScore(calculateUserScore(userKills.intValue(), userDeaths.intValue()));
+            // Usar fórmula unificada para score del usuario
+            dto.setScore(calculateUnifiedScore(userKills.intValue(), userDeaths.intValue(), 
+                dto.getGoodPlays(), dto.getBadPlays()));
         } else {
             dto.setDuration("00:00");
             dto.setScore(0.0);
         }
         
-        dto.setDate(entity.getCreatedAt().toLocalDate()); // Usar fecha de creación real
+        dto.setDate(entity.getCreatedAt()); // Usar fecha y hora de creación real
         return dto;
     }
     
     private int calculateDeaths(int kills) {
-        // Mock calculation: deaths are usually 70-90% of kills
-        return (int)(kills * (0.7 + Math.random() * 0.2));
+        // Deterministic calculation: deaths are usually 70-90% of kills
+        // Use kills as seed for consistent results
+        double seed = kills * 0.98765; // Deterministic seed
+        double factor = 0.7 + (seed % 0.2); // 70-90% range
+        return (int)(kills * factor);
     }
     
     private int calculateGoodPlays(int kills) {
-        // Mock calculation: good plays are 30-50% of kills
-        return (int)(kills * (0.3 + Math.random() * 0.2));
+        // Deterministic calculation: good plays are 30-50% of kills
+        // Use kills as seed for consistent results
+        double seed = kills * 0.12345; // Deterministic seed
+        double factor = 0.3 + (seed % 0.2); // 30-50% range
+        return (int)(kills * factor);
     }
     
     private int calculateBadPlays(int kills) {
-        // Mock calculation: bad plays are 10-20% of kills
-        return (int)(kills * (0.1 + Math.random() * 0.1));
+        // Deterministic calculation: bad plays are 10-20% of kills
+        // Use kills as seed for consistent results
+        double seed = kills * 0.67890; // Different seed for variety
+        double factor = 0.1 + (seed % 0.1); // 10-20% range
+        return (int)(kills * factor);
     }
     
     private String calculateDuration(int kills) {
-        // Mock calculation: duration based on kills (roughly 1.5 minutes per kill)
-        int totalSeconds = kills * 90 + (int)(Math.random() * 300); // Add random variance
+        // Deterministic calculation: duration based on kills (roughly 1.5 minutes per kill)
+        // Use kills as seed for consistent results
+        double seed = kills * 0.54321; // Deterministic seed
+        int variance = (int)(seed % 300); // 0-300 seconds variance
+        int totalSeconds = kills * 90 + variance;
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
         return String.format("%d:%02d", minutes, seconds);
     }
     
-    private double calculateScore(int kills) {
-        // Normalized score calculation: scale 1-10 based on kills and performance
-        // Base score starts at 1.0, increases with kills, capped at 10.0
-        double baseScore = 1.0;
-        double killBonus = Math.min(kills * 0.15, 6.0); // Max 6 points from kills
-        double randomVariance = Math.random() * 1.5; // Random variance up to 1.5 points
-        
-        double rawScore = baseScore + killBonus + randomVariance;
-        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
-    }
-    
-    private double calculateUserScore(int userKills, int userDeaths) {
-        // Score específico del usuario basado en su KDR y rendimiento
-        if (userKills == 0 && userDeaths == 0) {
-            return 5.0; // Score neutral si no hay actividad
-        }
+    private double calculateUnifiedScore(int kills, int deaths, int goodPlays, int badPlays) {
+        // Fórmula unificada que incluye KDR y jugadas buenas/malas
+        // Ponderación: 2/3 jugadas, 1/3 KDR
         
         // Calcular KDR
-        double kdr = userDeaths > 0 ? (double) userKills / userDeaths : userKills;
+        double kdr = deaths > 0 ? (double) kills / deaths : kills;
         
-        // Score base basado en KDR
-        double baseScore = Math.min(kdr * 2.0, 8.0); // Max 8 puntos por KDR
+        // Componente KDR (1/3 del peso total)
+        double kdrComponent = Math.min(kdr * 1.5, 6.0); // Max 6 puntos por KDR
+        kdrComponent = Math.max(kdrComponent, 0.0); // Mínimo 0
         
-        // Bonus por cantidad de kills
-        double killBonus = Math.min(userKills * 0.1, 2.0); // Max 2 puntos por kills
+        // Componente de jugadas (2/3 del peso total)
+        double playsComponent = 0.0;
+        if (kills > 0) {
+            // Ratio de buenas jugadas vs total de actividad
+            double goodPlayRatio = (double) goodPlays / kills;
+            double badPlayRatio = (double) badPlays / kills;
+            
+            // Score basado en la diferencia entre buenas y malas jugadas
+            double playDifference = goodPlayRatio - badPlayRatio;
+            playsComponent = Math.min(playDifference * 8.0, 8.0); // Max 8 puntos
+            playsComponent = Math.max(playsComponent, -2.0); // Mínimo -2 puntos
+        }
         
-        // Penalización por muchas muertes
-        double deathPenalty = Math.min(userDeaths * 0.05, 1.0); // Max 1 punto de penalización
+        // Combinar componentes con ponderación
+        double rawScore = (playsComponent * 2.0/3.0) + (kdrComponent * 1.0/3.0);
         
-        double rawScore = baseScore + killBonus - deathPenalty;
-        return Math.min(Math.max(rawScore, 1.0), 10.0); // Ensure range 1.0-10.0
+        // Ajustar al rango 1.0-10.0
+        double adjustedScore = rawScore + 5.0; // Centrar en 5.0
+        return Math.min(Math.max(adjustedScore, 1.0), 10.0);
     }
 }

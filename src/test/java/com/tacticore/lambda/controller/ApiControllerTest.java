@@ -172,7 +172,7 @@ class ApiControllerTest {
     void testGetMatchesWithUser() throws Exception {
         // Given
         List<MatchDto> expectedMatches = Arrays.asList(
-            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDate.of(2025, 1, 15))
+            new MatchDto("match1", "demo1.dem", false, "Dust2", "Ranked", 11, 18, 3, 1, "45:30", 1.42, java.time.LocalDateTime.of(2025, 1, 15, 10, 30))
         );
         when(databaseMatchService.getMatchesByUser("flameZ")).thenReturn(expectedMatches);
 
