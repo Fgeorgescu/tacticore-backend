@@ -22,9 +22,9 @@ public class DataInitializer implements CommandLineRunner {
             dummyDataService.loadDummyData();
             System.out.println("Datos dummy inicializados exitosamente!");
             
-            System.out.println("Inicializando partida de prueba...");
-            preloadedDataService.loadTestMatch();
-            System.out.println("Partida de prueba inicializada exitosamente!");
+            System.out.println("Inicializando partida de Inferno...");
+            preloadedDataService.loadInfernoMatch();
+            System.out.println("Partida de Inferno inicializada exitosamente!");
             
         } catch (Exception e) {
             System.err.println("Error inicializando datos: " + e.getMessage());
