@@ -22,9 +22,20 @@ public class LambdaHandler {
     private ObjectMapper objectMapper;
 
     public LambdaHandler() {
-        // El contexto será inyectado por LambdaSpringBootHandler
-        this.applicationContext = LambdaSpringBootHandler.getApplicationContext();
+        // Inicializar Spring Boot directamente
+        initializeSpringBoot();
         this.objectMapper = applicationContext.getBean(ObjectMapper.class);
+    }
+
+    private void initializeSpringBoot() {
+        if (applicationContext == null) {
+            System.out.println("Initializing Spring Boot for Lambda...");
+            System.setProperty("spring.profiles.active", "lambda");
+            System.setProperty("spring.main.web-application-type", "none");
+            System.setProperty("spring.main.lazy-initialization", "true");
+            applicationContext = SpringApplication.run(LambdaApplication.class);
+            System.out.println("Spring Boot initialized successfully for Lambda");
+        }
     }
 
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
