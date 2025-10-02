@@ -2,14 +2,20 @@ package com.tacticore.lambda.service;
 
 import com.tacticore.lambda.model.KillEntity;
 import com.tacticore.lambda.model.MatchEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class SimulationDataMapper {
+    
+    @Autowired
+    private UserService userService;
     
     /**
      * Mapea la respuesta del ML service a entidades de base de datos
@@ -34,6 +40,19 @@ public class SimulationDataMapper {
             List<Map<String, Object>> predictions = (List<Map<String, Object>>) mlResponse.get("predictions");
             
             if (predictions != null) {
+                // Extraer usuarios únicos de los kills
+                Set<String> uniqueUsers = new HashSet<>();
+                for (Map<String, Object> prediction : predictions) {
+                    String attacker = (String) prediction.get("attacker");
+                    String victim = (String) prediction.get("victim");
+                    if (attacker != null) uniqueUsers.add(attacker);
+                    if (victim != null) uniqueUsers.add(victim);
+                }
+                
+                // Asegurar que todos los usuarios existan en la base de datos
+                userService.ensureUsersExist(new ArrayList<>(uniqueUsers));
+                
+                // Mapear kills
                 for (Map<String, Object> prediction : predictions) {
                     KillEntity killEntity = mapPredictionToKillEntity(prediction);
                     killEntity.setMatchId(matchId); // Asignar el matchId al kill
