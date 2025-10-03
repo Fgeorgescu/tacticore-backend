@@ -1,49 +1,135 @@
 package com.tacticore.lambda.controller;
 
+import com.tacticore.lambda.model.UserEntity;
+import com.tacticore.lambda.model.dto.UserDto;
+import com.tacticore.lambda.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
 public class UserController {
     
-    // Mock user data
-    private final Map<String, Object> mockUser = new HashMap<>();
+    @Autowired
+    private UserService userService;
     
-    public UserController() {
-        mockUser.put("id", "user_123");
-        mockUser.put("username", "tacticore_player");
-        mockUser.put("email", "player@tacticore.com");
-        mockUser.put("createdAt", LocalDateTime.of(2024, 1, 1, 0, 0));
+    // Get all users
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserEntity> users = userService.getAllUsers();
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
     }
     
-    // GET /api/user/profile
-    @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getUserProfile() {
-        return ResponseEntity.ok(mockUser);
+    // Get user by name
+    @GetMapping("/{name}")
+    public ResponseEntity<UserDto> getUserByName(@PathVariable String name) {
+        Optional<UserEntity> user = userService.getUserByName(name);
+        if (user.isPresent()) {
+            UserDto userDto = userService.convertToDto(user.get());
+            return ResponseEntity.ok(userDto);
+        }
+        return ResponseEntity.notFound().build();
     }
     
-    // PUT /api/user/profile
-    @PutMapping("/profile")
-    public ResponseEntity<Map<String, Object>> updateUserProfile(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String email = request.get("email");
+    // Check if user exists
+    @GetMapping("/exists/{name}")
+    public ResponseEntity<Boolean> userExists(@PathVariable String name) {
+        boolean exists = userService.userExists(name);
+        return ResponseEntity.ok(exists);
+    }
+    
+    // Search users by name
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String name) {
+        List<UserEntity> users = userService.searchUsersByName(name);
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Get users by role
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable String role) {
+        List<UserEntity> users = userService.getUsersByRole(role);
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Get top players by average score
+    @GetMapping("/top/score")
+    public ResponseEntity<List<UserDto>> getTopPlayersByScore() {
+        List<UserEntity> users = userService.getTopPlayersByScore();
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Get top players by kills
+    @GetMapping("/top/kills")
+    public ResponseEntity<List<UserDto>> getTopPlayersByKills() {
+        List<UserEntity> users = userService.getTopPlayersByKills();
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Get top players by KDR
+    @GetMapping("/top/kdr")
+    public ResponseEntity<List<UserDto>> getTopPlayersByKDR() {
+        List<UserEntity> users = userService.getTopPlayersByKDR();
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Get top players with minimum matches
+    @GetMapping("/top/matches")
+    public ResponseEntity<List<UserDto>> getTopPlayersByMatches(@RequestParam(defaultValue = "5") int minMatches) {
+        List<UserEntity> users = userService.getTopPlayersByMatches(minMatches);
+        List<UserDto> userDtos = userService.convertToDtoList(users);
+        return ResponseEntity.ok(userDtos);
+    }
+    
+    // Create or get user
+    @PostMapping
+    public ResponseEntity<UserDto> createOrGetUser(@RequestBody CreateUserRequest request) {
+        UserEntity user = userService.createOrGetUser(request.getName(), request.getRole());
+        UserDto userDto = userService.convertToDto(user);
+        return ResponseEntity.ok(userDto);
+    }
+    
+    // Get available roles
+    @GetMapping("/roles")
+    public ResponseEntity<String[]> getAvailableRoles() {
+        String[] roles = userService.getAvailableRoles();
+        return ResponseEntity.ok(roles);
+    }
+    
+    // Get user statistics
+    @GetMapping("/stats")
+    public ResponseEntity<UserService.UserStats> getUserStatistics() {
+        UserService.UserStats stats = userService.getUserStatistics();
+        return ResponseEntity.ok(stats);
+    }
+    
+    // Inner class for request body
+    public static class CreateUserRequest {
+        private String name;
+        private String role;
         
-        if (username != null) {
-            mockUser.put("username", username);
+        public CreateUserRequest() {}
+        
+        public CreateUserRequest(String name, String role) {
+            this.name = name;
+            this.role = role;
         }
         
-        if (email != null) {
-            mockUser.put("email", email);
-        }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
         
-        mockUser.put("updatedAt", LocalDateTime.now());
-        
-        return ResponseEntity.ok(mockUser);
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
     }
 }

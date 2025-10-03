@@ -4,28 +4,40 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tacticore.lambda.model.dto.UserDto;
+import com.tacticore.lambda.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class LambdaHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class LambdaHandler {
 
-    private static ConfigurableApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
+    private ObjectMapper objectMapper;
 
-    static {
-        // Inicializar Spring Boot solo una vez
+    public LambdaHandler() {
+        // Inicializar Spring Boot directamente
+        initializeSpringBoot();
+        this.objectMapper = applicationContext.getBean(ObjectMapper.class);
+    }
+
+    private void initializeSpringBoot() {
         if (applicationContext == null) {
+            System.out.println("Initializing Spring Boot for Lambda...");
+            System.setProperty("spring.profiles.active", "lambda");
+            System.setProperty("spring.main.web-application-type", "none");
+            System.setProperty("spring.main.lazy-initialization", "true");
             applicationContext = SpringApplication.run(LambdaApplication.class);
+            System.out.println("Spring Boot initialized successfully for Lambda");
         }
     }
 
-    @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         System.out.println("Received request: " + input.getHttpMethod() + " " + input.getPath());
         
@@ -63,6 +75,14 @@ public class LambdaHandler implements RequestHandler<APIGatewayProxyRequestEvent
                 return handleMatchUpload(input, response, webContext);
             } else if (path.matches("/api/matches/[^/]+") && HttpMethod.GET.name().equals(method)) {
                 return handleMatchStatus(input, response, webContext);
+            } else if ("/api/users".equals(path) && HttpMethod.GET.name().equals(method)) {
+                return handleGetAllUsers(response, webContext);
+            } else if (path.matches("/api/users/[^/]+") && HttpMethod.GET.name().equals(method)) {
+                return handleGetUserByName(input, response, webContext);
+            } else if ("/api/users/search".equals(path) && HttpMethod.GET.name().equals(method)) {
+                return handleSearchUsers(input, response, webContext);
+            } else if ("/api/users/roles".equals(path) && HttpMethod.GET.name().equals(method)) {
+                return handleGetRoles(response, webContext);
             } else if ("/hello".equals(path) && HttpMethod.GET.name().equals(method)) {
                 return handleHelloWorld(response);
             } else {
@@ -134,6 +154,99 @@ public class LambdaHandler implements RequestHandler<APIGatewayProxyRequestEvent
         response.setStatusCode(404);
         response.setBody("{\"error\": \"Not Found\", \"message\": \"Endpoint not found\"}");
         return response;
+    }
+    
+    private APIGatewayProxyResponseEvent handleGetAllUsers(APIGatewayProxyResponseEvent response, 
+                                                          WebApplicationContext webContext) {
+        try {
+            UserService userService = applicationContext.getBean(UserService.class);
+            List<UserDto> users = userService.convertToDtoList(userService.getAllUsers());
+            String usersJson = objectMapper.writeValueAsString(users);
+            
+            response.setStatusCode(200);
+            response.setBody(usersJson);
+            return response;
+        } catch (Exception e) {
+            System.err.println("Error getting all users: " + e.getMessage());
+            response.setStatusCode(500);
+            response.setBody("{\"error\":\"Internal server error\",\"message\":\"" + e.getMessage() + "\"}");
+            return response;
+        }
+    }
+    
+    private APIGatewayProxyResponseEvent handleGetUserByName(APIGatewayProxyRequestEvent input,
+                                                            APIGatewayProxyResponseEvent response, 
+                                                            WebApplicationContext webContext) {
+        try {
+            String path = input.getPath();
+            String userName = path.substring(path.lastIndexOf('/') + 1);
+            
+            UserService userService = applicationContext.getBean(UserService.class);
+            var userOpt = userService.getUserByName(userName);
+            
+            if (userOpt.isPresent()) {
+                UserDto userDto = userService.convertToDto(userOpt.get());
+                String userJson = objectMapper.writeValueAsString(userDto);
+                response.setStatusCode(200);
+                response.setBody(userJson);
+            } else {
+                response.setStatusCode(404);
+                response.setBody("{\"error\":\"User not found\",\"message\":\"User '" + userName + "' does not exist\"}");
+            }
+            
+            return response;
+        } catch (Exception e) {
+            System.err.println("Error getting user by name: " + e.getMessage());
+            response.setStatusCode(500);
+            response.setBody("{\"error\":\"Internal server error\",\"message\":\"" + e.getMessage() + "\"}");
+            return response;
+        }
+    }
+    
+    private APIGatewayProxyResponseEvent handleSearchUsers(APIGatewayProxyRequestEvent input,
+                                                          APIGatewayProxyResponseEvent response, 
+                                                          WebApplicationContext webContext) {
+        try {
+            String name = input.getQueryStringParameters() != null ? 
+                         input.getQueryStringParameters().get("name") : "";
+            
+            if (name == null || name.length() < 2) {
+                response.setStatusCode(200);
+                response.setBody("[]");
+                return response;
+            }
+            
+            UserService userService = applicationContext.getBean(UserService.class);
+            List<UserDto> users = userService.convertToDtoList(userService.searchUsersByName(name));
+            String searchResults = objectMapper.writeValueAsString(users);
+            
+            response.setStatusCode(200);
+            response.setBody(searchResults);
+            return response;
+        } catch (Exception e) {
+            System.err.println("Error searching users: " + e.getMessage());
+            response.setStatusCode(500);
+            response.setBody("{\"error\":\"Internal server error\",\"message\":\"" + e.getMessage() + "\"}");
+            return response;
+        }
+    }
+    
+    private APIGatewayProxyResponseEvent handleGetRoles(APIGatewayProxyResponseEvent response, 
+                                                       WebApplicationContext webContext) {
+        try {
+            UserService userService = applicationContext.getBean(UserService.class);
+            String[] roles = userService.getAvailableRoles();
+            String rolesJson = objectMapper.writeValueAsString(roles);
+            
+            response.setStatusCode(200);
+            response.setBody(rolesJson);
+            return response;
+        } catch (Exception e) {
+            System.err.println("Error getting roles: " + e.getMessage());
+            response.setStatusCode(500);
+            response.setBody("{\"error\":\"Internal server error\",\"message\":\"" + e.getMessage() + "\"}");
+            return response;
+        }
     }
     
     private APIGatewayProxyResponseEvent createErrorResponse(String errorMessage) {

@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +20,9 @@ public class DatabaseMatchService {
     
     @Autowired
     private KillRepository killRepository;
+    
+    @Autowired
+    private UserService userService;
     
     public List<MatchDto> getAllMatches() {
         List<MatchEntity> entities = matchRepository.findAll();
@@ -69,6 +71,9 @@ public class DatabaseMatchService {
             // Guardar todos los kills
             if (killEntities != null && !killEntities.isEmpty()) {
                 killRepository.saveAll(killEntities);
+                
+                // Calcular y actualizar estadísticas de usuarios
+                updateUserStatsFromKills(killEntities);
             }
             
             System.out.println("Actualizado match " + matchId + " con " + 
@@ -251,5 +256,38 @@ public class DatabaseMatchService {
         // Ajustar al rango 1.0-10.0
         double adjustedScore = rawScore + 5.0; // Centrar en 5.0
         return Math.min(Math.max(adjustedScore, 1.0), 10.0);
+    }
+    
+    /**
+     * Actualiza las estadísticas de usuarios basándose en los kills de una partida
+     */
+    private void updateUserStatsFromKills(List<KillEntity> killEntities) {
+        // Agrupar kills por usuario (attacker)
+        Map<String, List<KillEntity>> killsByUser = killEntities.stream()
+                .filter(kill -> kill.getAttacker() != null)
+                .collect(Collectors.groupingBy(KillEntity::getAttacker));
+        
+        // Calcular estadísticas por usuario
+        for (Map.Entry<String, List<KillEntity>> entry : killsByUser.entrySet()) {
+            String userName = entry.getKey();
+            List<KillEntity> userKills = entry.getValue();
+            
+            // Calcular kills y deaths para este usuario en esta partida
+            int kills = userKills.size();
+            int deaths = (int) killEntities.stream()
+                    .filter(kill -> userName.equals(kill.getVictim()))
+                    .count();
+            
+            // Calcular score usando la fórmula unificada
+            int goodPlays = calculateGoodPlays(kills);
+            int badPlays = calculateBadPlays(kills);
+            double score = calculateUnifiedScore(kills, deaths, goodPlays, badPlays);
+            
+            // Actualizar estadísticas del usuario
+            userService.updateUserStats(userName, kills, deaths, score);
+            
+            System.out.println("Actualizadas estadísticas para " + userName + 
+                              ": " + kills + " kills, " + deaths + " deaths, score: " + score);
+        }
     }
 }
