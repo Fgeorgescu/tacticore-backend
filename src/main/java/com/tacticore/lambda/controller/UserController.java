@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -112,6 +114,62 @@ public class UserController {
     public ResponseEntity<UserService.UserStats> getUserStatistics() {
         UserService.UserStats stats = userService.getUserStatistics();
         return ResponseEntity.ok(stats);
+    }
+    
+    // Get user profile
+    @GetMapping("/{name}/profile")
+    public ResponseEntity<com.tacticore.lambda.model.dto.UserProfileDto> getUserProfile(@PathVariable String name) {
+        try {
+            com.tacticore.lambda.model.dto.UserProfileDto profile = userService.getUserProfile(name);
+            return ResponseEntity.ok(profile);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    // Debug endpoint: Get users from kills data
+    @GetMapping("/debug/kills-users")
+    public ResponseEntity<java.util.Map<String, Object>> getKillsUsers() {
+        java.util.Map<String, Object> result = userService.getKillsUsersDebugInfo();
+        return ResponseEntity.ok(result);
+    }
+    
+    @Autowired
+    private com.tacticore.lambda.service.PreloadedDataService preloadedDataService;
+    
+    // Debug endpoint: Reload kills with user mapping
+    @PostMapping("/debug/reload-kills")
+    public ResponseEntity<String> reloadKills() {
+        try {
+            preloadedDataService.reloadKillsWithMapping();
+            return ResponseEntity.ok("Kills recargados exitosamente con mapeo de usuarios");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error recargando kills: " + e.getMessage());
+        }
+    }
+    
+    // Debug endpoint: Update all user stats from kills
+    @PostMapping("/debug/update-stats")
+    public ResponseEntity<String> updateUserStats() {
+        try {
+            preloadedDataService.updateAllUserStatsFromKills();
+            return ResponseEntity.ok("Estadísticas de usuarios actualizadas exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error actualizando estadísticas: " + e.getMessage());
+        }
+    }
+    
+    // Debug endpoint: Get real kills/deaths for a specific user
+    @GetMapping("/debug/{userName}/real-stats")
+    public ResponseEntity<Map<String, Object>> getRealUserStats(@PathVariable String userName) {
+        try {
+            Map<String, Object> stats = userService.getRealUserStatsFromKills(userName);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
     
     // Inner class for request body

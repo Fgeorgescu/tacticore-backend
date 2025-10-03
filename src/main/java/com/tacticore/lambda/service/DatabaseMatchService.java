@@ -259,35 +259,71 @@ public class DatabaseMatchService {
     }
     
     /**
-     * Actualiza las estadísticas de usuarios basándose en los kills de una partida
+     * Actualiza las estadísticas de usuarios basándose en TODOS los kills de la base de datos (Enfoque B)
+     * Este método recalcula las estadísticas globales para garantizar consistencia
      */
     private void updateUserStatsFromKills(List<KillEntity> killEntities) {
-        // Agrupar kills por usuario (attacker)
-        Map<String, List<KillEntity>> killsByUser = killEntities.stream()
-                .filter(kill -> kill.getAttacker() != null)
-                .collect(Collectors.groupingBy(KillEntity::getAttacker));
+        // Obtener todos los usuarios únicos que participaron en esta partida
+        Set<String> usersInMatch = new HashSet<>();
         
-        // Calcular estadísticas por usuario
-        for (Map.Entry<String, List<KillEntity>> entry : killsByUser.entrySet()) {
-            String userName = entry.getKey();
-            List<KillEntity> userKills = entry.getValue();
+        for (KillEntity kill : killEntities) {
+            if (kill.getAttacker() != null) {
+                usersInMatch.add(kill.getAttacker());
+            }
+            if (kill.getVictim() != null) {
+                usersInMatch.add(kill.getVictim());
+            }
+        }
+        
+        // Para cada usuario, recalcular sus estadísticas globales desde la base de datos
+        for (String userName : usersInMatch) {
+            updateGlobalUserStatsFromDatabase(userName);
+        }
+    }
+    
+    /**
+     * Recalcula las estadísticas globales de un usuario desde toda la base de datos
+     */
+    private void updateGlobalUserStatsFromDatabase(String userName) {
+        try {
+            // Obtener estadísticas reales de kills desde toda la base de datos
+            Long totalKillsFromDB = killRepository.countKillsByUser(userName);
+            Long totalDeathsFromDB = killRepository.countDeathsByUser(userName);
             
-            // Calcular kills y deaths para este usuario en esta partida
-            int kills = userKills.size();
-            int deaths = (int) killEntities.stream()
-                    .filter(kill -> userName.equals(kill.getVictim()))
-                    .count();
+            int actualKills = (totalKillsFromDB != null) ? totalKillsFromDB.intValue() : 0;
+            int actualDeaths = (totalDeathsFromDB != null) ? totalDeathsFromDB.intValue() : 0;
             
-            // Calcular score usando la fórmula unificada
-            int goodPlays = calculateGoodPlays(kills);
-            int badPlays = calculateBadPlays(kills);
-            double score = calculateUnifiedScore(kills, deaths, goodPlays, badPlays);
+            // Calcular cuántas partidas diferentes ha jugado este usuario
+            int totalMatches = calculateUserMatches(userName);
             
-            // Actualizar estadísticas del usuario
-            userService.updateUserStats(userName, kills, deaths, score);
+            // Calcular estadísticas usando los métodos del sistema
+            int goodPlays = calculateGoodPlays(actualKills);
+            int badPlays = calculateBadPlays(actualKills);
+            double score = calculateUnifiedScore(actualKills, actualDeaths, goodPlays, badPlays);
             
-            System.out.println("Actualizadas estadísticas para " + userName + 
-                              ": " + kills + " kills, " + deaths + " deaths, score: " + score);
+            // Actualizar el usuario con estadísticas globales
+            userService.updateUserStatsWithMatches(userName, actualKills, actualDeaths, score, totalMatches);
+            
+            System.out.println("Actualizadas estadísticas globales para " + userName + 
+                              ": " + actualKills + " kills, " + actualDeaths + " deaths, " + totalMatches + " matches, score: " + String.format("%.2f", score));
+                              
+        } catch (Exception e) {
+            System.err.println("Error actualizando estadísticas globales para " + userName + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Calcula cuántas partidas diferentes ha jugado un usuario
+     */
+    private int calculateUserMatches(String userName) {
+        try {
+            // Obtener todos los matchIds únicos donde aparece este usuario
+            List<String> matchIds = killRepository.findDistinctMatchIdsByUser(userName);
+            int matches = matchIds != null ? matchIds.size() : 0;
+            return matches;
+        } catch (Exception e) {
+            System.err.println("Error calculando matches para " + userName + ": " + e.getMessage());
+            return 0;
         }
     }
 }

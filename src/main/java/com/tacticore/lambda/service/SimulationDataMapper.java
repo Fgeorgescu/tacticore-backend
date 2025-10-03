@@ -54,7 +54,7 @@ public class SimulationDataMapper {
                 
                 // Mapear kills
                 for (Map<String, Object> prediction : predictions) {
-                    KillEntity killEntity = mapPredictionToKillEntity(prediction);
+                    KillEntity killEntity = mapPredictionToKillEntity(prediction, matchId);
                     killEntity.setMatchId(matchId); // Asignar el matchId al kill
                     killEntities.add(killEntity);
                 }
@@ -70,11 +70,13 @@ public class SimulationDataMapper {
     /**
      * Mapea una predicción individual a KillEntity
      */
-    private KillEntity mapPredictionToKillEntity(Map<String, Object> prediction) {
+    private KillEntity mapPredictionToKillEntity(Map<String, Object> prediction, String matchId) {
         KillEntity killEntity = new KillEntity();
         
-        // Datos básicos del kill
-        killEntity.setKillId((String) prediction.get("kill_id"));
+        // Datos básicos del kill - generar ID único incluyendo matchId
+        String originalKillId = (String) prediction.get("kill_id");
+        String uniqueKillId = matchId + "_" + originalKillId;
+        killEntity.setKillId(uniqueKillId);
         killEntity.setAttacker((String) prediction.get("attacker"));
         killEntity.setVictim((String) prediction.get("victim"));
         killEntity.setPlace((String) prediction.get("place"));
