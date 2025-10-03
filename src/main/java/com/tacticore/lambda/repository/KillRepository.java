@@ -120,4 +120,8 @@ public interface KillRepository extends JpaRepository<KillEntity, Long> {
     
     @Query("SELECT CASE WHEN COUNT(k) > 0 THEN true ELSE false END FROM KillEntity k WHERE k.matchId = :matchId AND k.attacker = :user")
     boolean existsByMatchIdAndAttackerName(@Param("matchId") String matchId, @Param("user") String user);
+    
+    // Obtener matchIds únicos donde aparece un usuario (como atacante o víctima)
+    @Query("SELECT DISTINCT k.matchId FROM KillEntity k WHERE k.attacker = :user OR k.victim = :user ORDER BY k.matchId")
+    List<String> findDistinctMatchIdsByUser(@Param("user") String user);
 }

@@ -16,7 +16,7 @@ public class PreloadedUserService {
     private UserRepository userRepository;
     
     
-    // Lista de usuarios precargados con sus roles
+    // Lista de usuarios precargados con sus roles (solo usuarios que existen en las demos)
     private static final List<PreloadedUser> PRELOADED_USERS = Arrays.asList(
         new PreloadedUser("flameZ", UserRole.ENTRY_FRAGGER.getDisplayName()),
         new PreloadedUser("Senzu", UserRole.SUPPORT.getDisplayName()),
@@ -25,14 +25,9 @@ public class PreloadedUserService {
         new PreloadedUser("ZywOo", UserRole.SNIPER.getDisplayName()),
         new PreloadedUser("apEX", UserRole.IGL.getDisplayName()),
         new PreloadedUser("mezii", UserRole.OBSERVER.getDisplayName()),
-        new PreloadedUser("sh1ro", UserRole.SNIPER.getDisplayName()),
-        new PreloadedUser("s1mple", UserRole.SNIPER.getDisplayName()),
-        new PreloadedUser("device", UserRole.SNIPER.getDisplayName()),
-        new PreloadedUser("EliGE", UserRole.ENTRY_FRAGGER.getDisplayName()),
-        new PreloadedUser("NAF", UserRole.SUPPORT.getDisplayName()),
-        new PreloadedUser("Twistzz", UserRole.SUPPORT.getDisplayName()),
-        new PreloadedUser("Stewie2K", UserRole.ENTRY_FRAGGER.getDisplayName()),
-        new PreloadedUser("autimatic", UserRole.ANCHOR.getDisplayName())
+        new PreloadedUser("sh1ro", UserRole.SNIPER.getDisplayName())
+        // Eliminados usuarios fantasma: s1mple, device, EliGE, NAF, Twistzz, Stewie2K, autimatic
+        // Estos usuarios no aparecen en ninguna demo real
     );
     
     public void loadPreloadedUsers() {
