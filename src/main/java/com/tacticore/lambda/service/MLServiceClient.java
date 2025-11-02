@@ -64,12 +64,33 @@ public class MLServiceClient {
             // Extraer nombre base del archivo (sin extensión)
             String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
             
-            // Buscar archivo JSON correspondiente
-            String jsonFileName = baseName + ".json";
+            // Mapeo de nombres de archivos DEM a sus archivos JSON correspondientes
+            // Si el nombre base no tiene prefijo "de_", se añade automáticamente para ciertos mapas
+            String jsonFileName;
+            String baseNameLower = baseName.toLowerCase();
+            
+            // Casos especiales: si el archivo se llama "nuke.dem", buscar "de_nuke.json"
+            if ("nuke".equals(baseNameLower)) {
+                jsonFileName = "de_nuke.json";
+            } else if (baseNameLower.startsWith("de_")) {
+                // Si ya tiene prefijo "de_", usarlo tal cual
+                jsonFileName = baseName + ".json";
+            } else {
+                // Para otros casos, intentar primero el nombre directo, luego con "de_"
+                jsonFileName = baseName + ".json";
+                Path directPath = Paths.get(jsonDirectory, jsonFileName);
+                
+                if (!Files.exists(directPath)) {
+                    // Intentar con prefijo "de_"
+                    jsonFileName = "de_" + baseName + ".json";
+                }
+            }
+            
             Path jsonPath = Paths.get(jsonDirectory, jsonFileName);
             
             if (!Files.exists(jsonPath)) {
-                throw new RuntimeException("No se encontró archivo JSON correspondiente: " + jsonFileName);
+                throw new RuntimeException("No se encontró archivo JSON correspondiente: " + jsonFileName + 
+                    " (buscado para: " + fileName + ")");
             }
             
             // Leer y parsear el archivo JSON

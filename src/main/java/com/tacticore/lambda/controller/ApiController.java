@@ -9,11 +9,13 @@ import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
 import com.tacticore.lambda.service.GameDataService;
 import com.tacticore.lambda.service.KillAnalysisService;
+import com.tacticore.lambda.service.JsonMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Comparator;
+import java.util.Optional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +39,9 @@ public class ApiController {
     
     @Autowired
     private GameDataService gameDataService;
+    
+    @Autowired
+    private JsonMatchService jsonMatchService;
     
     public ApiController() {
         // Constructor vacío - ya no usamos datos mock
@@ -89,15 +94,40 @@ public class ApiController {
     // GET /api/matches/{id}/kills
     @GetMapping("/matches/{id}/kills")
     public ResponseEntity<Object> getMatchKills(@PathVariable String id, @RequestParam(required = false) String user) {
-        // Consultar kills desde la base de datos
+        // Intentar leer directamente desde JSON (formato completo con coordenadas de imagen)
+        Map<String, Object> jsonData = jsonMatchService.getMatchKillsFromJson(id, user);
+        
+        // Si no se encontró por matchId, intentar buscar por nombre de archivo del match
+        if (jsonData == null) {
+            Optional<MatchDto> matchDto = databaseMatchService.getMatchById(id);
+            if (matchDto.isPresent() && matchDto.get().getFileName() != null) {
+                String fileName = matchDto.get().getFileName();
+                jsonData = jsonMatchService.getMatchKillsFromJsonByFileName(id, fileName, user);
+            }
+        }
+        
+        if (jsonData != null) {
+            // Devolver el formato completo del ML model con predictions
+            System.out.println("Devolviendo datos desde JSON para matchId: " + id + 
+                             " con " + (jsonData.containsKey("predictions") ? 
+                             ((java.util.List<?>) jsonData.get("predictions")).size() : 0) + " predictions");
+            return ResponseEntity.ok(jsonData);
+        }
+        
+        // Fallback: consultar kills desde la base de datos (formato antiguo)
+        System.out.println("No se encontró JSON para matchId " + id + ", usando base de datos");
         List<KillEntity> killEntities;
         
         if (user != null && !user.isEmpty()) {
-            // Filtrar kills por usuario específico
-            killEntities = killAnalysisService.getKillsByUser(user);
+            // Filtrar kills por usuario específico Y matchId para evitar duplicados
+            killEntities = killAnalysisService.getKillsByUser(user).stream()
+                    .filter(kill -> id.equals(kill.getMatchId()))
+                    .collect(Collectors.toList());
         } else {
-            // Obtener todos los kills (necesitamos implementar este método)
-            killEntities = killAnalysisService.getAllKills();
+            // Filtrar por matchId para evitar duplicados de otras partidas
+            killEntities = killAnalysisService.getAllKills().stream()
+                    .filter(kill -> id.equals(kill.getMatchId()))
+                    .collect(Collectors.toList());
         }
         
         // Ordenar kills por ronda y tiempo para calcular jugadores vivos correctamente
