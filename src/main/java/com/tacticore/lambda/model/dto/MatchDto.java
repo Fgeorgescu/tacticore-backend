@@ -41,6 +41,9 @@ public class MatchDto {
     @JsonProperty("date")
     private LocalDateTime date;
     
+    @JsonProperty("status")
+    private String status;
+    
     // Constructors
     public MatchDto() {}
     
@@ -97,4 +100,7 @@ public class MatchDto {
     
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
+    
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

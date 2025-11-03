@@ -9,6 +9,7 @@ import com.tacticore.lambda.service.DatabaseMatchService;
 import com.tacticore.lambda.service.MLServiceClient;
 import com.tacticore.lambda.service.SimulationDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,12 @@ public class MatchController {
     
     @Autowired
     private SimulationDataMapper simulationDataMapper;
+    
+    @Value("${match.processing.min-delay-ms:0}")
+    private int minProcessingDelayMs;
+    
+    @Value("${match.processing.max-delay-ms:120000}")
+    private int maxProcessingDelayMs;
     
     @PostMapping(value = "/matches", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MatchResponse> uploadMatch(
@@ -144,8 +151,12 @@ public class MatchController {
     private void simulateAsyncProcessing(String matchId, MultipartFile demFile, MultipartFile videoFile, MatchMetadata metadata) {
         CompletableFuture.runAsync(() -> {
             try {
-                // Simular delay de procesamiento (2-5 segundos)
-                Thread.sleep(2000 + (int)(Math.random() * 3000));
+                // Simular delay de procesamiento (0-120 segundos, configurable)
+                int delayMs = minProcessingDelayMs + 
+                    (int)(Math.random() * (maxProcessingDelayMs - minProcessingDelayMs));
+                System.out.println("Simulating processing delay for match " + matchId + 
+                                 ": " + (delayMs / 1000.0) + " seconds");
+                Thread.sleep(delayMs);
                 
                 // Llamar al servicio ML (que ahora puede ser simulación o real)
                 Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
@@ -156,12 +167,14 @@ public class MatchController {
                 );
                 
                 // Actualizar match existente con resultados y persistir kills
+                // Pasar mlResponse para calcular goodPlays y badPlays desde las predicciones reales
                 databaseMatchService.updateMatchWithKills(
                     matchId, 
                     result.getTotalKills(), 
                     result.getTickrate(), 
                     result.getMapName(), 
-                    result.getKillEntities()
+                    result.getKillEntities(),
+                    mlResponse
                 );
                 
                 System.out.println("Match processing completed for: " + matchId);

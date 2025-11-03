@@ -26,6 +26,12 @@ public class MatchEntity {
     @Column(name = "total_kills")
     private Integer totalKills;
     
+    @Column(name = "good_plays")
+    private Integer goodPlays;
+    
+    @Column(name = "bad_plays")
+    private Integer badPlays;
+    
     @Column(name = "status")
     private String status;
     
@@ -75,6 +81,12 @@ public class MatchEntity {
     
     public Integer getTotalKills() { return totalKills; }
     public void setTotalKills(Integer totalKills) { this.totalKills = totalKills; }
+    
+    public Integer getGoodPlays() { return goodPlays; }
+    public void setGoodPlays(Integer goodPlays) { this.goodPlays = goodPlays; }
+    
+    public Integer getBadPlays() { return badPlays; }
+    public void setBadPlays(Integer badPlays) { this.badPlays = badPlays; }
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

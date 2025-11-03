@@ -54,6 +54,15 @@ public class DatabaseMatchService {
      */
     @Transactional
     public void updateMatchWithKills(String matchId, Integer totalKills, Integer tickrate, String mapName, List<KillEntity> killEntities) {
+        updateMatchWithKills(matchId, totalKills, tickrate, mapName, killEntities, null);
+    }
+    
+    /**
+     * Actualiza un match existente con resultados y guarda todos sus kills
+     * Calcula goodPlays y badPlays desde las predicciones del ML
+     */
+    @Transactional
+    public void updateMatchWithKills(String matchId, Integer totalKills, Integer tickrate, String mapName, List<KillEntity> killEntities, Map<String, Object> mlResponse) {
         // Buscar el match existente
         Optional<MatchEntity> matchOpt = matchRepository.findByMatchId(matchId);
         if (matchOpt.isPresent()) {
@@ -64,6 +73,17 @@ public class DatabaseMatchService {
             match.setTickrate(tickrate);
             match.setMapName(mapName);
             match.setStatus("completed");
+            
+            // Calcular goodPlays y badPlays desde las predicciones del ML si están disponibles
+            if (mlResponse != null) {
+                int[] playCounts = calculatePlaysFromPredictions(mlResponse);
+                match.setGoodPlays(playCounts[0]);
+                match.setBadPlays(playCounts[1]);
+            } else {
+                // Fallback a cálculo determinístico si no hay respuesta ML
+                match.setGoodPlays(calculateGoodPlays(totalKills));
+                match.setBadPlays(calculateBadPlays(totalKills));
+            }
             
             // Guardar el match actualizado
             matchRepository.save(match);
@@ -132,12 +152,21 @@ public class DatabaseMatchService {
         if (totalKills != null) {
             dto.setKills(totalKills);
             dto.setDeaths(calculateDeaths(totalKills));
-            dto.setGoodPlays(calculateGoodPlays(totalKills));
-            dto.setBadPlays(calculateBadPlays(totalKills));
+            
+            // Usar valores guardados si están disponibles, sino calcular
+            if (entity.getGoodPlays() != null && entity.getBadPlays() != null) {
+                dto.setGoodPlays(entity.getGoodPlays());
+                dto.setBadPlays(entity.getBadPlays());
+            } else {
+                // Fallback a cálculo determinístico si no hay valores guardados
+                dto.setGoodPlays(calculateGoodPlays(totalKills));
+                dto.setBadPlays(calculateBadPlays(totalKills));
+            }
+            
             dto.setDuration(calculateDuration(totalKills));
-            // Usar fórmula unificada para score general
+            // Usar fórmula unificada para score general con los valores reales o calculados
             dto.setScore(calculateUnifiedScore(totalKills, calculateDeaths(totalKills), 
-                calculateGoodPlays(totalKills), calculateBadPlays(totalKills)));
+                dto.getGoodPlays(), dto.getBadPlays()));
         } else {
             // Valores por defecto para matches en procesamiento
             dto.setKills(0);
@@ -149,6 +178,7 @@ public class DatabaseMatchService {
         }
         
         dto.setDate(entity.getCreatedAt()); // Usar fecha y hora de creación real
+        dto.setStatus(entity.getStatus()); // Incluir estado del match
         return dto;
     }
     
@@ -172,8 +202,18 @@ public class DatabaseMatchService {
         dto.setDeaths(userDeaths.intValue());
         
         // Calcular good/bad plays basado en los kills del usuario
-        dto.setGoodPlays(calculateGoodPlays(userKills.intValue()));
-        dto.setBadPlays(calculateBadPlays(userKills.intValue()));
+        // Usar valores guardados del match si están disponibles (proporción del usuario)
+        if (entity.getGoodPlays() != null && entity.getBadPlays() != null && entity.getTotalKills() != null && entity.getTotalKills() > 0) {
+            // Calcular proporción del usuario basada en los valores reales del match
+            double matchGoodRatio = (double) entity.getGoodPlays() / entity.getTotalKills();
+            double matchBadRatio = (double) entity.getBadPlays() / entity.getTotalKills();
+            dto.setGoodPlays((int)(userKills.intValue() * matchGoodRatio));
+            dto.setBadPlays((int)(userKills.intValue() * matchBadRatio));
+        } else {
+            // Fallback a cálculo determinístico si no hay valores guardados
+            dto.setGoodPlays(calculateGoodPlays(userKills.intValue()));
+            dto.setBadPlays(calculateBadPlays(userKills.intValue()));
+        }
         
         // Para duración y score, usar los valores del match completo
         Integer totalKills = entity.getTotalKills();
@@ -188,7 +228,43 @@ public class DatabaseMatchService {
         }
         
         dto.setDate(entity.getCreatedAt()); // Usar fecha y hora de creación real
+        dto.setStatus(entity.getStatus()); // Incluir estado del match
         return dto;
+    }
+    
+    /**
+     * Calcula goodPlays y badPlays desde las predicciones reales del ML
+     */
+    private int[] calculatePlaysFromPredictions(Map<String, Object> mlResponse) {
+        int goodPlays = 0;
+        int badPlays = 0;
+        
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> predictions = (List<Map<String, Object>>) mlResponse.get("predictions");
+        
+        if (predictions != null) {
+            for (Map<String, Object> prediction : predictions) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> predData = (Map<String, Object>) prediction.get("prediction");
+                
+                if (predData != null) {
+                    String predictedLabel = (String) predData.get("predicted_label");
+                    
+                    if (predictedLabel != null) {
+                        // Considerar "good" si es: good_decision, good_positioning, o precise
+                        if (predictedLabel.contains("good") || predictedLabel.equals("precise")) {
+                            goodPlays++;
+                        } 
+                        // Considerar "bad" si es: bad_decision, bad_positioning, o poor_awareness
+                        else if (predictedLabel.contains("bad") || predictedLabel.contains("poor")) {
+                            badPlays++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return new int[]{goodPlays, badPlays};
     }
     
     private int calculateDeaths(int kills) {

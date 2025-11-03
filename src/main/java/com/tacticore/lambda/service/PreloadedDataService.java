@@ -50,8 +50,22 @@ public class PreloadedDataService {
     }
     
     private void loadPreloadedMatches() {
-        // Verificar si ya existen matches precargados
+        // Verificar si ya existen matches precargados básicos
         if (matchRepository.count() > 0) {
+            // Si ya hay matches, solo asegurarnos de que exista el match de prueba "processing_demo"
+            if (!matchRepository.existsByMatchId("processing_demo")) {
+                MatchEntity processingMatch = new MatchEntity(
+                    "processing_demo", 
+                    "nuke_processing.dem", 
+                    "Unknown", 
+                    null, 
+                    null, 
+                    "processing", 
+                    false
+                );
+                matchRepository.save(processingMatch);
+                System.out.println("Match de prueba 'processing_demo' agregado");
+            }
             return; // Ya hay datos cargados
         }
         
@@ -72,6 +86,15 @@ public class PreloadedDataService {
                 64, 
                 16, 
                 "processed", 
+                false
+            ),
+            new MatchEntity(
+                "processing_demo", 
+                "nuke_processing.dem", 
+                "Unknown", 
+                null, 
+                null, 
+                "processing", 
                 false
             )
         );
@@ -101,6 +124,14 @@ public class PreloadedDataService {
                 "Bot", 
                 "Si tienes una duda, podes realizarme cualquier consulta", 
                 LocalDateTime.of(2024, 1, 14, 16, 20)
+            ),
+            
+            // Mensaje de bienvenida para match en procesamiento
+            new ChatMessageEntity(
+                "processing_demo", 
+                "Bot", 
+                "Esta partida se está procesando. Los datos estarán disponibles pronto.", 
+                LocalDateTime.now()
             )
         );
         
