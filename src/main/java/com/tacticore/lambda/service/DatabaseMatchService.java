@@ -50,6 +50,15 @@ public class DatabaseMatchService {
     }
     
     /**
+     * Obtiene el JSON de la respuesta del ML service para un match
+     */
+    public String getMlResponseJson(String matchId) {
+        return matchRepository.findByMatchId(matchId)
+                .map(MatchEntity::getMlResponseJson)
+                .orElse(null);
+    }
+    
+    /**
      * Actualiza un match existente con resultados y guarda todos sus kills
      */
     @Transactional
@@ -79,6 +88,16 @@ public class DatabaseMatchService {
                 int[] playCounts = calculatePlaysFromPredictions(mlResponse);
                 match.setGoodPlays(playCounts[0]);
                 match.setBadPlays(playCounts[1]);
+                
+                // Guardar el JSON completo de la respuesta ML
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    String mlResponseJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mlResponse);
+                    match.setMlResponseJson(mlResponseJson);
+                    System.out.println("💾 Guardando JSON del ML service en BD para match: " + matchId + " (tamaño: " + mlResponseJson.length() + " caracteres)");
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error al serializar respuesta ML a JSON: " + e.getMessage());
+                }
             } else {
                 // Fallback a cálculo determinístico si no hay respuesta ML
                 match.setGoodPlays(calculateGoodPlays(totalKills));
@@ -96,7 +115,7 @@ public class DatabaseMatchService {
                 updateUserStatsFromKills(killEntities);
             }
             
-            System.out.println("Actualizado match " + matchId + " con " + 
+            System.out.println("✅ Actualizado match " + matchId + " con " + 
                               (killEntities != null ? killEntities.size() : 0) + " kills");
         } else {
             throw new RuntimeException("Match no encontrado: " + matchId);
@@ -153,14 +172,39 @@ public class DatabaseMatchService {
             dto.setKills(totalKills);
             dto.setDeaths(calculateDeaths(totalKills));
             
-            // Usar valores guardados si están disponibles, sino calcular
-            if (entity.getGoodPlays() != null && entity.getBadPlays() != null) {
+            // Usar valores guardados si están disponibles y no son 0, sino recalcular si hay JSON
+            if (entity.getGoodPlays() != null && entity.getBadPlays() != null && 
+                (entity.getGoodPlays() > 0 || entity.getBadPlays() > 0)) {
                 dto.setGoodPlays(entity.getGoodPlays());
                 dto.setBadPlays(entity.getBadPlays());
             } else {
-                // Fallback a cálculo determinístico si no hay valores guardados
-                dto.setGoodPlays(calculateGoodPlays(totalKills));
-                dto.setBadPlays(calculateBadPlays(totalKills));
+                // Si hay JSON del ML disponible, recalcular desde ahí
+                String mlResponseJson = entity.getMlResponseJson();
+                if (mlResponseJson != null && !mlResponseJson.isEmpty()) {
+                    try {
+                        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> mlResponse = objectMapper.readValue(mlResponseJson, Map.class);
+                        int[] playCounts = calculatePlaysFromPredictions(mlResponse);
+                        dto.setGoodPlays(playCounts[0]);
+                        dto.setBadPlays(playCounts[1]);
+                        
+                        // Actualizar en la base de datos para no tener que recalcular cada vez
+                        entity.setGoodPlays(playCounts[0]);
+                        entity.setBadPlays(playCounts[1]);
+                        matchRepository.save(entity);
+                        System.out.println("🔄 Recalculados y actualizados goodPlays/badPlays para match: " + entity.getMatchId());
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Error recalculando plays desde JSON: " + e.getMessage());
+                        // Fallback a cálculo determinístico
+                        dto.setGoodPlays(calculateGoodPlays(totalKills));
+                        dto.setBadPlays(calculateBadPlays(totalKills));
+                    }
+                } else {
+                    // Fallback a cálculo determinístico si no hay JSON
+                    dto.setGoodPlays(calculateGoodPlays(totalKills));
+                    dto.setBadPlays(calculateBadPlays(totalKills));
+                }
             }
             
             dto.setDuration(calculateDuration(totalKills));
@@ -234,6 +278,7 @@ public class DatabaseMatchService {
     
     /**
      * Calcula goodPlays y badPlays desde las predicciones reales del ML
+     * El formato del ML incluye attacker_strengths y victim_errors
      */
     private int[] calculatePlaysFromPredictions(Map<String, Object> mlResponse) {
         int goodPlays = 0;
@@ -244,25 +289,37 @@ public class DatabaseMatchService {
         
         if (predictions != null) {
             for (Map<String, Object> prediction : predictions) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> predData = (Map<String, Object>) prediction.get("prediction");
+                boolean isGoodPlay = false;
                 
-                if (predData != null) {
-                    String predictedLabel = (String) predData.get("predicted_label");
-                    
-                    if (predictedLabel != null) {
-                        // Considerar "good" si es: good_decision, good_positioning, o precise
-                        if (predictedLabel.contains("good") || predictedLabel.equals("precise")) {
-                            goodPlays++;
-                        } 
-                        // Considerar "bad" si es: bad_decision, bad_positioning, o poor_awareness
-                        else if (predictedLabel.contains("bad") || predictedLabel.contains("poor")) {
-                            badPlays++;
+                // Verificar attacker_strengths para determinar si es buena jugada
+                // Lógica alineada con el frontend: CUALQUIER strength > 0.5 = buena jugada
+                @SuppressWarnings("unchecked")
+                Map<String, Object> attackerStrengths = (Map<String, Object>) prediction.get("attacker_strengths");
+                if (attackerStrengths != null) {
+                    // Revisar TODOS los strengths, si alguno es > 0.5, es buena jugada
+                    for (Object strengthValue : attackerStrengths.values()) {
+                        if (strengthValue instanceof Number) {
+                            double strength = ((Number) strengthValue).doubleValue();
+                            if (strength > 0.5) {
+                                isGoodPlay = true;
+                                break; // Si encontramos uno, ya es buena jugada
+                            }
                         }
                     }
                 }
+                
+                // Si es buena jugada, contar como tal; si no, contar como mala jugada
+                // Esta lógica coincide con el frontend: !k.isGoodPlay = mala jugada
+                if (isGoodPlay) {
+                    goodPlays++;
+                } else {
+                    badPlays++;
+                }
             }
         }
+        
+        System.out.println("📊 Calculados goodPlays: " + goodPlays + ", badPlays: " + badPlays + 
+                          " desde " + (predictions != null ? predictions.size() : 0) + " predictions");
         
         return new int[]{goodPlays, badPlays};
     }

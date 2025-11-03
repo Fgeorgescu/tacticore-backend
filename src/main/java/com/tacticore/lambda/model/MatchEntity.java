@@ -38,6 +38,9 @@ public class MatchEntity {
     @Column(name = "has_video")
     private Boolean hasVideo;
     
+    @Column(name = "ml_response_json", columnDefinition = "TEXT")
+    private String mlResponseJson;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -93,6 +96,9 @@ public class MatchEntity {
     
     public Boolean getHasVideo() { return hasVideo; }
     public void setHasVideo(Boolean hasVideo) { this.hasVideo = hasVideo; }
+    
+    public String getMlResponseJson() { return mlResponseJson; }
+    public void setMlResponseJson(String mlResponseJson) { this.mlResponseJson = mlResponseJson; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

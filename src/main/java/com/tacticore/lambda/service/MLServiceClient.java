@@ -22,6 +22,9 @@ public class MLServiceClient {
     @Value("${ml.service.url:http://ml-service:8000}")
     private String mlServiceUrl;
     
+    @Value("${ml.service.file-param-name:demo_file}")
+    private String fileParamName;
+    
     @Value("${simulation.enabled:false}")
     private boolean simulationEnabled;
     
@@ -107,36 +110,62 @@ public class MLServiceClient {
     }
     
     /**
-     * Llama al servicio ML real (método original)
+     * Llama al servicio ML real usando MultipartFile
      */
     private Map<String, Object> callRealMLService(MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+        String analyzeUrl = mlServiceUrl + "/analyze-demo";
+        
         try {
+            long fileSize = file.getSize();
+            System.out.println("🚀 Llamando al servicio ML real: " + analyzeUrl);
+            System.out.println("📁 Archivo: " + fileName + " (tamaño: " + fileSize + " bytes)");
+            
             // Preparar headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             
-            // Preparar body con el archivo
+            // Preparar body con el archivo usando el nombre de parámetro configurado
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("demo_file", file.getResource());
+            body.add(fileParamName, file.getResource());
+            
+            System.out.println("📤 Enviando archivo con parámetro: " + fileParamName);
             
             // Crear request
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
             
             // Hacer request al servicio ML
-            String analyzeUrl = mlServiceUrl + "/analyze-demo";
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.postForEntity(analyzeUrl, requestEntity, Map.class);
+            
+            System.out.println("✅ Respuesta del servicio ML - Status: " + response.getStatusCode());
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+                System.out.println("✅ Análisis completado exitosamente para: " + fileName);
                 return responseBody;
             } else {
-                throw new RuntimeException("Error en respuesta del servicio ML: " + response.getStatusCode());
+                String errorMsg = "Error en respuesta del servicio ML: " + response.getStatusCode();
+                System.err.println("❌ " + errorMsg);
+                throw new RuntimeException(errorMsg);
             }
             
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            String errorMsg = "Error HTTP al comunicarse con el servicio ML (" + analyzeUrl + "): " + 
+                            e.getStatusCode() + " - " + e.getResponseBodyAsString();
+            System.err.println("❌ " + errorMsg);
+            throw new RuntimeException(errorMsg, e);
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            String errorMsg = "No se pudo conectar al servicio ML (" + analyzeUrl + "). " +
+                            "Verifica que el servicio esté corriendo y accesible. Error: " + e.getMessage();
+            System.err.println("❌ " + errorMsg);
+            throw new RuntimeException(errorMsg, e);
         } catch (Exception e) {
-            throw new RuntimeException("Error comunicándose con el servicio ML: " + e.getMessage(), e);
+            String errorMsg = "Error inesperado comunicándose con el servicio ML: " + e.getMessage();
+            System.err.println("❌ " + errorMsg);
+            e.printStackTrace();
+            throw new RuntimeException(errorMsg, e);
         }
     }
     

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api")
@@ -38,12 +37,6 @@ public class MatchController {
     @Autowired
     private SimulationDataMapper simulationDataMapper;
     
-    @Value("${match.processing.min-delay-ms:0}")
-    private int minProcessingDelayMs;
-    
-    @Value("${match.processing.max-delay-ms:120000}")
-    private int maxProcessingDelayMs;
-    
     @PostMapping(value = "/matches", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MatchResponse> uploadMatch(
             @RequestParam("demFile") MultipartFile demFile,
@@ -51,10 +44,10 @@ public class MatchController {
             @RequestParam(value = "metadata", required = false) String metadataJson) {
         
         try {
-            System.out.println("Received match upload request");
-            System.out.println("DEM file: " + (demFile != null ? demFile.getOriginalFilename() : "null"));
-            System.out.println("Video file: " + (videoFile != null ? videoFile.getOriginalFilename() : "null"));
-            System.out.println("Metadata: " + metadataJson);
+            System.out.println("📥 Received match upload request");
+            System.out.println("📁 DEM file: " + (demFile != null ? demFile.getOriginalFilename() : "null"));
+            System.out.println("🎥 Video file: " + (videoFile != null ? videoFile.getOriginalFilename() : "null"));
+            System.out.println("📝 Metadata: " + metadataJson);
             
             // Validar archivo DEM
             if (demFile == null || demFile.isEmpty()) {
@@ -68,7 +61,7 @@ public class MatchController {
                 try {
                     metadata = objectMapper.readValue(metadataJson, MatchMetadata.class);
                 } catch (Exception e) {
-                    System.err.println("Error parsing metadata JSON: " + e.getMessage());
+                    System.err.println("❌ Error parsing metadata JSON: " + e.getMessage());
                     return ResponseEntity.badRequest()
                             .body(MatchResponse.failed("unknown", "Invalid metadata JSON format"));
                 }
@@ -87,16 +80,49 @@ public class MatchController {
             matchEntity.setTotalKills(null); // Se llenará después del procesamiento
             matchEntity.setTickrate(null); // Se llenará después del procesamiento
             
-            // Guardar en DB (necesitamos agregar este método al servicio)
+            // Guardar en DB
             saveMatch(matchEntity);
             
-            // Simular procesamiento asíncrono
-            simulateAsyncProcessing(matchId, demFile, videoFile, metadata);
+            System.out.println("✅ Match guardado con estado 'processing': " + matchId);
             
-            return ResponseEntity.ok(MatchResponse.processing(matchId));
+            // PROCESAMIENTO SINCRÓNICO (sin CompletableFuture)
+            // El usuario esperará mientras se procesa el demo
+            try {
+                // Llamar al servicio ML
+                System.out.println("🚀 Iniciando análisis ML para: " + matchId);
+                Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
+                
+                // Mapear respuesta ML a entidades
+                SimulationDataMapper.SimulationResult result = simulationDataMapper.mapMLResponseToEntities(
+                    mlResponse, matchId, demFile.getOriginalFilename()
+                );
+                
+                // Actualizar match con resultados y persistir kills
+                databaseMatchService.updateMatchWithKills(
+                    matchId, 
+                    result.getTotalKills(), 
+                    result.getTickrate(), 
+                    result.getMapName(), 
+                    result.getKillEntities(),
+                    mlResponse
+                );
+                
+                System.out.println("✅ Match processing completed for: " + matchId);
+                
+                // Devolver respuesta exitosa
+                return ResponseEntity.ok(MatchResponse.completed(matchId));
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error processing match: " + matchId + " - " + e.getMessage());
+                e.printStackTrace();
+                updateMatchWithError(matchId, "Processing failed: " + e.getMessage());
+                return ResponseEntity.internalServerError()
+                        .body(MatchResponse.failed(matchId, "Match processing failed: " + e.getMessage()));
+            }
             
         } catch (Exception e) {
-            System.err.println("Error processing match upload: " + e.getMessage());
+            System.err.println("❌ Error in match upload: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.internalServerError()
                     .body(MatchResponse.failed("unknown", "Internal server error: " + e.getMessage()));
         }
@@ -147,51 +173,9 @@ public class MatchController {
         );
     }
     
-    // Método para simular procesamiento asíncrono
-    private void simulateAsyncProcessing(String matchId, MultipartFile demFile, MultipartFile videoFile, MatchMetadata metadata) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                // Simular delay de procesamiento (0-120 segundos, configurable)
-                int delayMs = minProcessingDelayMs + 
-                    (int)(Math.random() * (maxProcessingDelayMs - minProcessingDelayMs));
-                System.out.println("Simulating processing delay for match " + matchId + 
-                                 ": " + (delayMs / 1000.0) + " seconds");
-                Thread.sleep(delayMs);
-                
-                // Llamar al servicio ML (que ahora puede ser simulación o real)
-                Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
-                
-                // Mapear respuesta ML a entidades
-                SimulationDataMapper.SimulationResult result = simulationDataMapper.mapMLResponseToEntities(
-                    mlResponse, matchId, demFile.getOriginalFilename()
-                );
-                
-                // Actualizar match existente con resultados y persistir kills
-                // Pasar mlResponse para calcular goodPlays y badPlays desde las predicciones reales
-                databaseMatchService.updateMatchWithKills(
-                    matchId, 
-                    result.getTotalKills(), 
-                    result.getTickrate(), 
-                    result.getMapName(), 
-                    result.getKillEntities(),
-                    mlResponse
-                );
-                
-                System.out.println("Match processing completed for: " + matchId);
-                
-            } catch (InterruptedException e) {
-                System.err.println("Processing interrupted for match: " + matchId);
-                updateMatchWithError(matchId, "Processing interrupted");
-            } catch (Exception e) {
-                System.err.println("Error processing match: " + matchId + " - " + e.getMessage());
-                updateMatchWithError(matchId, "Processing failed: " + e.getMessage());
-            }
-        });
-    }
-    
     // Método para actualizar partida con error
     private void updateMatchWithError(String matchId, String errorMessage) {
-        System.out.println("Updating match " + matchId + " with error: " + errorMessage);
+        System.out.println("❌ Updating match " + matchId + " with error: " + errorMessage);
         databaseMatchService.updateMatchWithError(matchId, errorMessage);
     }
 }

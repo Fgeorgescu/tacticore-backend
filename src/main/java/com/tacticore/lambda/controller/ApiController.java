@@ -43,6 +43,9 @@ public class ApiController {
     @Autowired
     private JsonMatchService jsonMatchService;
     
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    
     public ApiController() {
         // Constructor vacío - ya no usamos datos mock
     }
@@ -94,28 +97,75 @@ public class ApiController {
     // GET /api/matches/{id}/kills
     @GetMapping("/matches/{id}/kills")
     public ResponseEntity<Object> getMatchKills(@PathVariable String id, @RequestParam(required = false) String user) {
-        // Intentar leer directamente desde JSON (formato completo con coordenadas de imagen)
-        Map<String, Object> jsonData = jsonMatchService.getMatchKillsFromJson(id, user);
+        System.out.println("🔍 Buscando kills para matchId: " + id + (user != null ? " (usuario: " + user + ")" : ""));
         
-        // Si no se encontró por matchId, intentar buscar por nombre de archivo del match
-        if (jsonData == null) {
-            Optional<MatchDto> matchDto = databaseMatchService.getMatchById(id);
-            if (matchDto.isPresent() && matchDto.get().getFileName() != null) {
-                String fileName = matchDto.get().getFileName();
-                jsonData = jsonMatchService.getMatchKillsFromJsonByFileName(id, fileName, user);
+        // PRIMERO: Intentar leer el JSON desde la base de datos
+        Optional<MatchDto> matchDto = databaseMatchService.getMatchById(id);
+        if (matchDto.isPresent()) {
+            String mlResponseJson = databaseMatchService.getMlResponseJson(id);
+            if (mlResponseJson != null && !mlResponseJson.isEmpty()) {
+                try {
+                    // Parsear el JSON desde la base de datos
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> jsonData = objectMapper.readValue(mlResponseJson, Map.class);
+                    
+                    // Si se proporciona un usuario, filtrar predictions
+                    if (user != null && !user.isEmpty()) {
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> predictions = (List<Map<String, Object>>) jsonData.get("predictions");
+                        if (predictions != null) {
+                            List<Map<String, Object>> filteredPredictions = new ArrayList<>();
+                            for (Map<String, Object> prediction : predictions) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, Object> context = (Map<String, Object>) prediction.get("context");
+                                if (context != null) {
+                                    String attackerName = String.valueOf(context.get("attacker_name"));
+                                    String victimName = String.valueOf(context.get("victim_name"));
+                                    
+                                    if (user.equalsIgnoreCase(attackerName) || user.equalsIgnoreCase(victimName)) {
+                                        filteredPredictions.add(prediction);
+                                    }
+                                }
+                            }
+                            Map<String, Object> filteredData = new HashMap<>(jsonData);
+                            filteredData.put("predictions", filteredPredictions);
+                            filteredData.put("total_kills", filteredPredictions.size());
+                            jsonData = filteredData;
+                        }
+                    }
+                    
+                    int predictionsCount = jsonData.containsKey("predictions") ? 
+                        ((java.util.List<?>) jsonData.get("predictions")).size() : 0;
+                    System.out.println("✅ Devolviendo datos desde BD (JSON almacenado) para matchId: " + id + 
+                                     " con " + predictionsCount + " predictions");
+                    return ResponseEntity.ok(jsonData);
+                } catch (Exception e) {
+                    System.err.println("❌ Error parseando JSON desde BD: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
         
+        // FALLBACK: Intentar leer desde archivos JSON (para matches antiguos)
+        System.out.println("⚠️ No se encontró JSON en BD, intentando buscar en archivos...");
+        Map<String, Object> jsonData = jsonMatchService.getMatchKillsFromJson(id, user);
+        
+        if (jsonData == null && matchDto.isPresent() && matchDto.get().getFileName() != null) {
+            String fileName = matchDto.get().getFileName();
+            System.out.println("📁 Buscando JSON por fileName: " + fileName);
+            jsonData = jsonMatchService.getMatchKillsFromJsonByFileName(id, fileName, user);
+        }
+        
         if (jsonData != null) {
-            // Devolver el formato completo del ML model con predictions
-            System.out.println("Devolviendo datos desde JSON para matchId: " + id + 
-                             " con " + (jsonData.containsKey("predictions") ? 
-                             ((java.util.List<?>) jsonData.get("predictions")).size() : 0) + " predictions");
+            int predictionsCount = jsonData.containsKey("predictions") ? 
+                ((java.util.List<?>) jsonData.get("predictions")).size() : 0;
+            System.out.println("✅ Devolviendo datos desde archivo JSON para matchId: " + id + 
+                             " con " + predictionsCount + " predictions");
             return ResponseEntity.ok(jsonData);
         }
         
-        // Fallback: consultar kills desde la base de datos (formato antiguo)
-        System.out.println("No se encontró JSON para matchId " + id + ", usando base de datos");
+        // ÚLTIMO FALLBACK: consultar kills desde la base de datos (formato antiguo sin coordenadas)
+        System.out.println("❌ No se encontró JSON para matchId " + id + ", usando formato antiguo sin coordenadas");
         List<KillEntity> killEntities;
         
         if (user != null && !user.isEmpty()) {
