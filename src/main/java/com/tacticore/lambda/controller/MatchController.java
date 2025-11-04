@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api")
@@ -44,18 +43,11 @@ public class MatchController {
             @RequestParam(value = "metadata", required = false) String metadataJson) {
         
         try {
-            System.out.println("Received match upload request");
-            System.out.println("DEM file: " + (demFile != null ? demFile.getOriginalFilename() : "null"));
-            System.out.println("Video file: " + (videoFile != null ? videoFile.getOriginalFilename() : "null"));
-            System.out.println("Metadata: " + metadataJson);
-            
-            // Validar archivo DEM
             if (demFile == null || demFile.isEmpty()) {
                 return ResponseEntity.badRequest()
                         .body(MatchResponse.failed("unknown", "DEM file is required"));
             }
             
-            // Parse metadata JSON
             MatchMetadata metadata = null;
             if (metadataJson != null && !metadataJson.trim().isEmpty()) {
                 try {
@@ -67,29 +59,46 @@ public class MatchController {
                 }
             }
             
-            // Generar ID único para la partida
             String matchId = "match_" + System.currentTimeMillis();
             
-            // Crear partida en DB con estado "processing"
             MatchEntity matchEntity = new MatchEntity();
             matchEntity.setMatchId(matchId);
             matchEntity.setFileName(demFile.getOriginalFilename());
             matchEntity.setMapName(metadata != null ? metadata.getNotes() : "Unknown");
             matchEntity.setStatus("processing");
             matchEntity.setHasVideo(videoFile != null && !videoFile.isEmpty());
-            matchEntity.setTotalKills(null); // Se llenará después del procesamiento
-            matchEntity.setTickrate(null); // Se llenará después del procesamiento
+            matchEntity.setTotalKills(null);
+            matchEntity.setTickrate(null);
             
-            // Guardar en DB (necesitamos agregar este método al servicio)
             saveMatch(matchEntity);
             
-            // Simular procesamiento asíncrono
-            simulateAsyncProcessing(matchId, demFile, videoFile, metadata);
-            
-            return ResponseEntity.ok(MatchResponse.processing(matchId));
+            try {
+                Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
+                
+                SimulationDataMapper.SimulationResult result = simulationDataMapper.mapMLResponseToEntities(
+                    mlResponse, matchId, demFile.getOriginalFilename()
+                );
+                
+                databaseMatchService.updateMatchWithKills(
+                    matchId, 
+                    result.getTotalKills(), 
+                    result.getTickrate(), 
+                    result.getMapName(), 
+                    result.getKillEntities(),
+                    mlResponse
+                );
+                
+                return ResponseEntity.ok(MatchResponse.completed(matchId));
+                
+            } catch (Exception e) {
+                System.err.println("Error processing match: " + matchId + " - " + e.getMessage());
+                updateMatchWithError(matchId, "Processing failed: " + e.getMessage());
+                return ResponseEntity.internalServerError()
+                        .body(MatchResponse.failed(matchId, "Match processing failed: " + e.getMessage()));
+            }
             
         } catch (Exception e) {
-            System.err.println("Error processing match upload: " + e.getMessage());
+            System.err.println("Error in match upload: " + e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(MatchResponse.failed("unknown", "Internal server error: " + e.getMessage()));
         }
@@ -98,9 +107,6 @@ public class MatchController {
     @GetMapping("/matches/{matchId}/status")
     public ResponseEntity<MatchResponse> getMatchStatus(@PathVariable String matchId) {
         try {
-            System.out.println("Getting status for match: " + matchId);
-            
-            // Obtener estado real desde la DB
             String status = databaseMatchService.getMatchStatus(matchId);
             
             if ("not_found".equals(status)) {
@@ -128,11 +134,8 @@ public class MatchController {
         return ResponseEntity.ok("Tacti-Core Backend is running!");
     }
     
-    // Método para guardar partida en DB
     private void saveMatch(MatchEntity matchEntity) {
         databaseMatchService.saveMatch(matchEntity);
-        
-        // Crear mensaje de bienvenida del Bot para la nueva partida
         chatService.addChatMessage(
             matchEntity.getMatchId(), 
             "Bot", 
@@ -140,45 +143,7 @@ public class MatchController {
         );
     }
     
-    // Método para simular procesamiento asíncrono
-    private void simulateAsyncProcessing(String matchId, MultipartFile demFile, MultipartFile videoFile, MatchMetadata metadata) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                // Simular delay de procesamiento (2-5 segundos)
-                Thread.sleep(2000 + (int)(Math.random() * 3000));
-                
-                // Llamar al servicio ML (que ahora puede ser simulación o real)
-                Map<String, Object> mlResponse = mlServiceClient.analyzeDemoFile(demFile);
-                
-                // Mapear respuesta ML a entidades
-                SimulationDataMapper.SimulationResult result = simulationDataMapper.mapMLResponseToEntities(
-                    mlResponse, matchId, demFile.getOriginalFilename()
-                );
-                
-                // Actualizar match existente con resultados y persistir kills
-                databaseMatchService.updateMatchWithKills(
-                    matchId, 
-                    result.getTotalKills(), 
-                    result.getTickrate(), 
-                    result.getMapName(), 
-                    result.getKillEntities()
-                );
-                
-                System.out.println("Match processing completed for: " + matchId);
-                
-            } catch (InterruptedException e) {
-                System.err.println("Processing interrupted for match: " + matchId);
-                updateMatchWithError(matchId, "Processing interrupted");
-            } catch (Exception e) {
-                System.err.println("Error processing match: " + matchId + " - " + e.getMessage());
-                updateMatchWithError(matchId, "Processing failed: " + e.getMessage());
-            }
-        });
-    }
-    
-    // Método para actualizar partida con error
     private void updateMatchWithError(String matchId, String errorMessage) {
-        System.out.println("Updating match " + matchId + " with error: " + errorMessage);
         databaseMatchService.updateMatchWithError(matchId, errorMessage);
     }
 }
