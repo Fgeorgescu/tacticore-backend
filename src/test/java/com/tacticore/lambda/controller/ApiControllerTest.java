@@ -6,6 +6,7 @@ import com.tacticore.lambda.service.AnalyticsService;
 import com.tacticore.lambda.service.ChatService;
 import com.tacticore.lambda.service.DatabaseMatchService;
 import com.tacticore.lambda.service.GameDataService;
+import com.tacticore.lambda.service.JsonMatchService;
 import com.tacticore.lambda.service.KillAnalysisService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ class ApiControllerTest {
 
     @MockBean
     private GameDataService gameDataService;
+
+    @MockBean
+    private JsonMatchService jsonMatchService;
 
     @Autowired
     private ObjectMapper objectMapper;

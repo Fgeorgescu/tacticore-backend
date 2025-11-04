@@ -23,16 +23,54 @@
 - `GET /api/health` - Estado del sistema
 
 ### Partidas
-- `GET /api/matches` - Lista de partidas
+- `GET /api/matches` - Lista de partidas (soporta filtro `?user=nombre`)
+- `POST /api/matches` - Subir nueva partida (DEM + video opcional)
 - `GET /api/matches/{id}` - Detalles de partida
-- `GET /api/matches/{id}/kills` - Kills de partida
-- `GET /api/matches/{id}/chat` - Chat de partida
+- `DELETE /api/matches/{id}` - Eliminar partida
+- `GET /api/matches/{id}/kills` - Kills de partida (soporta filtro `?user=nombre`)
+- `GET /api/matches/{id}/chat` - Mensajes del chat
+- `POST /api/matches/{id}/chat` - Enviar mensaje al chat
+- `GET /api/matches/{matchId}/status` - Estado de procesamiento
+
+### Análisis
+- `GET /api/analysis/overview` - Análisis general de kills
+- `GET /api/analysis/player/{playerName}` - Estadísticas de jugador
+- `GET /api/analysis/round/{roundNumber}` - Análisis de ronda
+- `GET /api/analysis/user/{user}/overview` - Análisis por usuario
+- `GET /api/analysis/user/{user}/kills` - Kills de usuario
+- `GET /api/analysis/user/{user}/round/{round}` - Kills de usuario por ronda
+- `GET /api/analysis/users` - Lista de usuarios
+
+### Usuarios
+- `GET /api/users` - Todos los usuarios
+- `POST /api/users` - Crear o obtener usuario
+- `GET /api/users/{name}` - Usuario por nombre
+- `GET /api/users/exists/{name}` - Verificar existencia
+- `GET /api/users/search?name=...` - Buscar usuarios
+- `GET /api/users/role/{role}` - Usuarios por rol
+- `GET /api/users/top/score` - Top por puntaje
+- `GET /api/users/top/kills` - Top por kills
+- `GET /api/users/top/kdr` - Top por KDR
+- `GET /api/users/top/matches` - Top por partidas
+- `GET /api/users/{name}/profile` - Perfil completo
+
+### Datos
+- `POST /api/data/load?fileName=...` - Cargar datos desde JSON
+- `DELETE /api/data/clear` - Limpiar todos los datos
+- `POST /api/data/reload-preloaded` - Recargar datos precargados
+- `POST /api/data/reload-dummy` - Recargar datos dummy
+- `GET /api/data/status` - Estado de la base de datos
 
 ### Analytics
-- `GET /api/analytics/dashboard` - Dashboard principal
-- `GET /api/analytics/historical` - Datos históricos
+- `GET /api/analytics/dashboard?user=...` - Dashboard principal
+- `GET /api/analytics/historical?timeRange=...&metric=...` - Datos históricos
 
-### Configuración
+### Uploads
+- `POST /api/upload/dem` - Subir archivo DEM
+- `POST /api/upload/video` - Subir video
+- `POST /api/upload/process` - Procesar partida
+
+### Utilidades
 - `GET /api/maps` - Mapas disponibles
 - `GET /api/weapons` - Armas disponibles
 
@@ -72,11 +110,14 @@ const headers = {
 
 ### Partidas
 - `?user=nombre` - Filtrar por usuario
-- `?page=1&limit=10` - Paginación
 
 ### Kills
-- `?user=nombre` - Filtrar por usuario
-- `?round=1` - Filtrar por ronda
+- `?user=nombre` - Filtrar por usuario (en `/api/matches/{id}/kills`)
+
+### Analytics
+- `?user=nombre` - Filtrar por usuario (en `/api/analytics/dashboard`)
+- `?timeRange=all|week|month|year` - Rango de tiempo (en `/api/analytics/historical`)
+- `?metric=kdr|kills|deaths|...` - Métrica a analizar (en `/api/analytics/historical`)
 
 ## 📝 Notas Importantes
 
