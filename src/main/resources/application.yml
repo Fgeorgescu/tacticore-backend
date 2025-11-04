@@ -16,5 +16,11 @@ spring:
 
 # Configuraciones de simulación ML
 simulation:
-  enabled: true
+  enabled: false
   json-directory: demos-jsons
+
+# Configuración del servicio ML
+ml:
+  service:
+    url: http://host.docker.internal:8000
+    file-param-name: demo_file

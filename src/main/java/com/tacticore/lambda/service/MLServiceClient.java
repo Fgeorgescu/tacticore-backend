@@ -22,6 +22,9 @@ public class MLServiceClient {
     @Value("${ml.service.url:http://ml-service:8000}")
     private String mlServiceUrl;
     
+    @Value("${ml.service.file-param-name:demo_file}")
+    private String fileParamName;
+    
     @Value("${simulation.enabled:false}")
     private boolean simulationEnabled;
     
@@ -51,37 +54,26 @@ public class MLServiceClient {
         }
     }
     
-    /**
-     * Simula la respuesta del servicio ML usando archivos JSON locales
-     */
     private Map<String, Object> simulateMLResponse(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
             if (fileName == null || !fileName.endsWith(".dem")) {
-                throw new RuntimeException("Archivo DEM inválido: " + fileName);
+                throw new RuntimeException("Invalid DEM file: " + fileName);
             }
             
-            // Extraer nombre base del archivo (sin extensión)
             String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-            
-            // Mapeo de nombres de archivos DEM a sus archivos JSON correspondientes
-            // Si el nombre base no tiene prefijo "de_", se añade automáticamente para ciertos mapas
             String jsonFileName;
             String baseNameLower = baseName.toLowerCase();
             
-            // Casos especiales: si el archivo se llama "nuke.dem", buscar "de_nuke.json"
             if ("nuke".equals(baseNameLower)) {
                 jsonFileName = "de_nuke.json";
             } else if (baseNameLower.startsWith("de_")) {
-                // Si ya tiene prefijo "de_", usarlo tal cual
                 jsonFileName = baseName + ".json";
             } else {
-                // Para otros casos, intentar primero el nombre directo, luego con "de_"
                 jsonFileName = baseName + ".json";
                 Path directPath = Paths.get(jsonDirectory, jsonFileName);
                 
                 if (!Files.exists(directPath)) {
-                    // Intentar con prefijo "de_"
                     jsonFileName = "de_" + baseName + ".json";
                 }
             }
@@ -89,41 +81,33 @@ public class MLServiceClient {
             Path jsonPath = Paths.get(jsonDirectory, jsonFileName);
             
             if (!Files.exists(jsonPath)) {
-                throw new RuntimeException("No se encontró archivo JSON correspondiente: " + jsonFileName + 
-                    " (buscado para: " + fileName + ")");
+                throw new RuntimeException("JSON file not found: " + jsonFileName + 
+                    " (searched for: " + fileName + ")");
             }
             
-            // Leer y parsear el archivo JSON
             String jsonContent = Files.readString(jsonPath);
             @SuppressWarnings("unchecked")
             Map<String, Object> response = objectMapper.readValue(jsonContent, Map.class);
             
-            System.out.println("Simulación ML: Usando archivo " + jsonFileName + " para " + fileName);
             return response;
             
         } catch (IOException e) {
-            throw new RuntimeException("Error leyendo archivo JSON de simulación: " + e.getMessage(), e);
+            throw new RuntimeException("Error reading simulation JSON file: " + e.getMessage(), e);
         }
     }
     
-    /**
-     * Llama al servicio ML real (método original)
-     */
     private Map<String, Object> callRealMLService(MultipartFile file) {
+        String analyzeUrl = mlServiceUrl + "/analyze-demo";
+        
         try {
-            // Preparar headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             
-            // Preparar body con el archivo
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("demo_file", file.getResource());
+            body.add(fileParamName, file.getResource());
             
-            // Crear request
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
             
-            // Hacer request al servicio ML
-            String analyzeUrl = mlServiceUrl + "/analyze-demo";
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.postForEntity(analyzeUrl, requestEntity, Map.class);
             
@@ -132,19 +116,28 @@ public class MLServiceClient {
                 Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
                 return responseBody;
             } else {
-                throw new RuntimeException("Error en respuesta del servicio ML: " + response.getStatusCode());
+                String errorMsg = "Error in ML service response: " + response.getStatusCode();
+                System.err.println(errorMsg);
+                throw new RuntimeException(errorMsg);
             }
             
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            String errorMsg = "HTTP error communicating with ML service (" + analyzeUrl + "): " + 
+                            e.getStatusCode() + " - " + e.getResponseBodyAsString();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            String errorMsg = "Could not connect to ML service (" + analyzeUrl + "). " +
+                            "Verify that the service is running and accessible. Error: " + e.getMessage();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
         } catch (Exception e) {
-            throw new RuntimeException("Error comunicándose con el servicio ML: " + e.getMessage(), e);
+            String errorMsg = "Unexpected error communicating with ML service: " + e.getMessage();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
         }
     }
     
-    /**
-     * Verifica el estado del servicio ML
-     * 
-     * @return true si el servicio está disponible, false en caso contrario
-     */
     public boolean isServiceAvailable() {
         try {
             String healthUrl = mlServiceUrl + "/";
@@ -156,11 +149,6 @@ public class MLServiceClient {
         }
     }
     
-    /**
-     * Obtiene información del modelo ML cargado
-     * 
-     * @return Información del modelo
-     */
     public Map<String, Object> getModelInfo() {
         try {
             String modelInfoUrl = mlServiceUrl + "/model-info";

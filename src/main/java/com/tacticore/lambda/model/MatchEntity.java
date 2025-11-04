@@ -26,11 +26,20 @@ public class MatchEntity {
     @Column(name = "total_kills")
     private Integer totalKills;
     
+    @Column(name = "good_plays")
+    private Integer goodPlays;
+    
+    @Column(name = "bad_plays")
+    private Integer badPlays;
+    
     @Column(name = "status")
     private String status;
     
     @Column(name = "has_video")
     private Boolean hasVideo;
+    
+    @Column(name = "ml_response_json", columnDefinition = "TEXT")
+    private String mlResponseJson;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -76,11 +85,20 @@ public class MatchEntity {
     public Integer getTotalKills() { return totalKills; }
     public void setTotalKills(Integer totalKills) { this.totalKills = totalKills; }
     
+    public Integer getGoodPlays() { return goodPlays; }
+    public void setGoodPlays(Integer goodPlays) { this.goodPlays = goodPlays; }
+    
+    public Integer getBadPlays() { return badPlays; }
+    public void setBadPlays(Integer badPlays) { this.badPlays = badPlays; }
+    
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     
     public Boolean getHasVideo() { return hasVideo; }
     public void setHasVideo(Boolean hasVideo) { this.hasVideo = hasVideo; }
+    
+    public String getMlResponseJson() { return mlResponseJson; }
+    public void setMlResponseJson(String mlResponseJson) { this.mlResponseJson = mlResponseJson; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
