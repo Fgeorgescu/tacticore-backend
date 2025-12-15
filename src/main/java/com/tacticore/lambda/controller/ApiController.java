@@ -177,11 +177,41 @@ public class ApiController {
             killDto.put("killer", kill.getAttacker());
             killDto.put("victim", kill.getVictim());
             killDto.put("weapon", kill.getWeapon());
-            killDto.put("isGoodPlay", kill.getHeadshot() || kill.getDistance() > 500);
+            killDto.put("isGoodPlay", kill.getHeadshot() || (kill.getDistance() != null && kill.getDistance() > 500));
             killDto.put("round", kill.getRound());
-            killDto.put("time", String.format("%.1fs", kill.getTimeInRound()));
+            killDto.put("time", String.format("%.1fs", kill.getTimeInRound() != null ? kill.getTimeInRound() : 0.0));
             killDto.put("teamAlive", Map.of("ct", teamCounts.get("ct"), "t", teamCounts.get("t")));
             killDto.put("position", kill.getPlace());
+            killDto.put("attackerSide", kill.getSide());
+            
+            // Coordenadas del atacante (posición en el juego)
+            if (kill.getAttackerX() != null && kill.getAttackerY() != null) {
+                Map<String, Double> attackerPosition = new HashMap<>();
+                attackerPosition.put("x", kill.getAttackerX());
+                attackerPosition.put("y", kill.getAttackerY());
+                attackerPosition.put("z", kill.getAttackerZ() != null ? kill.getAttackerZ() : 0.0);
+                killDto.put("attackerPosition", attackerPosition);
+                
+                // Convertir a coordenadas de imagen (asumiendo mapa 1024x1024)
+                Map<String, Integer> attackerImagePos = convertToImagePosition(
+                    kill.getAttackerX(), kill.getAttackerY(), matchDto.get().getMap());
+                killDto.put("attackerImagePosition", attackerImagePos);
+            }
+            
+            // Coordenadas de la víctima (posición en el juego)
+            if (kill.getVictimX() != null && kill.getVictimY() != null) {
+                Map<String, Double> victimPosition = new HashMap<>();
+                victimPosition.put("x", kill.getVictimX());
+                victimPosition.put("y", kill.getVictimY());
+                victimPosition.put("z", kill.getVictimZ() != null ? kill.getVictimZ() : 0.0);
+                killDto.put("victimPosition", victimPosition);
+                
+                // Convertir a coordenadas de imagen
+                Map<String, Integer> victimImagePos = convertToImagePosition(
+                    kill.getVictimX(), kill.getVictimY(), matchDto.get().getMap());
+                killDto.put("victimImagePosition", victimImagePos);
+            }
+            
             kills.add(killDto);
         }
         
@@ -324,5 +354,44 @@ public class ApiController {
         response.setTickrate(64);
         response.setStatus("success");
         return response;
+    }
+    
+    /**
+     * Convierte coordenadas del juego a coordenadas de imagen del mapa.
+     * Las imágenes de mapa son típicamente 1024x1024 píxeles.
+     */
+    private Map<String, Integer> convertToImagePosition(Double gameX, Double gameY, String mapName) {
+        // Datos de los mapas (pos_x, pos_y, scale)
+        // Estos valores definen el origen y escala para convertir coordenadas del juego a imagen
+        Map<String, double[]> mapData = Map.of(
+            "de_mirage", new double[]{-3230.0, 1713.0, 5.0},
+            "de_dust2", new double[]{-2476.0, 3239.0, 4.4},
+            "de_inferno", new double[]{-2087.0, 3870.0, 4.9},
+            "de_nuke", new double[]{-3453.0, 2887.0, 7.0},
+            "de_overpass", new double[]{-4831.0, 1781.0, 5.2},
+            "de_train", new double[]{-2477.0, 2392.0, 4.7},
+            "de_vertigo", new double[]{-3168.0, 1762.0, 4.0},
+            "de_cache", new double[]{-2000.0, 3250.0, 5.5},
+            "de_ancient", new double[]{-2953.0, 2164.0, 5.0},
+            "de_anubis", new double[]{-2796.0, 3328.0, 5.22}
+        );
+        
+        double[] data = mapData.getOrDefault(mapName, new double[]{-2000.0, 3000.0, 5.0});
+        double posX = data[0];
+        double posY = data[1];
+        double scale = data[2];
+        
+        // Fórmula de conversión: imageCoord = (gameCoord - mapOffset) / scale
+        int imageX = (int) ((gameX - posX) / scale);
+        int imageY = (int) ((posY - gameY) / scale);
+        
+        // Limitar a los bordes de la imagen (0-1024)
+        imageX = Math.max(0, Math.min(1024, imageX));
+        imageY = Math.max(0, Math.min(1024, imageY));
+        
+        Map<String, Integer> position = new HashMap<>();
+        position.put("x", imageX);
+        position.put("y", imageY);
+        return position;
     }
 }

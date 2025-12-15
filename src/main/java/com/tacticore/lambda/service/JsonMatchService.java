@@ -163,8 +163,9 @@ public class JsonMatchService {
             return fullData;
         }
         
-        if (user != null && !user.isEmpty()) {
-            List<Map<String, Object>> filteredPredictions = new ArrayList<>();
+        // Transformar predicciones al formato del frontend
+        List<Map<String, Object>> transformedKills = new ArrayList<>();
+        Map<Integer, Map<String, Integer>> roundTeamCounts = new HashMap<>();
             
             for (Map<String, Object> prediction : predictions) {
             String attacker = getNestedString(prediction, "attacker");
@@ -175,19 +176,130 @@ public class JsonMatchService {
                 String actualAttacker = attackerName != null ? attackerName : attacker;
                 String actualVictim = victimName != null ? victimName : victim;
                 
-                if (user.equalsIgnoreCase(actualAttacker) || user.equalsIgnoreCase(actualVictim)) {
-                    filteredPredictions.add(prediction);
+            // Filtrar por usuario si se especifica
+            if (user != null && !user.isEmpty()) {
+                if (!user.equalsIgnoreCase(actualAttacker) && !user.equalsIgnoreCase(actualVictim)) {
+                    continue;
                 }
             }
             
-            Map<String, Object> filteredData = new HashMap<>(fullData);
-            filteredData.put("predictions", filteredPredictions);
-            filteredData.put("total_kills", filteredPredictions.size());
-            
-            return filteredData;
+            Map<String, Object> kill = transformPredictionToKill(prediction, roundTeamCounts);
+            transformedKills.add(kill);
         }
         
-        return fullData;
+        Map<String, Object> result = new HashMap<>();
+        result.put("kills", transformedKills);
+        result.put("matchId", matchId);
+        result.put("total_kills", transformedKills.size());
+        result.put("map", fullData.get("map"));
+        if (user != null) {
+            result.put("filteredBy", user);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Transforma una predicción del modelo ML al formato esperado por el frontend
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> transformPredictionToKill(Map<String, Object> prediction, Map<Integer, Map<String, Integer>> roundTeamCounts) {
+        Map<String, Object> context = (Map<String, Object>) prediction.get("context");
+        Map<String, Object> predictionResult = (Map<String, Object>) prediction.get("prediction");
+        
+        Map<String, Object> kill = new HashMap<>();
+        
+        // Campos básicos
+        kill.put("id", prediction.get("kill_id"));
+        kill.put("killer", getNestedString(prediction, "context", "attacker_name"));
+        kill.put("victim", getNestedString(prediction, "context", "victim_name"));
+        kill.put("weapon", prediction.get("weapon"));
+        kill.put("round", prediction.get("round"));
+        kill.put("position", context != null ? context.get("place") : null);
+        kill.put("attackerSide", context != null ? context.get("side") : null);
+        
+        // Tiempo formateado
+        Object timeInRound = prediction.get("time_in_round");
+        if (timeInRound != null) {
+            double time = timeInRound instanceof Number ? ((Number) timeInRound).doubleValue() : 0.0;
+            kill.put("time", String.format("%.1fs", time));
+        }
+        
+        // Determinar si es buena jugada basado en la predicción
+        boolean isGoodPlay = false;
+        if (predictionResult != null) {
+            String predictedLabel = (String) predictionResult.get("predicted_label");
+            isGoodPlay = predictedLabel != null && 
+                (predictedLabel.contains("good") || predictedLabel.equals("precise"));
+        }
+        kill.put("isGoodPlay", isGoodPlay);
+        
+        // Team alive - calcular basado en la ronda
+        Integer round = (Integer) prediction.get("round");
+        if (round != null && context != null) {
+            roundTeamCounts.putIfAbsent(round, new HashMap<>());
+            Map<String, Integer> teamCounts = roundTeamCounts.get(round);
+            
+            Object playersAliveT = context.get("players_alive_t");
+            Object playersAliveCT = context.get("players_alive_ct");
+            
+            int tAlive = playersAliveT instanceof Number ? ((Number) playersAliveT).intValue() : 5;
+            int ctAlive = playersAliveCT instanceof Number ? ((Number) playersAliveCT).intValue() : 5;
+            
+            teamCounts.put("ct", ctAlive);
+            teamCounts.put("t", tAlive);
+            kill.put("teamAlive", new HashMap<>(teamCounts));
+        }
+        
+        // Coordenadas del atacante (posición en el juego)
+        if (context != null) {
+            Object attackerX = context.get("attacker_x");
+            Object attackerY = context.get("attacker_y");
+            Object attackerZ = context.get("attacker_z");
+            
+            if (attackerX != null && attackerY != null) {
+                Map<String, Double> attackerPosition = new HashMap<>();
+                attackerPosition.put("x", ((Number) attackerX).doubleValue());
+                attackerPosition.put("y", ((Number) attackerY).doubleValue());
+                attackerPosition.put("z", attackerZ != null ? ((Number) attackerZ).doubleValue() : 0.0);
+                kill.put("attackerPosition", attackerPosition);
+            }
+            
+            // Coordenadas de imagen del atacante
+            Object attackerImageX = context.get("attacker_image_x");
+            Object attackerImageY = context.get("attacker_image_y");
+            if (attackerImageX != null && attackerImageY != null) {
+                Map<String, Integer> attackerImagePosition = new HashMap<>();
+                attackerImagePosition.put("x", ((Number) attackerImageX).intValue());
+                attackerImagePosition.put("y", ((Number) attackerImageY).intValue());
+                kill.put("attackerImagePosition", attackerImagePosition);
+            }
+            
+            // Coordenadas de la víctima (posición en el juego)
+            Object victimX = context.get("victim_x");
+            Object victimY = context.get("victim_y");
+            Object victimZ = context.get("victim_z");
+            
+            if (victimX != null && victimY != null) {
+                Map<String, Double> victimPosition = new HashMap<>();
+                victimPosition.put("x", ((Number) victimX).doubleValue());
+                victimPosition.put("y", ((Number) victimY).doubleValue());
+                victimPosition.put("z", victimZ != null ? ((Number) victimZ).doubleValue() : 0.0);
+                kill.put("victimPosition", victimPosition);
+            }
+            
+            // Coordenadas de imagen de la víctima
+            Object victimImageX = context.get("victim_image_x");
+            Object victimImageY = context.get("victim_image_y");
+            if (victimImageX != null && victimImageY != null) {
+                Map<String, Integer> victimImagePosition = new HashMap<>();
+                victimImagePosition.put("x", ((Number) victimImageX).intValue());
+                victimImagePosition.put("y", ((Number) victimImageY).intValue());
+                kill.put("victimImagePosition", victimImagePosition);
+            }
+        }
+        
+        return kill;
     }
     
     public Map<String, Object> getMatchKillsFromJsonByFileName(String matchId, String fileName, String user) {
