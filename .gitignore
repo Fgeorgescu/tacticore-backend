@@ -56,3 +56,6 @@ application-prod.yml
 # Temporary files
 *.tmp
 *.temp
+
+# Application runtime files
+.last_match_id

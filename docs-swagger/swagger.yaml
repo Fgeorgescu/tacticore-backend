@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Tacticore API
-  description: API para análisis de partidas de Counter-Strike
+  description: API completa para análisis de partidas de Counter-Strike. Incluye gestión de partidas, análisis de kills, usuarios, chat y analytics.
   version: 1.0.0
   contact:
     name: Tacticore Team
@@ -14,12 +14,6 @@ servers:
     description: Production server
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
   schemas:
     Match:
       type: object
@@ -27,15 +21,18 @@ components:
         id:
           type: string
           description: ID único de la partida
+          example: "match_1234567890"
         fileName:
           type: string
           description: Nombre del archivo DEM
+          example: "example.dem"
         hasVideo:
           type: boolean
           description: Indica si tiene video asociado
         map:
           type: string
           description: Mapa de la partida
+          example: "de_mirage"
         gameType:
           type: string
           enum: [Ranked, Casual, Entrenamiento]
@@ -55,14 +52,27 @@ components:
         duration:
           type: string
           description: Duración de la partida (HH:MM)
+          example: "45:30"
         score:
           type: number
           format: float
           description: Puntaje de la partida (0-10)
         date:
           type: string
-          format: date
+          format: date-time
           description: Fecha de la partida
+
+    MatchResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "match_1234567890"
+        status:
+          type: string
+          enum: [processing, completed, failed]
+        message:
+          type: string
 
     Kill:
       type: object
@@ -101,22 +111,118 @@ components:
           type: string
           description: Posición en el mapa
 
-    ChatMessage:
+    KillAnalysis:
+      type: object
+      properties:
+        total_kills:
+          type: integer
+        total_headshots:
+          type: integer
+        headshot_rate:
+          type: number
+          format: float
+        average_distance:
+          type: number
+          format: float
+        average_time_in_round:
+          type: number
+          format: float
+        weapon_stats:
+          type: array
+          items:
+            type: object
+        location_stats:
+          type: array
+          items:
+            type: object
+        round_stats:
+          type: array
+          items:
+            type: object
+        side_stats:
+          type: array
+          items:
+            type: object
+        top_players:
+          type: array
+          items:
+            type: object
+        prediction_stats:
+          type: array
+          items:
+            type: object
+
+    User:
       type: object
       properties:
         id:
           type: integer
-          description: ID único del mensaje
+        name:
+          type: string
+        role:
+          type: string
+          enum: [PLAYER, COACH, ANALYST, ADMIN]
+        averageScore:
+          type: number
+          format: float
+        totalKills:
+          type: integer
+        totalDeaths:
+          type: integer
+        totalMatches:
+          type: integer
+        kdr:
+          type: number
+          format: float
+
+    UserProfile:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        stats:
+          type: object
+        recentActivity:
+          type: array
+          items:
+            type: object
+        preferences:
+          type: object
+
+    ChatMessage:
+      type: object
+      properties:
+        matchId:
+          type: string
         user:
           type: string
-          description: Usuario que envió el mensaje
         message:
           type: string
-          description: Contenido del mensaje
         timestamp:
           type: string
           format: date-time
-          description: Timestamp del mensaje
+
+    DashboardStats:
+      type: object
+      properties:
+        totalMatches:
+          type: integer
+        totalKills:
+          type: integer
+        totalDeaths:
+          type: integer
+        totalGoodPlays:
+          type: integer
+        totalBadPlays:
+          type: integer
+        averageScore:
+          type: number
+          format: float
+        kdr:
+          type: number
+          format: float
 
     AnalyticsData:
       type: object
@@ -124,63 +230,52 @@ components:
         date:
           type: string
           format: date
-          description: Fecha de los datos
-        kills:
-          type: integer
-          description: Número de kills
-        deaths:
-          type: integer
-          description: Número de muertes
-        kdr:
+        value:
           type: number
-          format: float
-          description: Kill/Death ratio
-        score:
-          type: number
-          format: float
-          description: Puntaje promedio
-        goodPlays:
-          type: integer
-          description: Número de buenas jugadas
-        badPlays:
-          type: integer
-          description: Número de malas jugadas
-        matches:
-          type: integer
-          description: Número de partidas
+        metric:
+          type: string
 
-    DashboardStats:
+    ErrorResponse:
       type: object
       properties:
-        totalMatches:
-          type: integer
-          description: Total de partidas
-        totalKills:
-          type: integer
-          description: Total de kills
-        totalDeaths:
-          type: integer
-          description: Total de muertes
-        totalGoodPlays:
-          type: integer
-          description: Total de buenas jugadas
-        totalBadPlays:
-          type: integer
-          description: Total de malas jugadas
-        averageScore:
-          type: number
-          format: float
-          description: Puntaje promedio
-        kdr:
-          type: number
-          format: float
-          description: Kill/Death ratio general
+        status:
+          type: string
+          example: "error"
+        message:
+          type: string
+          example: "Descripción del error"
+
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
 
 paths:
-  /api/health:
+  /hello:
     get:
-      summary: Health check
-      description: Verificar el estado del servicio
+      summary: Hello World
+      description: Endpoint de prueba básico
+      tags:
+        - Utilidades
+      responses:
+        '200':
+          description: Respuesta exitosa
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello World from Spring Boot!"
+
+  /ping:
+    get:
+      summary: Ping del servicio
+      description: Verifica el estado del servicio con información adicional
+      tags:
+        - Utilidades
       responses:
         '200':
           description: Servicio funcionando correctamente
@@ -199,12 +294,34 @@ paths:
                     type: string
                     example: "tacticore-backend-java"
 
+  /api/health:
+    get:
+      summary: Health check
+      description: Verificar el estado del servicio
+      tags:
+        - Utilidades
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Tacti-Core Backend is running!"
+
   /api/matches:
     get:
       summary: Obtener lista de partidas
-      description: Obtener todas las partidas del usuario
-      security:
-        - bearerAuth: []
+      description: Obtener todas las partidas disponibles. Soporta filtrado por usuario.
+      tags:
+        - Partidas
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+          description: Filtrar partidas por nombre de usuario
+          required: false
       responses:
         '200':
           description: Lista de partidas obtenida exitosamente
@@ -217,13 +334,50 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Match'
+                  filteredBy:
+                    type: string
+                    description: Solo presente si se especificó el parámetro user
+
+    post:
+      summary: Subir nueva partida
+      description: Sube un archivo DEM y opcionalmente video para crear una nueva partida
+      tags:
+        - Partidas
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - demFile
+              properties:
+                demFile:
+                  type: string
+                  format: binary
+                  description: Archivo DEM (.dem)
+                videoFile:
+                  type: string
+                  format: binary
+                  description: Archivo de video (opcional)
+                metadata:
+                  type: string
+                  description: Metadatos en formato JSON (opcional)
+                  example: '{"notes":"de_mirage","gameType":"Ranked"}'
+      responses:
+        '200':
+          description: Partida subida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
 
   /api/matches/{id}:
     get:
       summary: Obtener detalles de una partida
       description: Obtener información detallada de una partida específica
-      security:
-        - bearerAuth: []
+      tags:
+        - Partidas
       parameters:
         - name: id
           in: path
@@ -237,22 +391,15 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Match'
-                  - type: object
-                    properties:
-                      kills:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Kill'
+                $ref: '#/components/schemas/Match'
         '404':
           description: Partida no encontrada
 
     delete:
       summary: Eliminar una partida
       description: Eliminar una partida y todos sus datos asociados
-      security:
-        - bearerAuth: []
+      tags:
+        - Partidas
       parameters:
         - name: id
           in: path
@@ -263,15 +410,24 @@ paths:
       responses:
         '200':
           description: Partida eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
         '404':
           description: Partida no encontrada
 
   /api/matches/{id}/kills:
     get:
-      summary: Obtener timeline de kills
-      description: Obtener la línea de tiempo de kills de una partida
-      security:
-        - bearerAuth: []
+      summary: Obtener kills de una partida
+      description: Obtener todos los kills de una partida específica. Soporta filtrado por usuario.
+      tags:
+        - Partidas
       parameters:
         - name: id
           in: path
@@ -279,22 +435,35 @@ paths:
           schema:
             type: string
           description: ID de la partida
+        - name: user
+          in: query
+          schema:
+            type: string
+          description: Filtrar kills por nombre de usuario
+          required: false
       responses:
         '200':
-          description: Timeline de kills obtenido exitosamente
+          description: Kills obtenidos exitosamente
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Kill'
+                type: object
+                properties:
+                  matchId:
+                    type: string
+                  filteredBy:
+                    type: string
+                  kills:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Kill'
 
   /api/matches/{id}/chat:
     get:
       summary: Obtener mensajes del chat
       description: Obtener todos los mensajes del chat de análisis de una partida
-      security:
-        - bearerAuth: []
+      tags:
+        - Chat
       parameters:
         - name: id
           in: path
@@ -315,8 +484,8 @@ paths:
     post:
       summary: Enviar mensaje al chat
       description: Enviar un nuevo mensaje al chat de análisis
-      security:
-        - bearerAuth: []
+      tags:
+        - Chat
       parameters:
         - name: id
           in: path
@@ -347,95 +516,289 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChatMessage'
+        '400':
+          description: Solicitud inválida
+        '404':
+          description: Partida no encontrada
 
-  /api/upload/dem:
-    post:
-      summary: Subir archivo DEM
-      description: Subir un archivo DEM para análisis
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Archivo DEM (.dem)
-                metadata:
-                  type: string
-                  description: Metadatos adicionales en formato JSON
+  /api/matches/{matchId}/status:
+    get:
+      summary: Obtener estado de procesamiento
+      description: Obtiene el estado de procesamiento de una partida
+      tags:
+        - Partidas
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la partida
       responses:
-        '201':
-          description: Archivo DEM subido exitosamente
+        '200':
+          description: Estado obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '404':
+          description: Partida no encontrada
+
+  /api/analysis/overview:
+    get:
+      summary: Análisis general
+      description: Obtiene un análisis completo de todos los kills en la base de datos
+      tags:
+        - Análisis
+      responses:
+        '200':
+          description: Análisis obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KillAnalysis'
+
+  /api/analysis/player/{playerName}:
+    get:
+      summary: Estadísticas de jugador
+      description: Obtiene estadísticas detalladas de un jugador específico
+      tags:
+        - Análisis
+      parameters:
+        - name: playerName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del jugador
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id:
+                  player_name:
                     type: string
-                    description: ID de la partida creada
-                  fileName:
+                  kills:
+                    type: integer
+                  deaths:
+                    type: integer
+                  kd_ratio:
+                    type: number
+                  headshots:
+                    type: integer
+                  headshot_rate:
+                    type: number
+                  average_distance:
+                    type: number
+                  favorite_weapon:
                     type: string
-                    description: Nombre del archivo
-                  status:
-                    type: string
-                    enum: [uploaded, processing, completed, error]
-                    description: Estado del procesamiento
+                  performance_score:
+                    type: number
 
-  /api/upload/video:
-    post:
-      summary: Subir archivo de video
-      description: Subir un archivo de video asociado a una partida
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - file
-                - matchId
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Archivo de video
-                matchId:
-                  type: string
-                  description: ID de la partida asociada
+  /api/analysis/round/{roundNumber}:
+    get:
+      summary: Análisis de ronda
+      description: Obtiene análisis detallado de una ronda específica
+      tags:
+        - Análisis
+      parameters:
+        - name: roundNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Número de la ronda
       responses:
-        '201':
-          description: Archivo de video subido exitosamente
+        '200':
+          description: Análisis obtenido exitosamente
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: string
-                    description: ID del video
-                  matchId:
-                    type: string
-                    description: ID de la partida
-                  status:
-                    type: string
-                    enum: [uploaded, processing, completed, error]
+                  round_number:
+                    type: integer
+                  total_kills:
+                    type: integer
+                  headshot_rate:
+                    type: number
+                  average_distance:
+                    type: number
+                  players:
+                    type: array
+                    items:
+                      type: object
 
-  /api/upload/process:
+  /api/analysis/rounds:
+    get:
+      summary: Análisis de todas las rondas
+      description: Obtiene análisis de todas las rondas (en desarrollo)
+      tags:
+        - Análisis
+      responses:
+        '200':
+          description: Respuesta de desarrollo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/analysis/players:
+    get:
+      summary: Análisis de todos los jugadores
+      description: Obtiene análisis de todos los jugadores (en desarrollo)
+      tags:
+        - Análisis
+      responses:
+        '200':
+          description: Respuesta de desarrollo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/analysis/user/{user}/overview:
+    get:
+      summary: Análisis por usuario
+      description: Obtiene análisis completo filtrado por usuario
+      tags:
+        - Análisis
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre de usuario
+      responses:
+        '200':
+          description: Análisis obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KillAnalysis'
+        '400':
+          description: Error en la solicitud
+
+  /api/analysis/user/{user}/kills:
+    get:
+      summary: Kills de usuario
+      description: Obtiene todos los kills de un usuario específico
+      tags:
+        - Análisis
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre de usuario
+      responses:
+        '200':
+          description: Kills obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: string
+                  kills:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Error en la solicitud
+
+  /api/analysis/user/{user}/round/{round}:
+    get:
+      summary: Kills de usuario por ronda
+      description: Obtiene kills de un usuario en una ronda específica
+      tags:
+        - Análisis
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre de usuario
+        - name: round
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Número de ronda
+      responses:
+        '200':
+          description: Kills obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: string
+                  round:
+                    type: integer
+                  kills:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Error en la solicitud
+
+  /api/analysis/users:
+    get:
+      summary: Lista de usuarios
+      description: Obtiene lista de todos los usuarios disponibles
+      tags:
+        - Análisis
+      responses:
+        '200':
+          description: Usuarios obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Error en la solicitud
+
+  /api/users:
+    get:
+      summary: Obtener todos los usuarios
+      description: Obtiene todos los usuarios registrados
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Usuarios obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
     post:
-      summary: Procesar archivo DEM
-      description: Iniciar el procesamiento de un archivo DEM para generar análisis
-      security:
-        - bearerAuth: []
+      summary: Crear o obtener usuario
+      description: Crea un nuevo usuario o obtiene uno existente
+      tags:
+        - Usuarios
       requestBody:
         required: true
         content:
@@ -443,55 +806,456 @@ paths:
             schema:
               type: object
               required:
-                - matchId
+                - name
               properties:
-                matchId:
+                name:
                   type: string
-                  description: ID de la partida a procesar
-                analysisType:
+                role:
                   type: string
-                  enum: [basic, full]
-                  default: full
-                  description: Tipo de análisis a realizar
+                  enum: [PLAYER, COACH, ANALYST, ADMIN]
       responses:
         '200':
-          description: Procesamiento iniciado exitosamente
+          description: Usuario creado u obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/users/{name}:
+    get:
+      summary: Obtener usuario por nombre
+      description: Obtiene un usuario específico por nombre
+      tags:
+        - Usuarios
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del usuario
+      responses:
+        '200':
+          description: Usuario obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuario no encontrado
+
+  /api/users/exists/{name}:
+    get:
+      summary: Verificar existencia de usuario
+      description: Verifica si un usuario existe
+      tags:
+        - Usuarios
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del usuario
+      responses:
+        '200':
+          description: Resultado de verificación
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /api/users/search:
+    get:
+      summary: Buscar usuarios
+      description: Busca usuarios por nombre (búsqueda parcial)
+      tags:
+        - Usuarios
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Texto a buscar
+      responses:
+        '200':
+          description: Usuarios encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/role/{role}:
+    get:
+      summary: Usuarios por rol
+      description: Obtiene usuarios filtrados por rol
+      tags:
+        - Usuarios
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [PLAYER, COACH, ANALYST, ADMIN]
+          description: Rol del usuario
+      responses:
+        '200':
+          description: Usuarios obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/top/score:
+    get:
+      summary: Top jugadores por puntaje
+      description: Obtiene los mejores jugadores ordenados por puntaje promedio
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Top jugadores obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/top/kills:
+    get:
+      summary: Top jugadores por kills
+      description: Obtiene los mejores jugadores ordenados por kills totales
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Top jugadores obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/top/kdr:
+    get:
+      summary: Top jugadores por KDR
+      description: Obtiene los mejores jugadores ordenados por KDR (Kill/Death Ratio)
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Top jugadores obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/top/matches:
+    get:
+      summary: Top jugadores por partidas
+      description: Obtiene los mejores jugadores con mínimo de partidas
+      tags:
+        - Usuarios
+      parameters:
+        - name: minMatches
+          in: query
+          schema:
+            type: integer
+            default: 5
+          description: Mínimo de partidas requeridas
+      responses:
+        '200':
+          description: Top jugadores obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/roles:
+    get:
+      summary: Roles disponibles
+      description: Obtiene los roles disponibles en el sistema
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Roles obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["PLAYER", "COACH", "ANALYST", "ADMIN"]
+
+  /api/users/stats:
+    get:
+      summary: Estadísticas de usuarios
+      description: Obtiene estadísticas generales de usuarios
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  matchId:
+                  totalUsers:
+                    type: integer
+                  totalPlayers:
+                    type: integer
+                  totalCoaches:
+                    type: integer
+                  totalAnalysts:
+                    type: integer
+
+  /api/users/{name}/profile:
+    get:
+      summary: Perfil de usuario
+      description: Obtiene el perfil completo de un usuario
+      tags:
+        - Usuarios
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del usuario
+      responses:
+        '200':
+          description: Perfil obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Usuario no encontrado
+
+  /api/users/debug/kills-users:
+    get:
+      summary: Debug - Usuarios desde kills
+      description: Endpoint de debug para obtener información sobre usuarios desde kills
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: Información obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalKills:
+                    type: integer
+                  uniqueUsers:
+                    type: integer
+                  users:
+                    type: array
+                    items:
+                      type: string
+
+  /api/users/debug/reload-kills:
+    post:
+      summary: Debug - Recargar kills
+      description: Endpoint de debug para recargar kills con mapeo de usuarios
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: Kills recargados exitosamente
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Kills recargados exitosamente con mapeo de usuarios"
+
+  /api/users/debug/update-stats:
+    post:
+      summary: Debug - Actualizar estadísticas
+      description: Endpoint de debug para actualizar estadísticas de todos los usuarios desde kills
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: Estadísticas actualizadas exitosamente
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Estadísticas de usuarios actualizadas exitosamente"
+
+  /api/users/debug/{userName}/real-stats:
+    get:
+      summary: Debug - Estadísticas reales de usuario
+      description: Endpoint de debug para obtener estadísticas reales de un usuario calculadas desde kills
+      tags:
+        - Debug
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del usuario
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userName:
                     type: string
-                    description: ID de la partida
+                  kills:
+                    type: integer
+                  deaths:
+                    type: integer
+                  kdr:
+                    type: number
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/data/load:
+    post:
+      summary: Cargar datos desde JSON
+      description: Carga datos desde un archivo JSON
+      tags:
+        - Datos
+      parameters:
+        - name: fileName
+          in: query
+          schema:
+            type: string
+            default: "example.json"
+          description: Nombre del archivo JSON a cargar
+      responses:
+        '200':
+          description: Datos cargados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Error cargando datos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/data/clear:
+    delete:
+      summary: Limpiar todos los datos
+      description: Elimina todos los datos de la base de datos en memoria
+      tags:
+        - Datos
+      responses:
+        '200':
+          description: Datos eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/data/reload-preloaded:
+    post:
+      summary: Recargar datos precargados
+      description: Recarga datos precargados del sistema
+      tags:
+        - Datos
+      responses:
+        '200':
+          description: Datos recargados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Error recargando datos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/data/reload-dummy:
+    post:
+      summary: Recargar datos dummy
+      description: Recarga datos dummy de prueba
+      tags:
+        - Datos
+      responses:
+        '200':
+          description: Datos recargados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Error recargando datos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/data/status:
+    get:
+      summary: Estado de la base de datos
+      description: Obtiene el estado de la base de datos
+      tags:
+        - Datos
+      responses:
+        '200':
+          description: Estado obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
                   status:
                     type: string
-                    enum: [processing, completed]
-                    description: Estado del procesamiento
-                  estimatedTime:
-                    type: integer
-                    description: Tiempo estimado de procesamiento en segundos
+                    example: "ready"
+                  message:
+                    type: string
+                    example: "Base de datos en memoria lista para usar"
 
   /api/analytics/historical:
     get:
-      summary: Obtener datos históricos
-      description: Obtener datos históricos para gráficos y análisis
-      security:
-        - bearerAuth: []
+      summary: Datos históricos
+      description: Obtiene análisis histórico de métricas
+      tags:
+        - Analytics
       parameters:
         - name: timeRange
           in: query
           schema:
             type: string
-            enum: [all, 30d, 7d]
+            enum: [all, week, month, year]
             default: all
-          description: Rango de tiempo para los datos
+          description: Rango de tiempo
         - name: metric
           in: query
           schema:
             type: string
-            enum: [kdr, score, kills, goodPlays]
-            default: kdr
+            default: "kdr"
           description: Métrica a analizar
       responses:
         '200':
@@ -508,10 +1272,17 @@ paths:
 
   /api/analytics/dashboard:
     get:
-      summary: Obtener estadísticas del dashboard
-      description: Obtener estadísticas generales para el dashboard
-      security:
-        - bearerAuth: []
+      summary: Estadísticas del dashboard
+      description: Obtiene estadísticas del dashboard
+      tags:
+        - Analytics
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+          description: Filtrar por usuario específico
+          required: false
       responses:
         '200':
           description: Estadísticas obtenidas exitosamente
@@ -520,10 +1291,139 @@ paths:
               schema:
                 $ref: '#/components/schemas/DashboardStats'
 
+  /api/upload/dem:
+    post:
+      summary: Subir archivo DEM
+      description: Sube un archivo DEM para procesamiento
+      tags:
+        - Uploads
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo .dem
+                metadata:
+                  type: string
+                  description: Metadatos adicionales en formato JSON
+      responses:
+        '201':
+          description: Archivo DEM subido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  id:
+                    type: string
+                  fileName:
+                    type: string
+                  status:
+                    type: string
+                  totalKills:
+                    type: integer
+                  map:
+                    type: string
+                  tickrate:
+                    type: integer
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/upload/video:
+    post:
+      summary: Subir archivo de video
+      description: Sube un archivo de video asociado a una partida
+      tags:
+        - Uploads
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo de video
+                matchId:
+                  type: string
+                  description: ID de la partida asociada (opcional)
+      responses:
+        '201':
+          description: Archivo de video subido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  matchId:
+                    type: string
+                  status:
+                    type: string
+                    example: "uploaded"
+
+  /api/upload/process:
+    post:
+      summary: Procesar partida
+      description: Inicia el procesamiento de una partida
+      tags:
+        - Uploads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - matchId
+              properties:
+                matchId:
+                  type: string
+                  description: ID de la partida a procesar
+      responses:
+        '200':
+          description: Procesamiento iniciado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matchId:
+                    type: string
+                  status:
+                    type: string
+                    example: "processing"
+                  estimatedTime:
+                    type: integer
+                    description: Tiempo estimado en segundos
+                    example: 300
+
   /api/maps:
     get:
-      summary: Obtener lista de mapas
-      description: Obtener lista de mapas disponibles
+      summary: Lista de mapas
+      description: Obtiene lista de mapas disponibles
+      tags:
+        - Utilidades
       responses:
         '200':
           description: Lista de mapas obtenida exitosamente
@@ -533,12 +1433,14 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ["Dust2", "Mirage", "Inferno", "Cache", "Overpass"]
+                example: ["de_mirage", "de_dust2", "de_inferno", "de_nuke", "de_overpass"]
 
   /api/weapons:
     get:
-      summary: Obtener lista de armas
-      description: Obtener lista de armas disponibles
+      summary: Lista de armas
+      description: Obtiene lista de armas disponibles
+      tags:
+        - Utilidades
       responses:
         '200':
           description: Lista de armas obtenida exitosamente
@@ -548,75 +1450,4 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ["AK-47", "M4A4", "AWP", "Glock-18", "USP-S"]
-
-  /api/user/profile:
-    get:
-      summary: Obtener perfil del usuario
-      description: Obtener información del perfil del usuario autenticado
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Perfil del usuario obtenido exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: ID del usuario
-                  username:
-                    type: string
-                    description: Nombre de usuario
-                  email:
-                    type: string
-                    format: email
-                    description: Email del usuario
-                  createdAt:
-                    type: string
-                    format: date-time
-                    description: Fecha de creación de la cuenta
-
-    put:
-      summary: Actualizar perfil del usuario
-      description: Actualizar información del perfil del usuario
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Nuevo nombre de usuario
-                email:
-                  type: string
-                  format: email
-                  description: Nuevo email
-      responses:
-        '200':
-          description: Perfil actualizado exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: ID del usuario
-                  username:
-                    type: string
-                    description: Nombre de usuario actualizado
-                  email:
-                    type: string
-                    format: email
-                    description: Email actualizado
-                  updatedAt:
-                    type: string
-                    format: date-time
-                    description: Fecha de última actualización
+                example: ["ak47", "m4a4", "awp", "glock", "usp_silencer"]

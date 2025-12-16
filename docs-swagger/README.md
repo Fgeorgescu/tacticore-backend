@@ -1,167 +1,134 @@
-# Documentación de la API de Análisis de Kills
+# 📘 Documentación Swagger/OpenAPI
 
-## Índice de Documentación
+> Especificación OpenAPI 3.0.3 completa de la API de Tacticore Backend
 
-Esta carpeta contiene toda la documentación necesaria para entender y utilizar la API de análisis de kills de Counter-Strike.
+## 📋 Descripción
 
-### 📋 Documentos Principales
+Este directorio contiene la especificación técnica de la API en formato **OpenAPI 3.0.3** (anteriormente Swagger). Este archivo es consumido por herramientas como:
 
-1. **[API-ENDPOINTS-DOCUMENTATION.md](./API-ENDPOINTS-DOCUMENTATION.md)**
-   - Documentación detallada de cada endpoint
-   - Parámetros, respuestas y ejemplos de uso
-   - Casos de uso específicos para frontend
-   - Manejo de errores y códigos de estado
+- **Swagger UI**: Interfaz interactiva para probar endpoints (`http://localhost:8080/swagger-ui.html`)
+- **Postman**: Importación automática de colecciones
+- **Herramientas de generación de código**: Para crear clientes SDK automáticamente
+- **Documentación automatizada**: Generación de documentación desde código
 
-2. **[API-RESPONSE-EXAMPLES.md](./API-RESPONSE-EXAMPLES.md)**
-   - Ejemplos completos de respuestas JSON
-   - Estructuras de datos para diferentes escenarios
-   - Datos de ejemplo para desarrollo frontend
-   - Validaciones y constantes recomendadas
+## 📁 Archivos
 
-3. **[FRONTEND-TYPESCRIPT-INTERFACES.md](./FRONTEND-TYPESCRIPT-INTERFACES.md)**
-   - Interfaces TypeScript completas
-   - Servicios y hooks de React
-   - Utilidades y formateadores
-   - Configuración de TypeScript
+- **`swagger.yaml`**: Especificación completa de la API en formato OpenAPI 3.0.3
 
-4. **[TECHNICAL-DOCUMENTATION.md](./TECHNICAL-DOCUMENTATION.md)**
-   - Documentación técnica completa de la implementación
-   - Estructura de la base de datos y entidades JPA
-   - Servicios, repositorios y controladores
-   - Consideraciones técnicas y arquitectura
+## 🚀 Uso
 
-5. **[KILL-ANALYSIS-RECOMMENDATIONS.md](./KILL-ANALYSIS-RECOMMENDATIONS.md)**
-   - Recomendaciones de algoritmos
-   - Patrones identificados en los datos
-   - Métricas clave para dashboards
-   - Consideraciones de implementación
+### Ver en Swagger UI
 
----
+La aplicación Spring Boot incluye Swagger UI automáticamente. Cuando el backend está corriendo:
 
-## 🚀 Inicio Rápido
-
-### Para Desarrolladores Frontend
-
-1. **Leer la documentación de endpoints**: [API-ENDPOINTS-DOCUMENTATION.md](./API-ENDPOINTS-DOCUMENTATION.md)
-2. **Revisar ejemplos de respuestas**: [API-RESPONSE-EXAMPLES.md](./API-RESPONSE-EXAMPLES.md)
-3. **Implementar interfaces TypeScript**: [FRONTEND-TYPESCRIPT-INTERFACES.md](./FRONTEND-TYPESCRIPT-INTERFACES.md)
-
-### Para Desarrolladores Backend
-
-1. **Entender la implementación**: [TECHNICAL-DOCUMENTATION.md](./TECHNICAL-DOCUMENTATION.md)
-2. **Revisar recomendaciones**: [KILL-ANALYSIS-RECOMMENDATIONS.md](./KILL-ANALYSIS-RECOMMENDATIONS.md)
-
----
-
-## 📊 Endpoints Disponibles
-
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/api/analysis/overview` | GET | Análisis general de todos los kills |
-| `/api/analysis/player/{name}` | GET | Estadísticas de jugador específico |
-| `/api/analysis/round/{number}` | GET | Análisis de ronda específica |
-| `/api/data/load` | POST | Cargar datos desde JSON |
-| `/api/data/clear` | DELETE | Limpiar todos los datos |
-| `/api/data/status` | GET | Estado de la base de datos |
-
----
-
-## 🔧 Configuración
-
-### Base de Datos H2
-- **URL**: `jdbc:h2:mem:testdb`
-- **Consola**: `http://localhost:8080/h2-console`
-- **Usuario**: `sa`
-- **Contraseña**: `password`
-
-### Aplicación
-- **Puerto**: `8080`
-- **Base URL**: `http://localhost:8080`
-- **CORS**: Habilitado para todos los orígenes
-
----
-
-## 📈 Datos de Ejemplo
-
-La aplicación incluye datos de ejemplo con:
-- **143 kills** de Counter-Strike
-- **10 jugadores** diferentes
-- **21 rondas** de juego
-- **Predicciones del modelo IA** para cada kill
-- **Información detallada** de contexto y posiciones
-
----
-
-## 🧪 Pruebas
-
-### Script de Prueba
 ```bash
-./test-kill-analysis-api.sh
+# Asegúrate de que el backend esté corriendo
+make run
+
+# Abre en tu navegador:
+# http://localhost:8080/swagger-ui.html
 ```
 
-### Ejemplos de Uso
+### Importar en Postman
+
+1. Abre Postman
+2. Click en **Import**
+3. Selecciona **File** y carga `swagger.yaml`
+4. Postman generará automáticamente una colección con todos los endpoints
+
+### Generar Código Cliente
+
+Con herramientas como [OpenAPI Generator](https://openapi-generator.tech/):
+
 ```bash
-# Análisis general
-curl http://localhost:8080/api/analysis/overview
+# Generar cliente TypeScript
+npx @openapi-generator-plus/cli \
+  -i docs-swagger/swagger.yaml \
+  -g typescript-fetch \
+  -o src/generated/api-client
 
-# Estadísticas de jugador
-curl http://localhost:8080/api/analysis/player/makazze
-
-# Análisis de ronda
-curl http://localhost:8080/api/analysis/round/1
-
-# Estado de datos
-curl http://localhost:8080/api/data/status
+# Generar cliente Python
+openapi-generator generate \
+  -i docs-swagger/swagger.yaml \
+  -g python \
+  -o generated/python-client
 ```
 
----
+## 📊 Estructura de la Especificación
+
+La especificación incluye:
+
+### Endpoints Documentados
+
+- ✅ **Partidas** (`/api/matches`) - Gestión completa de partidas
+- ✅ **Análisis** (`/api/analysis`) - Análisis de kills y estadísticas
+- ✅ **Usuarios** (`/api/users`) - Gestión de usuarios y perfiles
+- ✅ **Datos** (`/api/data`) - Carga y gestión de datos
+- ✅ **Chat** (`/api/matches/{id}/chat`) - Sistema de chat por partida
+- ✅ **Analytics** (`/api/analytics`) - Dashboard y datos históricos
+- ✅ **Uploads** (`/api/upload`) - Subida de archivos DEM y videos
+- ✅ **Utilidades** (`/api/maps`, `/api/weapons`, `/ping`, `/health`) - Endpoints auxiliares
+
+### Schemas Definidos
+
+- `Match` - Estructura de partida
+- `MatchResponse` - Respuesta de estado de partida
+- `Kill` - Estructura de kill
+- `KillAnalysis` - Análisis completo de kills
+- `User` - Estructura de usuario
+- `UserProfile` - Perfil completo de usuario
+- `ChatMessage` - Mensaje de chat
+- `DashboardStats` - Estadísticas del dashboard
+- `AnalyticsData` - Datos históricos
+- `ErrorResponse` - Respuesta de error
+- `SuccessResponse` - Respuesta de éxito
+
+## 🔄 Actualización
+
+Esta especificación se actualiza manualmente cuando:
+
+1. Se agregan nuevos endpoints al backend
+2. Se modifican estructuras de datos (DTOs)
+3. Se cambian parámetros o respuestas de endpoints existentes
+
+**Proceso de actualización**:
+
+1. Modificar `swagger.yaml` con los nuevos endpoints
+2. Verificar que la sintaxis YAML sea válida
+3. Probar en Swagger UI que todos los endpoints funcionen
+4. Actualizar la documentación en `docs/api/endpoints.md` si es necesario
 
 ## 📝 Notas Importantes
 
-### Para el Frontend
-- Todos los endpoints retornan JSON
-- Los datos se calculan en tiempo real
-- Implementar manejo de errores apropiado
-- Considerar estados de carga y validación
+- **Formato**: OpenAPI 3.0.3 (YAML)
+- **Versión de API**: 1.0.0
+- **Última actualización**: Noviembre 2024
+- **Cobertura**: ~50+ endpoints documentados
 
-### Para el Backend
-- Base de datos en memoria (se pierde al reiniciar)
-- Datos se cargan automáticamente al iniciar
-- Estructura preparada para escalabilidad
-- Consultas optimizadas para rendimiento
+## 🔗 Enlaces Relacionados
 
----
+- [Documentación de Endpoints](../docs/api/endpoints.md) - Documentación detallada en Markdown
+- [Ejemplos de Respuesta](../docs/api/examples.md) - Ejemplos de uso
+- [Swagger UI](http://localhost:8080/swagger-ui.html) - Interfaz interactiva (cuando el backend está corriendo)
 
-## 🤝 Contribución
+## 🛠️ Validación
 
-Para agregar nuevos endpoints o funcionalidades:
+Para validar que el archivo YAML sea correcto:
 
-1. Actualizar las entidades JPA si es necesario
-2. Agregar métodos al repositorio correspondiente
-3. Implementar lógica en el servicio
-4. Crear endpoint en el controlador
-5. Actualizar la documentación
-6. Agregar tests si es necesario
+```bash
+# Con npm/yarn
+npx swagger-cli validate docs-swagger/swagger.yaml
 
----
+# Con Python
+pip install openapi-spec-validator
+openapi-spec-validator docs-swagger/swagger.yaml
 
-## 📞 Soporte
-
-Para preguntas o problemas:
-
-1. Revisar la documentación correspondiente
-2. Verificar los ejemplos de uso
-3. Consultar los logs de la aplicación
-4. Usar la consola H2 para inspeccionar datos
+# Con Docker
+docker run --rm -v $(pwd):/data \
+  openapitools/openapi-validator-cli \
+  validate -i /data/docs-swagger/swagger.yaml
+```
 
 ---
 
-## 🔄 Actualizaciones
-
-Esta documentación se actualiza cuando:
-- Se agregan nuevos endpoints
-- Se modifican estructuras de datos
-- Se implementan nuevas funcionalidades
-- Se corrigen errores o mejoran ejemplos
-
-**Última actualización**: Enero 2024
+**Última actualización**: Noviembre 2024
