@@ -21,7 +21,7 @@ import org.springframework.core.io.ByteArrayResource;
 @Service
 public class MLServiceClient {
     
-    @Value("${ml.service.url:http://ml-service:8000}")
+    @Value("${ml.service.url:http://3.91.78.196:8000}")
     private String mlServiceUrl;
     
     @Value("${ml.service.file-param-name:demo_file}")

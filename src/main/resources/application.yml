@@ -22,5 +22,5 @@ simulation:
 # Configuración del servicio ML
 ml:
   service:
-    url: http://host.docker.internal:8000
+    url: http://3.91.78.196:8000
     file-param-name: demo_file
