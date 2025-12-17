@@ -227,9 +227,14 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
                 String userName = path.replaceAll("/api/users/([^/]+)/profile", "$1");
                 return userController.getUserProfile(userName).getBody();
             }
-            if (path.matches("/api/users/[^/]+") && !path.contains("/")) {
+            // GET /api/users/{name} - Debe ir al final para no interferir con otras rutas
+            if (path.matches("/api/users/[^/]+")) {
                 String userName = path.substring("/api/users/".length());
-                if (!userName.contains("/")) {
+                // Excluir rutas especiales que ya fueron manejadas arriba
+                if (!userName.equals("roles") && !userName.equals("stats") && 
+                    !userName.equals("search") && !userName.equals("debug") &&
+                    !userName.startsWith("top/") && !userName.startsWith("exists/") &&
+                    !userName.startsWith("role/") && !userName.contains("/")) {
                     return userController.getUserByName(userName).getBody();
                 }
             }
