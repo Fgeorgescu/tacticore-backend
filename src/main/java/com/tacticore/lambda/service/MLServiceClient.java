@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.springframework.core.io.ByteArrayResource;
+
 @Service
 public class MLServiceClient {
     
@@ -48,15 +50,30 @@ public class MLServiceClient {
      */
     public Map<String, Object> analyzeDemoFile(MultipartFile file) {
         if (simulationEnabled) {
-            return simulateMLResponse(file);
+            return simulateMLResponse(file.getOriginalFilename());
         } else {
             return callRealMLService(file);
         }
     }
     
-    private Map<String, Object> simulateMLResponse(MultipartFile file) {
+    /**
+     * Envía un archivo .dem (como bytes) al servicio ML para análisis.
+     * Esta variante es útil cuando el archivo proviene de S3.
+     * 
+     * @param fileContent Contenido del archivo como byte array
+     * @param fileName Nombre original del archivo
+     * @return Respuesta del servicio ML con análisis de kills
+     */
+    public Map<String, Object> analyzeDemoFile(byte[] fileContent, String fileName) {
+        if (simulationEnabled) {
+            return simulateMLResponse(fileName);
+        } else {
+            return callRealMLServiceWithBytes(fileContent, fileName);
+        }
+    }
+    
+    private Map<String, Object> simulateMLResponse(String fileName) {
         try {
-            String fileName = file.getOriginalFilename();
             if (fileName == null || !fileName.endsWith(".dem")) {
                 throw new RuntimeException("Invalid DEM file: " + fileName);
             }
@@ -105,6 +122,56 @@ public class MLServiceClient {
             
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add(fileParamName, file.getResource());
+            
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<Map> response = restTemplate.postForEntity(analyzeUrl, requestEntity, Map.class);
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+                return responseBody;
+            } else {
+                String errorMsg = "Error in ML service response: " + response.getStatusCode();
+                System.err.println(errorMsg);
+                throw new RuntimeException(errorMsg);
+            }
+            
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            String errorMsg = "HTTP error communicating with ML service (" + analyzeUrl + "): " + 
+                            e.getStatusCode() + " - " + e.getResponseBodyAsString();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            String errorMsg = "Could not connect to ML service (" + analyzeUrl + "). " +
+                            "Verify that the service is running and accessible. Error: " + e.getMessage();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
+        } catch (Exception e) {
+            String errorMsg = "Unexpected error communicating with ML service: " + e.getMessage();
+            System.err.println(errorMsg);
+            throw new RuntimeException(errorMsg, e);
+        }
+    }
+    
+    private Map<String, Object> callRealMLServiceWithBytes(byte[] fileContent, String fileName) {
+        String analyzeUrl = mlServiceUrl + "/analyze-demo";
+        
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            
+            // Crear un Resource desde los bytes
+            ByteArrayResource fileResource = new ByteArrayResource(fileContent) {
+                @Override
+                public String getFilename() {
+                    return fileName;
+                }
+            };
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add(fileParamName, fileResource);
             
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
             
