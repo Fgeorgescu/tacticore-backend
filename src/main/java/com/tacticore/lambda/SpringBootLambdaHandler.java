@@ -30,6 +30,8 @@ import com.tacticore.lambda.controller.MatchController;
 import com.tacticore.lambda.controller.UserController;
 import com.tacticore.lambda.model.S3MatchUploadRequest;
 import com.tacticore.lambda.model.MatchResponse;
+import com.tacticore.lambda.service.DummyDataService;
+import com.tacticore.lambda.service.PreloadedDataService;
 
 /**
  * Handler completo de Spring Boot para AWS Lambda
@@ -59,11 +61,42 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
             // No usamos DispatcherServlet - manejamos las rutas directamente
             dispatcherServlet = null;
             
+            // Ejecutar inicialización de datos (equivalente a CommandLineRunner)
+            initializeData();
+            
             System.out.println("✅ Spring Boot initialized successfully for Lambda");
         } catch (Exception e) {
             System.err.println("❌ Error initializing Spring Boot for Lambda: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Could not initialize Spring Boot", e);
+        }
+    }
+    
+    /**
+     * Inicializa los datos de la aplicación (equivalente a CommandLineRunner).
+     * Esto es necesario porque Lambda no ejecuta CommandLineRunner automáticamente.
+     */
+    private static void initializeData() {
+        try {
+            System.out.println("📦 Initializing application data...");
+            
+            // Cargar datos dummy (maps, weapons, analytics)
+            DummyDataService dummyDataService = applicationContext.getBean(DummyDataService.class);
+            System.out.println("Inicializando datos dummy (maps, weapons, analytics)...");
+            dummyDataService.loadDummyData();
+            System.out.println("Datos dummy inicializados exitosamente!");
+            
+            // Cargar todas las partidas demo (incluye usuarios con roles aleatorios)
+            PreloadedDataService preloadedDataService = applicationContext.getBean(PreloadedDataService.class);
+            System.out.println("Inicializando todas las partidas demo (incluye usuarios con roles aleatorios)...");
+            preloadedDataService.loadAllDemoMatches();
+            System.out.println("Todas las partidas demo inicializadas exitosamente!");
+            
+            System.out.println("✅ Application data initialized successfully");
+        } catch (Exception e) {
+            System.err.println("⚠️ Error initializing data: " + e.getMessage());
+            System.err.println("La aplicación continuará sin datos iniciales.");
+            // No lanzamos excepción para que la Lambda pueda seguir funcionando
         }
     }
 

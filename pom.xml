@@ -244,7 +244,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>tacticore-backend-lambda-1.0.7</finalName>
+                            <finalName>tacticore-backend-lambda-1.0.8</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                         <executions>
