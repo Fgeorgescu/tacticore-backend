@@ -9,6 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -215,5 +220,115 @@ class DatabaseMatchServiceCalculationTest {
 
     private int invokeCalculateDeaths(int kills) {
         return (Integer) ReflectionTestUtils.invokeMethod(databaseMatchService, "calculateDeaths", kills);
+    }
+    
+    // ============================================
+    // Tests para calculatePlaysFromPredictions con predicted_label
+    // ============================================
+    
+    @Test
+    void testCalculatePlaysFromPredictions_AllGoodDecisions() {
+        // Given - All predictions are "good_decision"
+        Map<String, Object> mlResponse = createMockMLResponse(10, "good_decision");
+        
+        // When
+        int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
+        
+        // Then
+        assertEquals(10, plays[0], "All 10 predictions should be counted as goodPlays");
+        assertEquals(0, plays[1], "No predictions should be counted as badPlays");
+    }
+    
+    @Test
+    void testCalculatePlaysFromPredictions_AllOther() {
+        // Given - All predictions are "other"
+        Map<String, Object> mlResponse = createMockMLResponse(10, "other");
+        
+        // When
+        int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
+        
+        // Then
+        assertEquals(0, plays[0], "No predictions should be counted as goodPlays");
+        assertEquals(10, plays[1], "All 10 predictions should be counted as badPlays");
+    }
+    
+    @Test
+    void testCalculatePlaysFromPredictions_MixedLabels() {
+        // Given - Mixed predictions
+        Map<String, Object> mlResponse = new HashMap<>();
+        List<Map<String, Object>> predictions = new ArrayList<>();
+        
+        // 5 good_decision, 3 good_positioning, 2 precise, 5 other
+        for (int i = 0; i < 5; i++) {
+            predictions.add(createPrediction("good_decision"));
+        }
+        for (int i = 0; i < 3; i++) {
+            predictions.add(createPrediction("good_positioning"));
+        }
+        for (int i = 0; i < 2; i++) {
+            predictions.add(createPrediction("precise"));
+        }
+        for (int i = 0; i < 5; i++) {
+            predictions.add(createPrediction("other"));
+        }
+        
+        mlResponse.put("predictions", predictions);
+        
+        // When
+        int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
+        
+        // Then - good_decision, good_positioning, and precise are all "good"
+        assertEquals(10, plays[0], "5 good_decision + 3 good_positioning + 2 precise = 10 goodPlays");
+        assertEquals(5, plays[1], "5 other = 5 badPlays");
+    }
+    
+    @Test
+    void testCalculatePlaysFromPredictions_NullPredictions() {
+        // Given
+        Map<String, Object> mlResponse = new HashMap<>();
+        mlResponse.put("predictions", null);
+        
+        // When
+        int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
+        
+        // Then
+        assertEquals(0, plays[0], "Should return 0 goodPlays for null predictions");
+        assertEquals(0, plays[1], "Should return 0 badPlays for null predictions");
+    }
+    
+    @Test
+    void testIsGoodPlayFromLabel_ConsistencyWithPreloadedDataService() {
+        // Verify that the logic is consistent across services
+        assertTrue(PreloadedDataService.isGoodPlayFromLabel("good_decision"));
+        assertTrue(PreloadedDataService.isGoodPlayFromLabel("good_positioning"));
+        assertTrue(PreloadedDataService.isGoodPlayFromLabel("precise"));
+        assertFalse(PreloadedDataService.isGoodPlayFromLabel("other"));
+        assertFalse(PreloadedDataService.isGoodPlayFromLabel(null));
+        assertFalse(PreloadedDataService.isGoodPlayFromLabel(""));
+    }
+    
+    // Helper methods for new tests
+    private Map<String, Object> createMockMLResponse(int count, String predictedLabel) {
+        Map<String, Object> mlResponse = new HashMap<>();
+        List<Map<String, Object>> predictions = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
+            predictions.add(createPrediction(predictedLabel));
+        }
+        
+        mlResponse.put("predictions", predictions);
+        return mlResponse;
+    }
+    
+    private Map<String, Object> createPrediction(String predictedLabel) {
+        Map<String, Object> prediction = new HashMap<>();
+        Map<String, Object> predictionResult = new HashMap<>();
+        predictionResult.put("predicted_label", predictedLabel);
+        prediction.put("prediction", predictionResult);
+        return prediction;
+    }
+    
+    private int[] invokeCalculatePlaysFromPredictions(Map<String, Object> mlResponse) {
+        return (int[]) ReflectionTestUtils.invokeMethod(databaseMatchService, "calculatePlaysFromPredictions", mlResponse);
     }
 }

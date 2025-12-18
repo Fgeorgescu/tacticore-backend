@@ -187,16 +187,38 @@ public class PreloadedDataService {
             return; // Ya existe
         }
         
+        String jsonPath = "demos-jsons/inferno1.json";
+        int[] playCounts = {0, 0}; // [goodPlays, badPlays]
+        int totalKills = 107;
+        
+        // Leer JSON para calcular goodPlays/badPlays desde las predicciones
+        try {
+            File jsonFile = new File(jsonPath);
+            if (jsonFile.exists()) {
+                JsonNode rootNode = objectMapper.readTree(jsonFile);
+                JsonNode predictionsNode = rootNode.path("predictions");
+                playCounts = calculatePlaysFromPredictions(predictionsNode);
+                totalKills = predictionsNode.size();
+                System.out.println("Inferno - Calculado desde ML: goodPlays=" + playCounts[0] + ", badPlays=" + playCounts[1]);
+            }
+        } catch (IOException e) {
+            System.err.println("Error leyendo JSON para calcular plays: " + e.getMessage());
+        }
+        
         // Crear partida de Inferno con datos reales
         MatchEntity infernoMatch = new MatchEntity(
             "inferno_demo", 
             "inferno1.dem", 
             "de_inferno", 
             64, 
-            107, 
+            totalKills, 
             "completed", 
             false
         );
+        
+        // Setear goodPlays y badPlays calculados desde el modelo ML
+        infernoMatch.setGoodPlays(playCounts[0]);
+        infernoMatch.setBadPlays(playCounts[1]);
         
         matchRepository.save(infernoMatch);
         
@@ -209,7 +231,8 @@ public class PreloadedDataService {
         );
         chatMessageRepository.save(welcomeMessage);
         
-        System.out.println("Partida de Inferno creada: " + infernoMatch.getMatchId());
+        System.out.println("Partida de Inferno creada: " + infernoMatch.getMatchId() + 
+            " (goodPlays=" + playCounts[0] + ", badPlays=" + playCounts[1] + ")");
         
         // Cargar kills de Inferno
         loadInfernoKills();
@@ -323,16 +346,37 @@ public class PreloadedDataService {
             return; // Ya existe
         }
         
+        int[] playCounts = {0, 0}; // [goodPlays, badPlays]
+        int actualTotalKills = totalKills;
+        
+        // Leer JSON para calcular goodPlays/badPlays desde las predicciones
+        try {
+            File jsonFile = new File(jsonPath);
+            if (jsonFile.exists()) {
+                JsonNode rootNode = objectMapper.readTree(jsonFile);
+                JsonNode predictionsNode = rootNode.path("predictions");
+                playCounts = calculatePlaysFromPredictions(predictionsNode);
+                actualTotalKills = predictionsNode.size();
+                System.out.println(matchId + " - Calculado desde ML: goodPlays=" + playCounts[0] + ", badPlays=" + playCounts[1]);
+            }
+        } catch (IOException e) {
+            System.err.println("Error leyendo JSON para calcular plays: " + e.getMessage());
+        }
+        
         // Crear partida con datos reales
         MatchEntity match = new MatchEntity(
             matchId, 
             fileName, 
             mapName, 
             64, // tickrate
-            totalKills, 
+            actualTotalKills, 
             "completed", 
             false // hasVideo
         );
+        
+        // Setear goodPlays y badPlays calculados desde el modelo ML
+        match.setGoodPlays(playCounts[0]);
+        match.setBadPlays(playCounts[1]);
         
         matchRepository.save(match);
         
@@ -345,7 +389,8 @@ public class PreloadedDataService {
         );
         chatMessageRepository.save(welcomeMessage);
         
-        System.out.println("Partida creada: " + matchId + " (" + mapName + ")");
+        System.out.println("Partida creada: " + matchId + " (" + mapName + ")" +
+            " (goodPlays=" + playCounts[0] + ", badPlays=" + playCounts[1] + ")");
         
         // Cargar kills de esta partida
         loadKillsFromJson(matchId, jsonPath);
@@ -499,9 +544,10 @@ public class PreloadedDataService {
             // Calcular cuántas partidas diferentes ha jugado este usuario
             int totalMatches = calculateUserMatches(userName);
             
-            // Calcular estadísticas usando los métodos del sistema
-            int goodPlays = calculateGoodPlays(actualKills);
-            int badPlays = calculateBadPlays(actualKills);
+            // Calcular goodPlays/badPlays del usuario basado en proporción de los matches donde participó
+            int[] userPlays = calculateUserPlaysFromMatches(userName);
+            int goodPlays = userPlays[0];
+            int badPlays = userPlays[1];
             double score = calculateUnifiedScore(actualKills, actualDeaths, goodPlays, badPlays);
             
             // Actualizar el usuario en la base de datos con matches reales
@@ -532,21 +578,82 @@ public class PreloadedDataService {
         }
     }
     
-    // Métodos de cálculo reutilizados del DatabaseMatchService
-    private int calculateGoodPlays(int kills) {
-        // Deterministic calculation: good plays are 30-50% of kills
-        // Use kills as seed for consistent results
-        double seed = kills * 0.12345; // Deterministic seed
-        double factor = 0.3 + (seed % 0.2); // 30-50% range
-        return (int)(kills * factor);
+    /**
+     * Calcula goodPlays y badPlays de un usuario basándose en su proporción de kills
+     * en cada match donde participó.
+     * Retorna [goodPlays, badPlays]
+     */
+    private int[] calculateUserPlaysFromMatches(String userName) {
+        int totalGoodPlays = 0;
+        int totalBadPlays = 0;
+        
+        try {
+            // Obtener todos los matchIds donde participó el usuario
+            List<String> matchIds = killRepository.findDistinctMatchIdsByUser(userName);
+            
+            if (matchIds != null) {
+                for (String matchId : matchIds) {
+                    // Obtener el match para sus valores de goodPlays/badPlays
+                    MatchEntity match = matchRepository.findByMatchId(matchId).orElse(null);
+                    if (match != null && match.getTotalKills() != null && match.getTotalKills() > 0) {
+                        // Obtener kills del usuario en este match
+                        Long userKillsInMatch = killRepository.countKillsByUserAndMatchId(userName, matchId);
+                        int userKills = (userKillsInMatch != null) ? userKillsInMatch.intValue() : 0;
+                        
+                        // Calcular proporción del usuario en este match
+                        double userRatio = (double) userKills / match.getTotalKills();
+                        
+                        // Aplicar proporción a goodPlays/badPlays del match
+                        Integer matchGood = match.getGoodPlays();
+                        Integer matchBad = match.getBadPlays();
+                        
+                        if (matchGood != null) {
+                            totalGoodPlays += (int) (matchGood * userRatio);
+                        }
+                        if (matchBad != null) {
+                            totalBadPlays += (int) (matchBad * userRatio);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error calculando plays para usuario " + userName + ": " + e.getMessage());
+        }
+        
+        return new int[]{totalGoodPlays, totalBadPlays};
     }
-
-    private int calculateBadPlays(int kills) {
-        // Deterministic calculation: bad plays are 10-20% of kills
-        // Use kills as seed for consistent results
-        double seed = kills * 0.67890; // Different seed for variety
-        double factor = 0.1 + (seed % 0.1); // 10-20% range
-        return (int)(kills * factor);
+    
+    /**
+     * Determina si una predicción es una "buena jugada" basándose en el predicted_label del modelo ML.
+     * Esta lógica debe ser consistente con JsonMatchService.transformPredictionToKill()
+     */
+    public static boolean isGoodPlayFromLabel(String predictedLabel) {
+        return predictedLabel != null && 
+            (predictedLabel.contains("good") || predictedLabel.equals("precise"));
+    }
+    
+    /**
+     * Calcula goodPlays y badPlays desde las predicciones del JSON del modelo ML.
+     * Retorna un array [goodPlays, badPlays]
+     */
+    private int[] calculatePlaysFromPredictions(JsonNode predictionsNode) {
+        int goodPlays = 0;
+        int badPlays = 0;
+        
+        if (predictionsNode != null && predictionsNode.isArray()) {
+            for (JsonNode prediction : predictionsNode) {
+                JsonNode predictionResult = prediction.path("prediction");
+                String predictedLabel = predictionResult.path("predicted_label").asText(null);
+                
+                if (isGoodPlayFromLabel(predictedLabel)) {
+                    goodPlays++;
+                } else {
+                    badPlays++;
+                }
+            }
+        }
+        
+        return new int[]{goodPlays, badPlays};
     }
 
     private double calculateUnifiedScore(int kills, int deaths, int goodPlays, int badPlays) {

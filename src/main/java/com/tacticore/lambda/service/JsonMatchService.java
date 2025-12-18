@@ -226,12 +226,12 @@ public class JsonMatchService {
         }
         
         // Determinar si es buena jugada basado en la predicción
-        boolean isGoodPlay = false;
+        // Usa lógica compartida con PreloadedDataService y DatabaseMatchService
+        String predictedLabel = null;
         if (predictionResult != null) {
-            String predictedLabel = (String) predictionResult.get("predicted_label");
-            isGoodPlay = predictedLabel != null && 
-                (predictedLabel.contains("good") || predictedLabel.equals("precise"));
+            predictedLabel = (String) predictionResult.get("predicted_label");
         }
+        boolean isGoodPlay = PreloadedDataService.isGoodPlayFromLabel(predictedLabel);
         kill.put("isGoodPlay", isGoodPlay);
         
         // Team alive - calcular basado en la ronda
