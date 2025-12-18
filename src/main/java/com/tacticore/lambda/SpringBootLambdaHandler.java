@@ -24,6 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.tacticore.lambda.controller.ApiController;
+import com.tacticore.lambda.controller.DataController;
+import com.tacticore.lambda.controller.KillAnalysisController;
+import com.tacticore.lambda.controller.MatchController;
+import com.tacticore.lambda.controller.UserController;
+import com.tacticore.lambda.model.S3MatchUploadRequest;
+import com.tacticore.lambda.model.MatchResponse;
+import com.tacticore.lambda.service.DummyDataService;
+import com.tacticore.lambda.service.PreloadedDataService;
 
 /**
  * Handler completo de Spring Boot para AWS Lambda
@@ -53,11 +61,42 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
             // No usamos DispatcherServlet - manejamos las rutas directamente
             dispatcherServlet = null;
             
+            // Ejecutar inicialización de datos (equivalente a CommandLineRunner)
+            initializeData();
+            
             System.out.println("✅ Spring Boot initialized successfully for Lambda");
         } catch (Exception e) {
             System.err.println("❌ Error initializing Spring Boot for Lambda: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Could not initialize Spring Boot", e);
+        }
+    }
+    
+    /**
+     * Inicializa los datos de la aplicación (equivalente a CommandLineRunner).
+     * Esto es necesario porque Lambda no ejecuta CommandLineRunner automáticamente.
+     */
+    private static void initializeData() {
+        try {
+            System.out.println("📦 Initializing application data...");
+            
+            // Cargar datos dummy (maps, weapons, analytics)
+            DummyDataService dummyDataService = applicationContext.getBean(DummyDataService.class);
+            System.out.println("Inicializando datos dummy (maps, weapons, analytics)...");
+            dummyDataService.loadDummyData();
+            System.out.println("Datos dummy inicializados exitosamente!");
+            
+            // Cargar todas las partidas demo (incluye usuarios con roles aleatorios)
+            PreloadedDataService preloadedDataService = applicationContext.getBean(PreloadedDataService.class);
+            System.out.println("Inicializando todas las partidas demo (incluye usuarios con roles aleatorios)...");
+            preloadedDataService.loadAllDemoMatches();
+            System.out.println("Todas las partidas demo inicializadas exitosamente!");
+            
+            System.out.println("✅ Application data initialized successfully");
+        } catch (Exception e) {
+            System.err.println("⚠️ Error initializing data: " + e.getMessage());
+            System.err.println("La aplicación continuará sin datos iniciales.");
+            // No lanzamos excepción para que la Lambda pueda seguir funcionando
         }
     }
 
@@ -68,16 +107,21 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
         System.out.println("📨 Received request: " + method + " " + path);
 
         try {
-            // Obtener el controlador
+            // Obtener todos los controladores
             ApiController apiController = applicationContext.getBean(ApiController.class);
             HelloController helloController = applicationContext.getBean(HelloController.class);
+            MatchController matchController = applicationContext.getBean(MatchController.class);
+            UserController userController = applicationContext.getBean(UserController.class);
+            KillAnalysisController analysisController = applicationContext.getBean(KillAnalysisController.class);
+            DataController dataController = applicationContext.getBean(DataController.class);
             
             // Extraer parámetros de query
             Map<String, String> queryParams = input.getQueryStringParameters();
-            String userParam = queryParams != null ? queryParams.get("user") : null;
+            String requestBody = input.getBody();
             
             // Router simple basado en path y método
-            Object result = routeRequest(apiController, helloController, method, path, queryParams);
+            Object result = routeRequest(apiController, helloController, matchController, 
+                userController, analysisController, dataController, method, path, queryParams, requestBody);
             
             // Convertir resultado a JSON
             String body;
@@ -111,30 +155,45 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
         }
     }
     
-    private Object routeRequest(ApiController apiController, HelloController helloController, 
-                                String method, String path, Map<String, String> queryParams) throws Exception {
+    private Object routeRequest(ApiController apiController, HelloController helloController,
+                                MatchController matchController, UserController userController,
+                                KillAnalysisController analysisController, DataController dataController,
+                                String method, String path, Map<String, String> queryParams, 
+                                String requestBody) throws Exception {
         String userParam = queryParams != null ? queryParams.get("user") : null;
         
-        // Extraer IDs de los paths
+        // Patrones para extraer IDs de los paths
         java.util.regex.Pattern matchIdPattern = java.util.regex.Pattern.compile("/api/matches/([^/]+)(?:/(.*))?");
-        java.util.regex.Matcher matchIdMatcher = matchIdPattern.matcher(path);
+        java.util.regex.Pattern userNamePattern = java.util.regex.Pattern.compile("/api/users/([^/]+)(?:/(.*))?");
+        java.util.regex.Pattern analysisPattern = java.util.regex.Pattern.compile("/api/analysis/(.+)");
         
-        if ("GET".equals(method)) {
+        java.util.regex.Matcher matchIdMatcher = matchIdPattern.matcher(path);
+        java.util.regex.Matcher userNameMatcher = userNamePattern.matcher(path);
+        java.util.regex.Matcher analysisMatcher = analysisPattern.matcher(path);
+        
+        // ==================== GET / HEAD ====================
+        if ("GET".equals(method) || "HEAD".equals(method)) {
+            
+            // --- Health & Ping ---
             if ("/ping".equals(path)) {
                 return helloController.ping();
             }
             if ("/hello".equals(path)) {
                 return helloController.hello();
             }
-            if ("/api/matches".equals(path)) {
-                return apiController.getMatches(userParam).getBody();
+            if ("/api/health".equals(path)) {
+                return java.util.Map.of("status", "healthy", "message", "Tacti-Core Backend is running!");
             }
+            
+            // --- Game Data ---
             if ("/api/maps".equals(path)) {
                 return apiController.getMaps().getBody();
             }
             if ("/api/weapons".equals(path)) {
                 return apiController.getWeapons().getBody();
             }
+            
+            // --- Analytics ---
             if ("/api/analytics/dashboard".equals(path)) {
                 return apiController.getDashboardStats(userParam).getBody();
             }
@@ -147,7 +206,113 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
                 ).getBody();
             }
             
-            // Rutas con parámetros de match
+            // --- Data Management ---
+            if ("/api/data/status".equals(path)) {
+                return dataController.getDataStatus().getBody();
+            }
+            
+            // --- Users ---
+            if ("/api/users".equals(path)) {
+                return userController.getAllUsers().getBody();
+            }
+            if ("/api/users/roles".equals(path)) {
+                return userController.getAvailableRoles().getBody();
+            }
+            if ("/api/users/stats".equals(path)) {
+                return userController.getUserStatistics().getBody();
+            }
+            if ("/api/users/top/score".equals(path)) {
+                return userController.getTopPlayersByScore().getBody();
+            }
+            if ("/api/users/top/kills".equals(path)) {
+                return userController.getTopPlayersByKills().getBody();
+            }
+            if ("/api/users/top/kdr".equals(path)) {
+                return userController.getTopPlayersByKDR().getBody();
+            }
+            if ("/api/users/top/matches".equals(path)) {
+                int minMatches = queryParams != null && queryParams.get("minMatches") != null 
+                    ? Integer.parseInt(queryParams.get("minMatches")) : 5;
+                return userController.getTopPlayersByMatches(minMatches).getBody();
+            }
+            if ("/api/users/search".equals(path)) {
+                String name = queryParams != null ? queryParams.get("name") : "";
+                return userController.searchUsers(name).getBody();
+            }
+            if ("/api/users/debug/kills-users".equals(path)) {
+                return userController.getKillsUsers().getBody();
+            }
+            
+            // Users con parámetros en path
+            if (path.matches("/api/users/exists/[^/]+")) {
+                String userName = path.substring("/api/users/exists/".length());
+                return userController.userExists(userName).getBody();
+            }
+            if (path.matches("/api/users/role/[^/]+")) {
+                String role = path.substring("/api/users/role/".length());
+                return userController.getUsersByRole(role).getBody();
+            }
+            if (path.matches("/api/users/debug/[^/]+/real-stats")) {
+                String userName = path.replaceAll("/api/users/debug/([^/]+)/real-stats", "$1");
+                return userController.getRealUserStats(userName).getBody();
+            }
+            if (path.matches("/api/users/[^/]+/profile")) {
+                String userName = path.replaceAll("/api/users/([^/]+)/profile", "$1");
+                return userController.getUserProfile(userName).getBody();
+            }
+            // GET /api/users/{name} - Debe ir al final para no interferir con otras rutas
+            if (path.matches("/api/users/[^/]+")) {
+                String userName = path.substring("/api/users/".length());
+                // Excluir rutas especiales que ya fueron manejadas arriba
+                if (!userName.equals("roles") && !userName.equals("stats") && 
+                    !userName.equals("search") && !userName.equals("debug") &&
+                    !userName.startsWith("top/") && !userName.startsWith("exists/") &&
+                    !userName.startsWith("role/") && !userName.contains("/")) {
+                    return userController.getUserByName(userName).getBody();
+                }
+            }
+            
+            // --- Kill Analysis ---
+            if ("/api/analysis/overview".equals(path)) {
+                return analysisController.getOverallAnalysis().getBody();
+            }
+            if ("/api/analysis/players".equals(path)) {
+                return analysisController.getAllPlayersAnalysis().getBody();
+            }
+            if ("/api/analysis/rounds".equals(path)) {
+                return analysisController.getAllRoundsAnalysis().getBody();
+            }
+            if ("/api/analysis/users".equals(path)) {
+                return analysisController.getAllUsers().getBody();
+            }
+            if (path.matches("/api/analysis/player/[^/]+")) {
+                String playerName = path.substring("/api/analysis/player/".length());
+                return analysisController.getPlayerStats(playerName).getBody();
+            }
+            if (path.matches("/api/analysis/round/[0-9]+")) {
+                int roundNumber = Integer.parseInt(path.substring("/api/analysis/round/".length()));
+                return analysisController.getRoundAnalysis(roundNumber).getBody();
+            }
+            if (path.matches("/api/analysis/user/[^/]+/overview")) {
+                String user = path.replaceAll("/api/analysis/user/([^/]+)/overview", "$1");
+                return analysisController.getUserAnalysis(user).getBody();
+            }
+            if (path.matches("/api/analysis/user/[^/]+/kills")) {
+                String user = path.replaceAll("/api/analysis/user/([^/]+)/kills", "$1");
+                return analysisController.getUserKills(user).getBody();
+            }
+            if (path.matches("/api/analysis/user/[^/]+/round/[0-9]+")) {
+                java.util.regex.Pattern p = java.util.regex.Pattern.compile("/api/analysis/user/([^/]+)/round/([0-9]+)");
+                java.util.regex.Matcher m = p.matcher(path);
+                if (m.matches()) {
+                    return analysisController.getUserKillsByRound(m.group(1), Integer.parseInt(m.group(2))).getBody();
+                }
+            }
+            
+            // --- Matches ---
+            if ("/api/matches".equals(path)) {
+                return apiController.getMatches(userParam).getBody();
+            }
             if (matchIdMatcher.matches()) {
                 String matchId = matchIdMatcher.group(1);
                 String subPath = matchIdMatcher.group(2);
@@ -161,10 +326,99 @@ public class SpringBootLambdaHandler implements RequestHandler<APIGatewayProxyRe
                 if ("chat".equals(subPath)) {
                     return apiController.getMatchChat(matchId).getBody();
                 }
+                if ("status".equals(subPath)) {
+                    return matchController.getMatchStatus(matchId).getBody();
+                }
+            }
+        }
+        
+        // ==================== POST ====================
+        if ("POST".equals(method)) {
+            if ("/api/matches/s3".equals(path)) {
+                return handleS3MatchUpload(matchController, requestBody);
+            }
+            if ("/api/users".equals(path)) {
+                return handleCreateUser(userController, requestBody);
+            }
+            if ("/api/data/load".equals(path)) {
+                String fileName = "example.json"; // Default
+                return dataController.loadData(fileName).getBody();
+            }
+            if ("/api/data/reload-preloaded".equals(path)) {
+                return dataController.reloadPreloadedData().getBody();
+            }
+            if ("/api/data/reload-dummy".equals(path)) {
+                return dataController.reloadDummyData().getBody();
+            }
+            if ("/api/users/debug/reload-kills".equals(path)) {
+                return userController.reloadKills().getBody();
+            }
+            if ("/api/users/debug/update-stats".equals(path)) {
+                return userController.updateUserStats().getBody();
+            }
+            // POST chat message
+            if (path.matches("/api/matches/[^/]+/chat")) {
+                String matchId = path.replaceAll("/api/matches/([^/]+)/chat", "$1");
+                return handleChatMessage(apiController, matchId, requestBody);
+            }
+        }
+        
+        // ==================== DELETE ====================
+        if ("DELETE".equals(method)) {
+            if ("/api/data/clear".equals(path)) {
+                return dataController.clearData().getBody();
+            }
+            if (path.matches("/api/matches/[^/]+")) {
+                String matchId = path.substring("/api/matches/".length());
+                return apiController.deleteMatch(matchId).getBody();
             }
         }
         
         throw new IllegalArgumentException("Route not found: " + method + " " + path);
+    }
+    
+    /**
+     * Maneja el upload de match desde S3
+     */
+    private Object handleS3MatchUpload(MatchController matchController, String requestBody) throws Exception {
+        if (requestBody == null || requestBody.trim().isEmpty()) {
+            return java.util.Map.of("error", "Request body is required");
+        }
+        
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        S3MatchUploadRequest request = mapper.readValue(requestBody, S3MatchUploadRequest.class);
+        
+        org.springframework.http.ResponseEntity<MatchResponse> response = matchController.uploadMatchFromS3(request);
+        return response.getBody();
+    }
+    
+    /**
+     * Maneja la creación de usuarios
+     */
+    private Object handleCreateUser(UserController userController, String requestBody) throws Exception {
+        if (requestBody == null || requestBody.trim().isEmpty()) {
+            return java.util.Map.of("error", "Request body is required");
+        }
+        
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        UserController.CreateUserRequest request = mapper.readValue(requestBody, UserController.CreateUserRequest.class);
+        
+        return userController.createOrGetUser(request).getBody();
+    }
+    
+    /**
+     * Maneja el envío de mensajes de chat
+     */
+    private Object handleChatMessage(ApiController apiController, String matchId, String requestBody) throws Exception {
+        if (requestBody == null || requestBody.trim().isEmpty()) {
+            return java.util.Map.of("error", "Request body is required");
+        }
+        
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, String> request = mapper.readValue(requestBody, java.util.Map.class);
+        
+        return apiController.sendChatMessage(matchId, request).getBody();
     }
 
     /**
