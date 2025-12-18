@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: "${SERVER_PORT:8080}"
 
 spring:
   application:
@@ -16,11 +16,11 @@ spring:
 
 # Configuraciones de simulación ML
 simulation:
-  enabled: false
-  json-directory: demos-jsons
+  enabled: "${SIMULATION_ENABLED:false}"
+  json-directory: "${SIMULATION_JSON_DIRECTORY:demos-jsons}"
 
 # Configuración del servicio ML
 ml:
   service:
-    url: http://3.91.78.196:8000
-    file-param-name: demo_file
+    url: "${ML_SERVICE_URL:http://3.91.78.196:8000}"
+    file-param-name: "${ML_SERVICE_FILE_PARAM_NAME:demo_file}"
