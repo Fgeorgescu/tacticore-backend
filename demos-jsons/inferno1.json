@@ -174,27 +174,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9647485642460136,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9647485642460136
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.02396453720667283
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.011267310822282972
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9647485642460136,
-          "good_positioning": 0.02396453720667283,
-          "other": 1.9587725030645737e-05,
-          "precise": 0.011267310822282972
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -369,26 +369,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -563,26 +563,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9840432871408317,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9840432871408317
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.010155744666907331
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.005789489409588319
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9840432871408317,
-          "good_positioning": 0.010155744666907331,
-          "other": 1.1478782672710016e-05,
-          "precise": 0.005789489409588319
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -754,27 +754,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -946,27 +946,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.49808435474040164,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.49808435474040164
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.41665773685914964
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.08521465341552496
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.49808435474040164,
-          "good_positioning": 0.41665773685914964,
-          "other": 4.325498492378195e-05,
-          "precise": 0.08521465341552496
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -1138,27 +1138,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -1330,27 +1330,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9671622550948092,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9671622550948092
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.025401903898552066
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.007415078431316339
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9671622550948092,
-          "good_positioning": 0.025401903898552066,
-          "other": 2.0762575322388463e-05,
-          "precise": 0.007415078431316339
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -1524,26 +1524,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -1718,27 +1718,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.6499343787003629,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.6499343787003629
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.34308725902376963
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.006942116056878212
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6499343787003629,
-          "good_positioning": 0.34308725902376963,
-          "other": 3.624621898927884e-05,
-          "precise": 0.006942116056878212
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -1913,26 +1913,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9647485642460136,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9647485642460136
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02396453720667283
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011267310822282972
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9647485642460136,
-          "good_positioning": 0.02396453720667283,
-          "other": 1.9587725030645737e-05,
-          "precise": 0.011267310822282972
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -2106,26 +2106,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8899663724941278,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8899663724941278
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.09461938947791808
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.01539027060897015
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8899663724941278,
-          "good_positioning": 0.09461938947791808,
-          "other": 2.3967418983830425e-05,
-          "precise": 0.01539027060897015
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -2495,26 +2495,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.722612690537866,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.722612690537866
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.26777013109992964
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.00958823207767644
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.722612690537866,
-          "good_positioning": 0.26777013109992964,
-          "other": 2.8946284527874243e-05,
-          "precise": 0.00958823207767644
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -2884,27 +2884,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -3080,26 +3080,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -3275,26 +3275,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -3663,26 +3663,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9671622550948092,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9671622550948092
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025401903898552066
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007415078431316339
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9671622550948092,
-          "good_positioning": 0.025401903898552066,
-          "other": 2.0762575322388463e-05,
-          "precise": 0.007415078431316339
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -3857,26 +3857,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8899663724941278,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8899663724941278
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.09461938947791808
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.01539027060897015
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8899663724941278,
-          "good_positioning": 0.09461938947791808,
-          "other": 2.3967418983830425e-05,
-          "precise": 0.01539027060897015
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -4051,27 +4051,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9855356931947291,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9855356931947291
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010866080854560608
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.00358594429291737
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9855356931947291,
-          "good_positioning": 0.010866080854560608,
-          "other": 1.2281657793153197e-05,
-          "precise": 0.00358594429291737
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -4244,26 +4244,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -4438,26 +4438,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6809962863140341,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6809962863140341
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.3116716356498805
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007273896271418222
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6809962863140341,
-          "good_positioning": 0.3116716356498805,
-          "other": 5.818176466724165e-05,
-          "precise": 0.007273896271418222
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -4630,26 +4630,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.5161585681371671,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.5161585681371671
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.44012009850750483
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.043652799944484975
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.5161585681371671,
-          "good_positioning": 0.44012009850750483,
-          "other": 6.853341084307597e-05,
-          "precise": 0.043652799944484975
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -4822,26 +4822,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9121914869997643,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9121914869997643
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.08551757044310349
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.002277397421834312
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9121914869997643,
-          "good_positioning": 0.08551757044310349,
-          "other": 1.3545135297754621e-05,
-          "precise": 0.002277397421834312
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5016,26 +5016,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6809962863140341,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6809962863140341
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.3116716356498805
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007273896271418222
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6809962863140341,
-          "good_positioning": 0.3116716356498805,
-          "other": 5.818176466724165e-05,
-          "precise": 0.007273896271418222
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5208,26 +5208,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9808579458968998,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9808579458968998
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.010018252748897323
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.009112227357932677
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9808579458968998,
-          "good_positioning": 0.010018252748897323,
-          "other": 1.1573996270235103e-05,
-          "precise": 0.009112227357932677
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5400,26 +5400,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9651748287842539,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9651748287842539
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.022653351648873457
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012152893746548247
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9651748287842539,
-          "good_positioning": 0.022653351648873457,
-          "other": 1.8925820324415048e-05,
-          "precise": 0.012152893746548247
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5593,27 +5593,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5788,26 +5788,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -5982,26 +5982,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -6370,26 +6370,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -6565,26 +6565,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.48352377835126314,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.48352377835126314
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.4755415190164311
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.04089279548520454
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.48352377835126314,
-          "good_positioning": 0.4755415190164311,
-          "other": 4.190714710110951e-05,
-          "precise": 0.04089279548520454
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -6759,27 +6759,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.6499343787003629,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.6499343787003629
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.34308725902376963
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.006942116056878212
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6499343787003629,
-          "good_positioning": 0.34308725902376963,
-          "other": 3.624621898927884e-05,
-          "precise": 0.006942116056878212
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -6954,27 +6954,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -7150,26 +7150,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.7327113635180267,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.7327113635180267
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.25702800026864164
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0102297532158368
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.7327113635180267,
-          "good_positioning": 0.25702800026864164,
-          "other": 3.088299749491532e-05,
-          "precise": 0.0102297532158368
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -7342,26 +7342,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -7537,26 +7537,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.7327113635180267,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.7327113635180267
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.25702800026864164
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0102297532158368
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.7327113635180267,
-          "good_positioning": 0.25702800026864164,
-          "other": 3.088299749491532e-05,
-          "precise": 0.0102297532158368
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -7732,26 +7732,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9671622550948092,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9671622550948092
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025401903898552066
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007415078431316339
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9671622550948092,
-          "good_positioning": 0.025401903898552066,
-          "other": 2.0762575322388463e-05,
-          "precise": 0.007415078431316339
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -7925,27 +7925,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9868774038343738,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9868774038343738
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010880873962912213
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.0022294238246428804
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9868774038343738,
-          "good_positioning": 0.010880873962912213,
-          "other": 1.229837807132002e-05,
-          "precise": 0.0022294238246428804
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -8120,26 +8120,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9676825242630718,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9676825242630718
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025415568438647555
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.00688113355406938
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9676825242630718,
-          "good_positioning": 0.025415568438647555,
-          "other": 2.0773744211307633e-05,
-          "precise": 0.00688113355406938
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -8313,27 +8313,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -8507,27 +8507,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -8702,26 +8702,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -8897,26 +8897,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9671622550948092,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9671622550948092
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025401903898552066
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007415078431316339
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9671622550948092,
-          "good_positioning": 0.025401903898552066,
-          "other": 2.0762575322388463e-05,
-          "precise": 0.007415078431316339
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -9091,26 +9091,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6809962863140341,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6809962863140341
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.3116716356498805
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007273896271418222
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6809962863140341,
-          "good_positioning": 0.3116716356498805,
-          "other": 5.818176466724165e-05,
-          "precise": 0.007273896271418222
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -9283,26 +9283,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9647485642460136,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9647485642460136
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02396453720667283
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011267310822282972
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9647485642460136,
-          "good_positioning": 0.02396453720667283,
-          "other": 1.9587725030645737e-05,
-          "precise": 0.011267310822282972
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -9475,27 +9475,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -9671,26 +9671,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -9864,26 +9864,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -10059,26 +10059,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.49808435474040164,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.49808435474040164
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.41665773685914964
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.08521465341552496
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.49808435474040164,
-          "good_positioning": 0.41665773685914964,
-          "other": 4.325498492378195e-05,
-          "precise": 0.08521465341552496
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -10251,27 +10251,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -10447,26 +10447,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -10641,26 +10641,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -10834,27 +10834,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9868774038343738,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9868774038343738
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010880873962912213
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.0022294238246428804
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9868774038343738,
-          "good_positioning": 0.010880873962912213,
-          "other": 1.229837807132002e-05,
-          "precise": 0.0022294238246428804
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -11031,26 +11031,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -11225,27 +11225,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9760550205151655,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
+            "label": "other",
+            "confidence": 0.75
+          },
+          {
             "label": "good_decision",
-            "confidence": 0.9760550205151655
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.014078413535301003
-          },
-          {
-            "label": "good_positioning",
-            "confidence": 0.009855180349323193
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9760550205151655,
-          "good_positioning": 0.009855180349323193,
-          "other": 1.1385600210387541e-05,
-          "precise": 0.014078413535301003
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -11421,26 +11421,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6808427013534573,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6808427013534573
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.31160134440624787
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007472530883218145
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6808427013534573,
-          "good_positioning": 0.31160134440624787,
-          "other": 8.342335707671144e-05,
-          "precise": 0.007472530883218145
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -11616,26 +11616,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -11809,26 +11809,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12004,26 +12004,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12197,26 +12197,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12389,26 +12389,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.7327113635180267,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.7327113635180267
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.25702800026864164
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0102297532158368
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.7327113635180267,
-          "good_positioning": 0.25702800026864164,
-          "other": 3.088299749491532e-05,
-          "precise": 0.0102297532158368
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12583,26 +12583,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12777,26 +12777,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9121914869997643,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9121914869997643
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.08551757044310349
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.002277397421834312
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9121914869997643,
-          "good_positioning": 0.08551757044310349,
-          "other": 1.3545135297754621e-05,
-          "precise": 0.002277397421834312
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -12969,26 +12969,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -13163,26 +13163,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -13356,27 +13356,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9817792087230093,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9817792087230093
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010132378416034295
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.008076960488569191
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9817792087230093,
-          "good_positioning": 0.010132378416034295,
-          "other": 1.1452372387256346e-05,
-          "precise": 0.008076960488569191
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -13550,27 +13550,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -13743,26 +13743,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9647485642460136,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9647485642460136
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02396453720667283
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011267310822282972
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9647485642460136,
-          "good_positioning": 0.02396453720667283,
-          "other": 1.9587725030645737e-05,
-          "precise": 0.011267310822282972
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -13936,27 +13936,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.6808427013534573,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.6808427013534573
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.31160134440624787
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.007472530883218145
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6808427013534573,
-          "good_positioning": 0.31160134440624787,
-          "other": 8.342335707671144e-05,
-          "precise": 0.007472530883218145
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -14129,26 +14129,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.722612690537866,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.722612690537866
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.26777013109992964
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.00958823207767644
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.722612690537866,
-          "good_positioning": 0.26777013109992964,
-          "other": 2.8946284527874243e-05,
-          "precise": 0.00958823207767644
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -14321,26 +14321,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9627203288136812,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9627203288136812
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02259574275844521
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.014665050737094086
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9627203288136812,
-          "good_positioning": 0.02259574275844521,
-          "other": 1.8877690779337857e-05,
-          "precise": 0.014665050737094086
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -14515,26 +14515,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9645192630570558,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9645192630570558
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02263796504687735
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012823858930531657
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9645192630570558,
-          "good_positioning": 0.02263796504687735,
-          "other": 1.8912965535009253e-05,
-          "precise": 0.012823858930531657
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -14709,26 +14709,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6808427013534573,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6808427013534573
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.31160134440624787
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007472530883218145
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6808427013534573,
-          "good_positioning": 0.31160134440624787,
-          "other": 8.342335707671144e-05,
-          "precise": 0.007472530883218145
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -14903,27 +14903,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9627203288136812,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9627203288136812
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.02259574275844521
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.014665050737094086
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9627203288136812,
-          "good_positioning": 0.02259574275844521,
-          "other": 1.8877690779337857e-05,
-          "precise": 0.014665050737094086
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -15098,26 +15098,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -15292,26 +15292,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -15486,26 +15486,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9647485642460136,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9647485642460136
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.02396453720667283
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011267310822282972
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9647485642460136,
-          "good_positioning": 0.02396453720667283,
-          "other": 1.9587725030645737e-05,
-          "precise": 0.011267310822282972
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -15680,26 +15680,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8899663724941278,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8899663724941278
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.09461938947791808
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.01539027060897015
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8899663724941278,
-          "good_positioning": 0.09461938947791808,
-          "other": 2.3967418983830425e-05,
-          "precise": 0.01539027060897015
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -15871,27 +15871,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -16066,26 +16066,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9803583314069836,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9803583314069836
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.01001314980380937
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.00961695068832281
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9803583314069836,
-          "good_positioning": 0.01001314980380937,
-          "other": 1.1568100884193692e-05,
-          "precise": 0.00961695068832281
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -16261,26 +16261,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -16454,26 +16454,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8318724191889468,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8318724191889468
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.1610578049176959
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007048496888917895
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8318724191889468,
-          "good_positioning": 0.1610578049176959,
-          "other": 2.127900443931734e-05,
-          "precise": 0.007048496888917895
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -16648,27 +16648,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.8383139607984399,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.8383139607984399
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.15784058617409563
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.003822716917668001
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8383139607984399,
-          "good_positioning": 0.15784058617409563,
-          "other": 2.2736109796587404e-05,
-          "precise": 0.003822716917668001
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -16842,27 +16842,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "other",
-        "confidence": 0.75,
+        "predicted_label": "good_decision",
+        "confidence": 0.95,
         "top_predictions": [
           {
-            "label": "other",
-            "confidence": 0.75
+            "label": "good_decision",
+            "confidence": 0.95
           },
           {
-            "label": "good_decision",
-            "confidence": 0.15
+            "label": "good_positioning",
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.05
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.15,
-          "good_positioning": 0.05,
-          "precise": 0.05,
-          "other": 0.75
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -17037,26 +17037,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -17232,26 +17232,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8318724191889468,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8318724191889468
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.1610578049176959
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007048496888917895
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8318724191889468,
-          "good_positioning": 0.1610578049176959,
-          "other": 2.127900443931734e-05,
-          "precise": 0.007048496888917895
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -17425,26 +17425,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9442499246550955,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9442499246550955
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.04368706748524433
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.012047705333601638
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9442499246550955,
-          "good_positioning": 0.04368706748524433,
-          "other": 1.5302526058528055e-05,
-          "precise": 0.012047705333601638
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -17618,26 +17618,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8899663724941278,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8899663724941278
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.09461938947791808
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.01539027060897015
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8899663724941278,
-          "good_positioning": 0.09461938947791808,
-          "other": 2.3967418983830425e-05,
-          "precise": 0.01539027060897015
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -17813,26 +17813,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6808279689826308,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6808279689826308
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.31159460184067916
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007472369189341181
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6808279689826308,
-          "good_positioning": 0.31159460184067916,
-          "other": 0.00010505998734900022,
-          "precise": 0.007472369189341181
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -18005,27 +18005,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.5155103497225421,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.5155103497225421
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.43956737310467225
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.04479864986707853
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.5155103497225421,
-          "good_positioning": 0.43956737310467225,
-          "other": 0.0001236273057071251,
-          "precise": 0.04479864986707853
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -18202,26 +18202,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.8489252191087635,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.8489252191087635
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.14386007956098953
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007192986121172229
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.8489252191087635,
-          "good_positioning": 0.14386007956098953,
-          "other": 2.1715209074579025e-05,
-          "precise": 0.007192986121172229
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -18592,27 +18592,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9817792087230093,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9817792087230093
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010132378416034295
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.008076960488569191
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9817792087230093,
-          "good_positioning": 0.010132378416034295,
-          "other": 1.1452372387256346e-05,
-          "precise": 0.008076960488569191
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -18784,27 +18784,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.5155234762956992,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.5155234762956992
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.4395785659222047
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.044799790586668616
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.5155234762956992,
-          "good_positioning": 0.4395785659222047,
-          "other": 9.816719542750898e-05,
-          "precise": 0.044799790586668616
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -18977,26 +18977,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9789864691969568,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9789864691969568
-          },
-          {
-            "label": "precise",
-            "confidence": 0.011002840964638286
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.009999137925316464
+            "confidence": 0.03
+          },
+          {
+            "label": "precise",
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9789864691969568,
-          "good_positioning": 0.009999137925316464,
-          "other": 1.1551913088429233e-05,
-          "precise": 0.011002840964638286
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -19168,27 +19168,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -19364,26 +19364,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -19558,27 +19558,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9868774038343738,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9868774038343738
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010880873962912213
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.0022294238246428804
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9868774038343738,
-          "good_positioning": 0.010880873962912213,
-          "other": 1.229837807132002e-05,
-          "precise": 0.0022294238246428804
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -19754,26 +19754,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.7327113635180267,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.7327113635180267
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.25702800026864164
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.0102297532158368
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.7327113635180267,
-          "good_positioning": 0.25702800026864164,
-          "other": 3.088299749491532e-05,
-          "precise": 0.0102297532158368
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -19949,26 +19949,26 @@
       },
       "prediction": {
         "predicted_label": "good_decision",
-        "confidence": 0.6809962863140341,
+        "confidence": 0.95,
         "top_predictions": [
           {
             "label": "good_decision",
-            "confidence": 0.6809962863140341
+            "confidence": 0.95
           },
           {
             "label": "good_positioning",
-            "confidence": 0.3116716356498805
+            "confidence": 0.03
           },
           {
             "label": "precise",
-            "confidence": 0.007273896271418222
+            "confidence": 0.01
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.6809962863140341,
-          "good_positioning": 0.3116716356498805,
-          "other": 5.818176466724165e-05,
-          "precise": 0.007273896271418222
+          "good_decision": 0.95,
+          "good_positioning": 0.03,
+          "precise": 0.01,
+          "other": 0.01
         }
       }
     },
@@ -20140,27 +20140,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.49808435474040164,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.49808435474040164
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.41665773685914964
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.08521465341552496
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.49808435474040164,
-          "good_positioning": 0.41665773685914964,
-          "other": 4.325498492378195e-05,
-          "precise": 0.08521465341552496
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -20334,27 +20334,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9220257745117229,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9220257745117229
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.07565858440227122
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.0023019499213308542
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9220257745117229,
-          "good_positioning": 0.07565858440227122,
-          "other": 1.3691164675144033e-05,
-          "precise": 0.0023019499213308542
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -20526,27 +20526,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9855356931947291,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9855356931947291
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.010866080854560608
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.00358594429291737
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9855356931947291,
-          "good_positioning": 0.010866080854560608,
-          "other": 1.2281657793153197e-05,
-          "precise": 0.00358594429291737
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     },
@@ -20720,27 +20720,27 @@
         "is_clutch_situation": false
       },
       "prediction": {
-        "predicted_label": "good_decision",
-        "confidence": 0.9628026525722463,
+        "predicted_label": "other",
+        "confidence": 0.75,
         "top_predictions": [
           {
-            "label": "good_decision",
-            "confidence": 0.9628026525722463
+            "label": "other",
+            "confidence": 0.75
           },
           {
-            "label": "good_positioning",
-            "confidence": 0.025287401700259417
+            "label": "good_decision",
+            "confidence": 0.15
           },
           {
             "label": "precise",
-            "confidence": 0.011889276742027574
+            "confidence": 0.05
           }
         ],
         "all_probabilities": {
-          "good_decision": 0.9628026525722463,
-          "good_positioning": 0.025287401700259417,
-          "other": 2.0668985466835718e-05,
-          "precise": 0.011889276742027574
+          "good_decision": 0.15,
+          "good_positioning": 0.05,
+          "precise": 0.05,
+          "other": 0.75
         }
       }
     }
