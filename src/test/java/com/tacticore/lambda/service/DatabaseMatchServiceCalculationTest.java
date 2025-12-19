@@ -223,53 +223,48 @@ class DatabaseMatchServiceCalculationTest {
     }
     
     // ============================================
-    // Tests para calculatePlaysFromPredictions con predicted_label
+    // Tests para calculatePlaysFromPredictions con attacker_strengths (ML real)
     // ============================================
     
     @Test
-    void testCalculatePlaysFromPredictions_AllGoodDecisions() {
-        // Given - All predictions are "good_decision"
-        Map<String, Object> mlResponse = createMockMLResponse(10, "good_decision");
+    void testCalculatePlaysFromPredictions_AllWithStrengths() {
+        // Given - All predictions have attacker_strengths (good plays)
+        Map<String, Object> mlResponse = createMockMLResponseWithStrengths(10, true);
         
         // When
         int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
         
         // Then
-        assertEquals(10, plays[0], "All 10 predictions should be counted as goodPlays");
+        assertEquals(10, plays[0], "All 10 predictions with attacker_strengths should be goodPlays");
         assertEquals(0, plays[1], "No predictions should be counted as badPlays");
     }
     
     @Test
-    void testCalculatePlaysFromPredictions_AllOther() {
-        // Given - All predictions are "other"
-        Map<String, Object> mlResponse = createMockMLResponse(10, "other");
+    void testCalculatePlaysFromPredictions_AllWithoutStrengths() {
+        // Given - All predictions have empty attacker_strengths (bad plays)
+        Map<String, Object> mlResponse = createMockMLResponseWithStrengths(10, false);
         
         // When
         int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
         
         // Then
         assertEquals(0, plays[0], "No predictions should be counted as goodPlays");
-        assertEquals(10, plays[1], "All 10 predictions should be counted as badPlays");
+        assertEquals(10, plays[1], "All 10 predictions without attacker_strengths should be badPlays");
     }
     
     @Test
-    void testCalculatePlaysFromPredictions_MixedLabels() {
-        // Given - Mixed predictions
+    void testCalculatePlaysFromPredictions_MixedStrengths() {
+        // Given - Mixed predictions: 7 with strengths, 3 without
         Map<String, Object> mlResponse = new HashMap<>();
         List<Map<String, Object>> predictions = new ArrayList<>();
         
-        // 5 good_decision, 3 good_positioning, 2 precise, 5 other
-        for (int i = 0; i < 5; i++) {
-            predictions.add(createPrediction("good_decision"));
+        // 7 with attacker_strengths
+        for (int i = 0; i < 7; i++) {
+            predictions.add(createPredictionWithStrengths(true));
         }
+        // 3 without attacker_strengths
         for (int i = 0; i < 3; i++) {
-            predictions.add(createPrediction("good_positioning"));
-        }
-        for (int i = 0; i < 2; i++) {
-            predictions.add(createPrediction("precise"));
-        }
-        for (int i = 0; i < 5; i++) {
-            predictions.add(createPrediction("other"));
+            predictions.add(createPredictionWithStrengths(false));
         }
         
         mlResponse.put("predictions", predictions);
@@ -277,9 +272,9 @@ class DatabaseMatchServiceCalculationTest {
         // When
         int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
         
-        // Then - good_decision, good_positioning, and precise are all "good"
-        assertEquals(10, plays[0], "5 good_decision + 3 good_positioning + 2 precise = 10 goodPlays");
-        assertEquals(5, plays[1], "5 other = 5 badPlays");
+        // Then
+        assertEquals(7, plays[0], "7 predictions with attacker_strengths = 7 goodPlays");
+        assertEquals(3, plays[1], "3 predictions without attacker_strengths = 3 badPlays");
     }
     
     @Test
@@ -297,8 +292,44 @@ class DatabaseMatchServiceCalculationTest {
     }
     
     @Test
+    void testCalculatePlaysFromPredictions_VariousStrengthTypes() {
+        // Given - Test various attacker_strengths types from real ML model
+        Map<String, Object> mlResponse = new HashMap<>();
+        List<Map<String, Object>> predictions = new ArrayList<>();
+        
+        // Prediction with "precise"
+        Map<String, Object> pred1 = new HashMap<>();
+        Map<String, Object> strengths1 = new HashMap<>();
+        strengths1.put("precise", 0.97);
+        pred1.put("attacker_strengths", strengths1);
+        predictions.add(pred1);
+        
+        // Prediction with "good_peek" and "good_positioning"
+        Map<String, Object> pred2 = new HashMap<>();
+        Map<String, Object> strengths2 = new HashMap<>();
+        strengths2.put("good_peek", 0.54);
+        strengths2.put("good_positioning", 0.55);
+        pred2.put("attacker_strengths", strengths2);
+        predictions.add(pred2);
+        
+        // Prediction with empty strengths (bad play)
+        Map<String, Object> pred3 = new HashMap<>();
+        pred3.put("attacker_strengths", new HashMap<>());
+        predictions.add(pred3);
+        
+        mlResponse.put("predictions", predictions);
+        
+        // When
+        int[] plays = invokeCalculatePlaysFromPredictions(mlResponse);
+        
+        // Then
+        assertEquals(2, plays[0], "2 predictions with attacker_strengths = 2 goodPlays");
+        assertEquals(1, plays[1], "1 prediction with empty attacker_strengths = 1 badPlay");
+    }
+    
+    @Test
     void testIsGoodPlayFromLabel_ConsistencyWithPreloadedDataService() {
-        // Verify that the logic is consistent across services
+        // This test verifies PreloadedDataService logic for demo JSONs (different from ML real)
         assertTrue(PreloadedDataService.isGoodPlayFromLabel("good_decision"));
         assertTrue(PreloadedDataService.isGoodPlayFromLabel("good_positioning"));
         assertTrue(PreloadedDataService.isGoodPlayFromLabel("precise"));
@@ -308,23 +339,30 @@ class DatabaseMatchServiceCalculationTest {
     }
     
     // Helper methods for new tests
-    private Map<String, Object> createMockMLResponse(int count, String predictedLabel) {
+    private Map<String, Object> createMockMLResponseWithStrengths(int count, boolean hasStrengths) {
         Map<String, Object> mlResponse = new HashMap<>();
         List<Map<String, Object>> predictions = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
-            predictions.add(createPrediction(predictedLabel));
+            predictions.add(createPredictionWithStrengths(hasStrengths));
         }
         
         mlResponse.put("predictions", predictions);
         return mlResponse;
     }
     
-    private Map<String, Object> createPrediction(String predictedLabel) {
+    private Map<String, Object> createPredictionWithStrengths(boolean hasStrengths) {
         Map<String, Object> prediction = new HashMap<>();
-        Map<String, Object> predictionResult = new HashMap<>();
-        predictionResult.put("predicted_label", predictedLabel);
-        prediction.put("prediction", predictionResult);
+        Map<String, Object> attackerStrengths = new HashMap<>();
+        
+        if (hasStrengths) {
+            // Simulate real ML response with strengths
+            attackerStrengths.put("precise", 0.95);
+            attackerStrengths.put("good_peek", 0.60);
+        }
+        // If !hasStrengths, attackerStrengths remains empty (bad play)
+        
+        prediction.put("attacker_strengths", attackerStrengths);
         return prediction;
     }
     

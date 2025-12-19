@@ -252,9 +252,9 @@ public class DatabaseMatchService {
     
     /**
      * Calcula goodPlays y badPlays desde las predicciones del modelo ML.
-     * Usa el campo prediction.predicted_label para determinar si es una buena jugada.
-     * Esta lógica es consistente con PreloadedDataService.isGoodPlayFromLabel()
-     * y JsonMatchService.transformPredictionToKill()
+     * El modelo ML real devuelve attacker_strengths (objeto con fortalezas detectadas).
+     * Si attacker_strengths tiene alguna clave (precise, good_peek, good_positioning, good_decision)
+     * entonces es una buena jugada.
      */
     private int[] calculatePlaysFromPredictions(Map<String, Object> mlResponse) {
         int goodPlays = 0;
@@ -265,18 +265,17 @@ public class DatabaseMatchService {
         
         if (predictions != null) {
             for (Map<String, Object> prediction : predictions) {
-                // Obtener el resultado de la predicción del modelo ML
+                boolean isGoodPlay = false;
+                
+                // El modelo ML real devuelve attacker_strengths con las fortalezas detectadas
                 @SuppressWarnings("unchecked")
-                Map<String, Object> predictionResult = (Map<String, Object>) prediction.get("prediction");
+                Map<String, Object> attackerStrengths = (Map<String, Object>) prediction.get("attacker_strengths");
                 
-                String predictedLabel = null;
-                if (predictionResult != null) {
-                    predictedLabel = (String) predictionResult.get("predicted_label");
+                if (attackerStrengths != null && !attackerStrengths.isEmpty()) {
+                    // Si tiene alguna fortaleza detectada (precise, good_peek, good_positioning, good_decision)
+                    // es una buena jugada
+                    isGoodPlay = true;
                 }
-                
-                // Usar la misma lógica que PreloadedDataService.isGoodPlayFromLabel()
-                boolean isGoodPlay = predictedLabel != null && 
-                    (predictedLabel.contains("good") || predictedLabel.equals("precise"));
                 
                 if (isGoodPlay) {
                     goodPlays++;
